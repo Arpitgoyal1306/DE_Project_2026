@@ -1,0 +1,27 @@
+{
+  "team_number": "T0032",
+  "group_lead": {
+    "name": "Arpit Goyal",
+    "enrollment_no": "2501010086",
+    "github": "Arpitgoyal1306"
+  },
+  "members": [
+    {
+      "name": "Arnav Goyal",
+      "enrollment_no": "2501010081",
+      "github": "arnav120404"
+    },
+    {
+      "name": "Arpit Chhimpa",
+      "enrollment_no": "2501010083",
+      "github": "arpitchhimpa60"
+    },
+    {
+      "name": "Pranay Raut",
+      "enrollment_no": "2501010341",
+      "github": "Pranayraut18206"
+    }
+  ],
+  "postgres_version": "18.6",
+  "laptop_used_for_benchmarks": "MacBook Pro (Mac16,1)"
+}
