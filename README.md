@@ -18,16 +18,18 @@
 
 ---
 
-## Team details (fill in before you start)
+## Team details
 
 | Role | Name | Enrollment No. | GitHub Username |
 |------|------|----------------|-----------------|
-| Group Lead | | | |
-| Member 2 | | | |
-| Member 3 | | | |
-| Member 4 | | | |
+| Group Lead | Arpit Goyal | 2501010086 | [Arpitgoyal1306](https://github.com/Arpitgoyal1306) |
+| Member 2 | Arnav Goyal | 2501010081 | [arnav120404](https://github.com/arnav120404) |
+| Member 3 | Arpit Chhimpa | 2501010083 | [arpitchhimpa60](https://github.com/arpitchhimpa60) |
+| Member 4 | Pranay Raut | 2501010341 | [Pranayraut18206](https://github.com/Pranayraut18206) |
 
-**Team No.:** ____ · **Section:** ____ · **Repository URL:** ____
+**Team No.:** T0032 · **Section:** B · **Mentor:** Ritesh  
+**DE Repository:** https://github.com/Arpitgoyal1306/DE_Project_2026  
+**AP Repository:** https://github.com/Arpitgoyal1306/InvenKai_AP_2026
 
 ---
 
