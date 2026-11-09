@@ -13,7 +13,7 @@ The platform must also support business reporting, including theatre occupancy, 
 The project addresses eight major business problems:
 
 - **P1 – Movie Discovery and Showtime Search:** Customers need to find currently showing movies, theatres, and showtimes efficiently.
-- **P2 – Seat Availability and Booking:** Customers need accurate seat layouts and availability. The system must prevent duplicate seat allocation for a show.
+- **P2 – Seat Availability and Booking:** Customers need accurate seat layouts and availability. The system must prevent duplicate seat allocation for a show, even when multiple customers attempt to book the same seat concurrently.
 - **P3 – Pending Payments and Seat Expiry:** The booking process must track pending payments, booking confirmation, and temporary seat reservations.
 - **P4 – Customer Bookings and Account Access:** Customers and support teams need reliable access to customer details and booking history.
 - **P5 – Theatre Occupancy and Operations:** Theatre operators need occupancy reports, information about unsold seats, and gaps between consecutive shows.
@@ -32,9 +32,11 @@ The project addresses eight major business problems:
 
 ## 4. Workload Classification
 
-**Operational and Customer-facing Workloads (P1–P4):** These include movie searches, seat availability, booking creation, payment-status tracking, and booking lookup. They require timely responses and strong transactional consistency.
+**Operational and Customer-facing Workloads (P1–P4):** These include movie searches, showtime lookup, seat availability, booking creation, payment-status tracking, and customer booking lookup. They require timely responses and strong transactional consistency.
 
-**Reporting and Analytical Workloads (P5–P8):** These involve aggregating booking, show, customer, and movie data to analyze theatre operations, unused offers, box-office collections, and business performance.
+**Operational and Analytical Workloads (P5):** Theatre operations include interactive tasks such as checking seat availability and planning gaps between consecutive shows, as well as analytical tasks such as calculating occupancy and identifying seats that have never been sold. The workload type depends on the query and its response-time requirements.
+
+**Reporting and Analytical Workloads (P6–P8):** These involve aggregating booking, show, customer, and movie data to analyze unused offers, box-office collections, revenue distribution, ratings, customer loyalty, booking patterns, and cancellations.
 
 ## 5. Assumptions and Project Scope
 

@@ -1,0 +1,102 @@
+{
+    "dataset_directory": "seed_data",
+    "expected_row_counts": {
+        "cities": 10,
+        "venues": 140,
+        "screens": 490,
+        "seats": 94056,
+        "movies": 300,
+        "shows": 160034,
+        "customers": 40000,
+        "offers": 25,
+        "bookings": 150094,
+        "booking_seats": 300389,
+        "movie_reviews": 32510
+    },
+    "row_counts": {
+        "cities": 10,
+        "venues": 140,
+        "screens": 490,
+        "seats": 94056,
+        "movies": 300,
+        "shows": 160034,
+        "customers": 40000,
+        "offers": 25,
+        "bookings": 150094,
+        "booking_seats": 300389,
+        "movie_reviews": 32510
+    },
+    "row_count_results": {
+        "cities": {
+            "expected": 10,
+            "actual": 10,
+            "status": "PASSED"
+        },
+        "venues": {
+            "expected": 140,
+            "actual": 140,
+            "status": "PASSED"
+        },
+        "screens": {
+            "expected": 490,
+            "actual": 490,
+            "status": "PASSED"
+        },
+        "seats": {
+            "expected": 94056,
+            "actual": 94056,
+            "status": "PASSED"
+        },
+        "movies": {
+            "expected": 300,
+            "actual": 300,
+            "status": "PASSED"
+        },
+        "shows": {
+            "expected": 160034,
+            "actual": 160034,
+            "status": "PASSED"
+        },
+        "customers": {
+            "expected": 40000,
+            "actual": 40000,
+            "status": "PASSED"
+        },
+        "offers": {
+            "expected": 25,
+            "actual": 25,
+            "status": "PASSED"
+        },
+        "bookings": {
+            "expected": 150094,
+            "actual": 150094,
+            "status": "PASSED"
+        },
+        "booking_seats": {
+            "expected": 300389,
+            "actual": 300389,
+            "status": "PASSED"
+        },
+        "movie_reviews": {
+            "expected": 32510,
+            "actual": 32510,
+            "status": "PASSED"
+        }
+    },
+    "row_count_summary": {
+        "checks_configured": 11,
+        "checks_passed": 11,
+        "checks_failed": 0,
+        "expected_total_rows": 778048,
+        "actual_total_rows": 778048
+    },
+    "total_rows": 778048,
+    "checks_configured": {
+        "row_count_checks": 11,
+        "foreign_key_relationships": 14,
+        "primary_and_unique_key_checks": 17
+    },
+    "issue_count": 0,
+    "status": "PASSED",
+    "issues": []
+}

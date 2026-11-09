@@ -8,6 +8,8 @@ The design aims to reduce unnecessary redundancy, preserve referential integrity
 
 Performance-tuning indexes beyond those automatically created by PRIMARY KEY and UNIQUE constraints will be considered in later optimization phases.
 
+**Implementation status:** The schema definitions, constraints, and triggers described in this document are proposed design decisions. They will be considered implemented only after the PostgreSQL DDL has been executed and tested successfully.
+
 ## 2. Relations, Attributes, and Keys
 
 The following attributes are taken from the supplied CSV headers.
@@ -26,9 +28,9 @@ The following attributes are taken from the supplied CSV headers.
 | booking_seats | booking_id, show_id, seat_id, price | (show_id, seat_id) |
 | movie_reviews | review_id, movie_id, customer_id, rating, review_text, created_at | review_id |
 
-`booking_seats` also has the alternate candidate key `(booking_id, seat_id)`.
+The `booking_seats` relation also has the alternate candidate key `(booking_id, seat_id)`.
 
-The supplied CSV files contain blank values in `bookings.offer_code` and `movie_reviews.review_text`. These columns will therefore permit NULL. The remaining columns will be treated as required, subject to final PostgreSQL loading and validation.
+The supplied CSV files contain blank values in `bookings.offer_code` and `movie_reviews.review_text`. These columns will therefore permit NULL. The remaining columns are proposed as required, subject to PostgreSQL loading and validation.
 
 ## 3. Candidate Keys and Functional Dependencies
 
@@ -67,7 +69,7 @@ The candidate keys implied by the proposed uniqueness rules include:
 - `booking_seats`: (show_id, seat_id); (booking_id, seat_id)
 - `movie_reviews`: review_id
 
-These alternate keys will be enforced only where the CSV data and business rules support them.
+These alternate keys are proposed based on the supplied data and intended business rules. They must be enforced only after the corresponding constraints have been tested against the dataset.
 
 ### 3.1 booking_seats: Functional Dependencies and Key Selection
 
@@ -138,7 +140,7 @@ Most relations have single-column primary keys. Therefore, they cannot have part
 
 For `seats`, the alternate candidate key `(screen_id, row_label, seat_number)` determines `seat_id` and `seat_class` as a complete combination. Neither `screen_id` alone nor `row_label` alone determines the complete seat information.
 
-For `booking_seats`, the candidate keys are `(show_id, seat_id)` and `(booking_id, seat_id)`. The allocation price and associated booking information depend on the complete allocation key rather than on either component independently.
+For `booking_seats`, the candidate keys are `(show_id, seat_id)` and `(booking_id, seat_id)`. The allocation price depends on the complete allocation key rather than on either component independently.
 
 Thus, the proposed relations satisfy 2NF.
 
@@ -163,7 +165,7 @@ The proposed design therefore satisfies 3NF, with the documented BCNF exception 
 
 ## 6. Intended Integrity Constraints
 
-The final SQL schema will implement the following constraints, subject to verification against the supplied CSV data.
+The final SQL schema will implement the following constraints, subject to verification against the supplied CSV data. These are proposed constraints and are not considered implemented until successfully tested in PostgreSQL.
 
 ### 6.1 PRIMARY KEY Constraints
 
@@ -227,88 +229,155 @@ The initial schema will implement appropriate checks, including:
 - `offers.max_discount >= 0`
 - `offers.valid_to >= offers.valid_from`
 
-Further checks for booking status, payment method, screen type, seat class, show format, and other categorical values will be based on the complete distinct values found in the CSVs. No unsupported enum values will be assumed.
+Further checks for booking status, payment method, screen type, seat class, show format, and other categorical values will be based on the distinct values found in the CSVs. No unsupported enum values will be assumed.
 
 ### 6.6 Show Overlap Constraint
 
 Two shows must not overlap on the same screen.
 
-This rule will be enforced using a PostgreSQL exclusion constraint on `screen_id` and the show time range. The half-open range `[starts_at, ends_at)` allows one show to start exactly when the preceding show ends.
+This rule is proposed to be enforced using a PostgreSQL exclusion constraint on `screen_id` and the show time range. The half-open range `[starts_at, ends_at)` allows one show to start exactly when the preceding show ends.
 
 The implementation will use PostgreSQL's `btree_gist` extension where available.
 
-## 7. Seat-to-Show Screen Consistency
+### 6.7 Seat-to-Screen Consistency
 
-A foreign key on `booking_seats.seat_id` alone only proves that the seat exists. It does not prove that the seat belongs to the screen assigned to the show.
+A seat allocated to a show must belong to the same screen on which that show is scheduled. This rule spans `booking_seats`, `shows`, and `seats`, so ordinary foreign keys on the individual IDs do not enforce it by themselves.
 
-The database must enforce:
+A trigger is proposed to validate this relationship when a row is inserted or updated in `booking_seats`. Corresponding protection is also needed when the referenced `shows.screen_id` or `seats.screen_id` is changed, so that an update cannot make an existing allocation inconsistent.
 
-`shows.screen_id = seats.screen_id`
+This trigger is a proposed design decision and has not yet been implemented or tested in PostgreSQL.
 
-for every row in `booking_seats`.
+## 7. CSV Dataset Validation Evidence
 
-The proposed implementation is a PostgreSQL trigger on `booking_seats` INSERT/UPDATE. It will retrieve the associated show and seat, compare their `screen_id` values, and reject an allocation if they do not match.
+The supplied CSV dataset was checked using `scripts/validate_data.py`. The validator checks CSV headers and row structure, expected row counts, required values, foreign-key references, primary and alternate unique keys, cross-table consistency, show timestamp validity, and overlapping shows on the same screen.
 
-The composite foreign key `(booking_id, show_id)` separately ensures that the booking is associated with the same show as the allocation.
+### 7.1 Expected and Actual Row Counts
 
-To keep this rule valid after allocations have been inserted, changes to `shows.screen_id` or `seats.screen_id` must also be guarded. Parent-table triggers will reject changes that would make existing allocations inconsistent. The implementation will be tested with both valid and deliberately invalid inserts and updates.
+| CSV file | Expected rows | Actual rows | Result |
+|---|---:|---:|---|
+| cities.csv | 10 | 10 | PASS |
+| venues.csv | 140 | 140 | PASS |
+| screens.csv | 490 | 490 | PASS |
+| seats.csv | 94,056 | 94,056 | PASS |
+| movies.csv | 300 | 300 | PASS |
+| shows.csv | 160,034 | 160,034 | PASS |
+| customers.csv | 40,000 | 40,000 | PASS |
+| offers.csv | 25 | 25 | PASS |
+| bookings.csv | 150,094 | 150,094 | PASS |
+| booking_seats.csv | 300,389 | 300,389 | PASS |
+| movie_reviews.csv | 32,510 | 32,510 | PASS |
+| **Total** | **778,048** | **778,048** | **PASS** |
 
-The primary key `(show_id, seat_id)` prevents duplicate allocation of the same seat for a show, including conflicting concurrent inserts.
+### 7.2 Integrity Validation Results
 
-## 8. Dataset Validation Evidence
+The latest successful validator run reported:
 
-The Python script `scripts/validate_data.py` was run against the 11 supplied CSV files.
+- Required-value checks: 0 missing required values.
+- Foreign-key relationships: 14 checked; 0 invalid and 0 missing references.
+- Primary-key and UNIQUE checks: 17 checked; 0 duplicate combinations.
+- Cross-table consistency: 0 booking-show mismatches, 0 seat-screen mismatches, and 0 missing parent records.
+- Show timestamps: 160,034 valid show intervals; all observed timestamps used UTC offset `+05:30`.
+- Show overlaps: 0 overlapping show pairs on the same screen.
 
-The validation results were:
+### 7.3 Machine-Readable Report
 
-- **14 foreign-key relationship checks:** zero invalid references.
-- **7 uniqueness checks:** zero duplicate combinations.
-- **Booking-show consistency:** zero mismatches.
-- **Seat-screen consistency:** zero mismatches.
-- **Show-overlap validation:** zero overlapping show pairs on the same screen.
+The validator generates `validation_report.json` in the project root. It records the expected and actual row counts for all 11 CSV files, individual row-count check results, total expected and actual rows, configured foreign-key and primary/unique checks, overall validation status, issue count, and reported validation issues.
 
-The seven uniqueness checks cover:
+The latest successful run reported:
 
-1. `cities.city_id`
-2. `customers.email`
-3. `customers.phone`
-4. `bookings.booking_code`
-5. `seats(screen_id, row_label, seat_number)`
-6. `booking_seats(show_id, seat_id)`
-7. `booking_seats(booking_id, seat_id)`
+- Expected total rows: 778,048
+- Actual total rows: 778,048
+- Row-count checks: 11 passed, 0 failed
+- Foreign-key relationship checks: 14
+- Primary and unique key checks: 17
+- Validation issues: 0
+- Overall result: PASSED
 
-The script validates the CSV data before loading. These results do not replace PostgreSQL constraints. Equivalent database-level checks will be performed after loading the data.
+These results establish that the supplied CSV files passed the implemented Python validation checks. They do not replace PostgreSQL constraints or prove that the database schema and loading process have been tested. Equivalent database-level checks will be performed after PostgreSQL implementation and data loading.
 
-## 9. Data Types and CSV Compatibility
+## 8. Proposed Data Types and Nullability
 
-The schema follows the headers of the supplied 11 CSV files.
+The following data types are proposed based on the CSV headers and inspected values. They are design choices and must be confirmed during PostgreSQL table creation and data loading. `NOT NULL` is proposed for every column except the two nullable columns identified in Section 2.
 
-The proposed PostgreSQL data-type mapping is:
+| Relation | Column | Proposed PostgreSQL type | Nullability / key |
+|---|---|---|---|
+| cities | city_id | INTEGER | NOT NULL, PK |
+| cities | city_name | VARCHAR(50) | NOT NULL |
+| cities | state | VARCHAR(50) | NOT NULL |
+| venues | venue_id | INTEGER | NOT NULL, PK |
+| venues | venue_name | VARCHAR(100) | NOT NULL |
+| venues | city_id | INTEGER | NOT NULL, FK |
+| venues | chain | VARCHAR(30) | NOT NULL |
+| venues | address | VARCHAR(100) | NOT NULL |
+| screens | screen_id | INTEGER | NOT NULL, PK |
+| screens | venue_id | INTEGER | NOT NULL, FK |
+| screens | screen_name | VARCHAR(30) | NOT NULL |
+| screens | screen_type | VARCHAR(20) | NOT NULL |
+| screens | total_seats | INTEGER | NOT NULL |
+| seats | seat_id | INTEGER | NOT NULL, PK |
+| seats | screen_id | INTEGER | NOT NULL, FK |
+| seats | row_label | VARCHAR(5) | NOT NULL |
+| seats | seat_number | SMALLINT | NOT NULL |
+| seats | seat_class | VARCHAR(20) | NOT NULL |
+| movies | movie_id | INTEGER | NOT NULL, PK |
+| movies | title | VARCHAR(150) | NOT NULL |
+| movies | language | VARCHAR(30) | NOT NULL |
+| movies | certificate | VARCHAR(5) | NOT NULL |
+| movies | duration_min | SMALLINT | NOT NULL |
+| movies | release_date | DATE | NOT NULL |
+| shows | show_id | INTEGER | NOT NULL, PK |
+| shows | movie_id | INTEGER | NOT NULL, FK |
+| shows | screen_id | INTEGER | NOT NULL, FK |
+| shows | starts_at | TIMESTAMPTZ | NOT NULL |
+| shows | ends_at | TIMESTAMPTZ | NOT NULL |
+| shows | format | VARCHAR(10) | NOT NULL |
+| shows | base_price | NUMERIC(10,2) | NOT NULL |
+| customers | customer_id | INTEGER | NOT NULL, PK |
+| customers | full_name | VARCHAR(100) | NOT NULL |
+| customers | email | VARCHAR(254) | NOT NULL, UNIQUE proposed |
+| customers | phone | VARCHAR(15) | NOT NULL, UNIQUE proposed |
+| customers | city_id | INTEGER | NOT NULL, FK |
+| customers | created_at | TIMESTAMPTZ | NOT NULL |
+| offers | offer_code | VARCHAR(20) | NOT NULL, PK |
+| offers | description | VARCHAR(100) | NOT NULL |
+| offers | discount_pct | NUMERIC(5,2) | NOT NULL |
+| offers | max_discount | NUMERIC(10,2) | NOT NULL |
+| offers | valid_from | DATE | NOT NULL |
+| offers | valid_to | DATE | NOT NULL |
+| bookings | booking_id | INTEGER | NOT NULL, PK |
+| bookings | booking_code | VARCHAR(20) | NOT NULL, UNIQUE proposed |
+| bookings | customer_id | INTEGER | NOT NULL, FK |
+| bookings | show_id | INTEGER | NOT NULL, FK |
+| bookings | booked_at | TIMESTAMPTZ | NOT NULL |
+| bookings | num_tickets | SMALLINT | NOT NULL |
+| bookings | ticket_amount | NUMERIC(10,2) | NOT NULL |
+| bookings | convenience_fee | NUMERIC(10,2) | NOT NULL |
+| bookings | fnb_amount | NUMERIC(10,2) | NOT NULL |
+| bookings | offer_code | VARCHAR(20) | NULL allowed, FK |
+| bookings | discount | NUMERIC(10,2) | NOT NULL |
+| bookings | total_amount | NUMERIC(10,2) | NOT NULL |
+| bookings | payment_method | VARCHAR(20) | NOT NULL |
+| bookings | status | VARCHAR(20) | NOT NULL |
+| booking_seats | booking_id | INTEGER | NOT NULL, FK |
+| booking_seats | show_id | INTEGER | NOT NULL, PK component, FK |
+| booking_seats | seat_id | INTEGER | NOT NULL, PK component, FK |
+| booking_seats | price | NUMERIC(10,2) | NOT NULL |
+| movie_reviews | review_id | INTEGER | NOT NULL, PK |
+| movie_reviews | movie_id | INTEGER | NOT NULL, FK |
+| movie_reviews | customer_id | INTEGER | NOT NULL, FK |
+| movie_reviews | rating | SMALLINT | NOT NULL |
+| movie_reviews | review_text | TEXT | NULL allowed |
+| movie_reviews | created_at | TIMESTAMPTZ | NOT NULL |
 
-- Identifiers and integer counts: `INTEGER` or an appropriate integer type.
-- Descriptive and categorical text: `TEXT` or suitable `VARCHAR`.
-- Monetary amounts and percentages: `NUMERIC`, avoiding floating-point precision errors.
-- Calendar dates: `DATE`.
-- Timestamps containing UTC offsets: `TIMESTAMPTZ`.
-- Ratings: an integer type such as `SMALLINT`.
+### 8.1 Type Selection Notes
 
-The CSV files contain 778,047 data rows in total:
+- Identifier columns use `INTEGER` because the supplied identifiers are whole-number values.
+- `phone` uses `VARCHAR(15)` rather than a numeric type because phone numbers are identifiers, not quantities; this also avoids losing leading zeros or a possible plus sign.
+- Monetary values use `NUMERIC(10,2)` to preserve decimal currency values without floating-point rounding.
+- `discount_pct` uses `NUMERIC(5,2)` to store percentage values with two decimal places.
+- Calendar-only values use `DATE`.
+- Date-time values with timezone offsets use `TIMESTAMPTZ`. The inspected show timestamps use UTC offset `+05:30`.
+- `review_text` uses `TEXT` because review text does not require a fixed maximum length.
+- `SMALLINT` is proposed for small whole-number attributes such as seat numbers, duration in minutes, ticket counts, and ratings. These choices will be checked against the full dataset during loading.
 
-| CSV | Expected rows |
-|---|---:|
-| cities | 10 |
-| venues | 140 |
-| screens | 490 |
-| seats | 94,056 |
-| movies | 300 |
-| shows | 160,034 |
-| customers | 40,000 |
-| offers | 25 |
-| bookings | 150,094 |
-| booking_seats | 300,389 |
-| movie_reviews | 32,510 |
-| **Total** | **778,047** |
-
-The initial inspection confirmed the supplied headers, identifier relationships, observed numeric ranges, and the two columns containing blank values. Final type compatibility, category checks, nullability, and row counts will be confirmed through PostgreSQL loading and integrity tests.
-
-The initial schema phase will focus on constraints and data integrity. Workload-specific tuning indexes will be introduced only in the later optimization phase.
+**Status:** The data types, nullability, and constraints in this section remain proposed until the SQL schema is created, all CSV data is loaded, and PostgreSQL integrity checks pass.
