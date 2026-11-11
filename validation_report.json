@@ -1,102 +1,355 @@
 {
-    "dataset_directory": "seed_data",
-    "expected_row_counts": {
-        "cities": 10,
-        "venues": 140,
-        "screens": 490,
-        "seats": 94056,
-        "movies": 300,
-        "shows": 160034,
-        "customers": 40000,
-        "offers": 25,
-        "bookings": 150094,
-        "booking_seats": 300389,
-        "movie_reviews": 32510
+  "dataset_directory": "seed_data",
+  "expected_row_counts": {
+    "cities": 10,
+    "venues": 140,
+    "screens": 490,
+    "seats": 94056,
+    "movies": 300,
+    "shows": 160034,
+    "customers": 40000,
+    "offers": 25,
+    "bookings": 150094,
+    "booking_seats": 300389,
+    "movie_reviews": 32510
+  },
+  "row_counts": {
+    "cities": 10,
+    "venues": 140,
+    "screens": 490,
+    "seats": 94056,
+    "movies": 300,
+    "shows": 160034,
+    "customers": 40000,
+    "offers": 25,
+    "bookings": 150094,
+    "booking_seats": 300389,
+    "movie_reviews": 32510
+  },
+  "row_count_results": {
+    "cities": {
+      "expected": 10,
+      "actual": 10,
+      "status": "PASSED"
     },
-    "row_counts": {
-        "cities": 10,
-        "venues": 140,
-        "screens": 490,
-        "seats": 94056,
-        "movies": 300,
-        "shows": 160034,
-        "customers": 40000,
-        "offers": 25,
-        "bookings": 150094,
-        "booking_seats": 300389,
-        "movie_reviews": 32510
+    "venues": {
+      "expected": 140,
+      "actual": 140,
+      "status": "PASSED"
     },
-    "row_count_results": {
-        "cities": {
-            "expected": 10,
-            "actual": 10,
-            "status": "PASSED"
-        },
-        "venues": {
-            "expected": 140,
-            "actual": 140,
-            "status": "PASSED"
-        },
-        "screens": {
-            "expected": 490,
-            "actual": 490,
-            "status": "PASSED"
-        },
-        "seats": {
-            "expected": 94056,
-            "actual": 94056,
-            "status": "PASSED"
-        },
-        "movies": {
-            "expected": 300,
-            "actual": 300,
-            "status": "PASSED"
-        },
-        "shows": {
-            "expected": 160034,
-            "actual": 160034,
-            "status": "PASSED"
-        },
-        "customers": {
-            "expected": 40000,
-            "actual": 40000,
-            "status": "PASSED"
-        },
-        "offers": {
-            "expected": 25,
-            "actual": 25,
-            "status": "PASSED"
-        },
-        "bookings": {
-            "expected": 150094,
-            "actual": 150094,
-            "status": "PASSED"
-        },
-        "booking_seats": {
-            "expected": 300389,
-            "actual": 300389,
-            "status": "PASSED"
-        },
-        "movie_reviews": {
-            "expected": 32510,
-            "actual": 32510,
-            "status": "PASSED"
-        }
+    "screens": {
+      "expected": 490,
+      "actual": 490,
+      "status": "PASSED"
     },
-    "row_count_summary": {
-        "checks_configured": 11,
-        "checks_passed": 11,
-        "checks_failed": 0,
-        "expected_total_rows": 778048,
-        "actual_total_rows": 778048
+    "seats": {
+      "expected": 94056,
+      "actual": 94056,
+      "status": "PASSED"
     },
-    "total_rows": 778048,
-    "checks_configured": {
-        "row_count_checks": 11,
-        "foreign_key_relationships": 14,
-        "primary_and_unique_key_checks": 17
+    "movies": {
+      "expected": 300,
+      "actual": 300,
+      "status": "PASSED"
     },
-    "issue_count": 0,
-    "status": "PASSED",
-    "issues": []
+    "shows": {
+      "expected": 160034,
+      "actual": 160034,
+      "status": "PASSED"
+    },
+    "customers": {
+      "expected": 40000,
+      "actual": 40000,
+      "status": "PASSED"
+    },
+    "offers": {
+      "expected": 25,
+      "actual": 25,
+      "status": "PASSED"
+    },
+    "bookings": {
+      "expected": 150094,
+      "actual": 150094,
+      "status": "PASSED"
+    },
+    "booking_seats": {
+      "expected": 300389,
+      "actual": 300389,
+      "status": "PASSED"
+    },
+    "movie_reviews": {
+      "expected": 32510,
+      "actual": 32510,
+      "status": "PASSED"
+    }
+  },
+  "row_count_summary": {
+    "checks_configured": 11,
+    "checks_passed": 11,
+    "checks_failed": 0,
+    "expected_total_rows": 778048,
+    "actual_total_rows": 778048
+  },
+  "total_rows": 778048,
+  "checks_configured": {
+    "row_count_checks": 11,
+    "individual_foreign_key_relationships": 13,
+    "composite_foreign_key_relationships": 1,
+    "primary_and_unique_key_checks": 17,
+    "numeric_columns_configured": 36,
+    "varchar_columns_configured": 21,
+    "date_columns_configured": 3,
+    "timestamp_columns_configured": 5
+  },
+  "check_results": {
+    "row_count_passed": 11,
+    "required_value_errors": 0,
+    "numeric_errors": 0,
+    "string_length_errors": 0,
+    "date_errors": 0,
+    "timestamp_errors": 0,
+    "foreign_key_errors": 0,
+    "duplicate_key_errors": 0,
+    "proposed_review_duplicate_warnings": 0,
+    "screen_capacity_errors": 0,
+    "booking_allocation_errors": 0,
+    "seat_screen_errors": 0,
+    "offer_validity_errors": 0,
+    "negative_money_errors": 0,
+    "booking_amount_formula_errors": 0,
+    "show_interval_errors": 0,
+    "show_overlap_errors": 0
+  },
+  "observed": {
+    "utc_offsets": {
+      "shows.ends_at": [
+        "5:30:00"
+      ],
+      "shows.starts_at": [
+        "5:30:00"
+      ],
+      "customers.created_at": [
+        "5:30:00"
+      ],
+      "bookings.booked_at": [
+        "5:30:00"
+      ],
+      "movie_reviews.created_at": [
+        "5:30:00"
+      ]
+    },
+    "max_string_lengths": {
+      "cities.city_name": 9,
+      "cities.state": 13,
+      "venues.venue_name": 41,
+      "venues.chain": 11,
+      "venues.address": 23,
+      "screens.screen_name": 6,
+      "screens.screen_type": 8,
+      "seats.row_label": 1,
+      "seats.seat_class": 8,
+      "movies.title": 30,
+      "movies.language": 9,
+      "movies.certificate": 2,
+      "shows.format": 4,
+      "customers.full_name": 18,
+      "customers.email": 33,
+      "customers.phone": 10,
+      "offers.offer_code": 11,
+      "offers.description": 19,
+      "bookings.booking_code": 10,
+      "bookings.payment_method": 10,
+      "bookings.status": 14
+    },
+    "numeric_ranges": {
+      "cities.city_id": {
+        "min": "1",
+        "max": "10",
+        "max_decimal_places": 0
+      },
+      "venues.venue_id": {
+        "min": "1",
+        "max": "140",
+        "max_decimal_places": 0
+      },
+      "venues.city_id": {
+        "min": "1",
+        "max": "10",
+        "max_decimal_places": 0
+      },
+      "screens.screen_id": {
+        "min": "1",
+        "max": "490",
+        "max_decimal_places": 0
+      },
+      "screens.venue_id": {
+        "min": "1",
+        "max": "140",
+        "max_decimal_places": 0
+      },
+      "screens.total_seats": {
+        "min": "40",
+        "max": "384",
+        "max_decimal_places": 0
+      },
+      "seats.seat_id": {
+        "min": "1",
+        "max": "94056",
+        "max_decimal_places": 0
+      },
+      "seats.screen_id": {
+        "min": "1",
+        "max": "490",
+        "max_decimal_places": 0
+      },
+      "seats.seat_number": {
+        "min": "1",
+        "max": "24",
+        "max_decimal_places": 0
+      },
+      "movies.movie_id": {
+        "min": "1",
+        "max": "300",
+        "max_decimal_places": 0
+      },
+      "movies.duration_min": {
+        "min": "100",
+        "max": "179",
+        "max_decimal_places": 0
+      },
+      "shows.show_id": {
+        "min": "1",
+        "max": "160034",
+        "max_decimal_places": 0
+      },
+      "shows.movie_id": {
+        "min": "1",
+        "max": "300",
+        "max_decimal_places": 0
+      },
+      "shows.screen_id": {
+        "min": "1",
+        "max": "490",
+        "max_decimal_places": 0
+      },
+      "shows.base_price": {
+        "min": "180.00",
+        "max": "1294.00",
+        "max_decimal_places": 2
+      },
+      "customers.customer_id": {
+        "min": "1",
+        "max": "40000",
+        "max_decimal_places": 0
+      },
+      "customers.city_id": {
+        "min": "1",
+        "max": "10",
+        "max_decimal_places": 0
+      },
+      "offers.discount_pct": {
+        "min": "10",
+        "max": "50",
+        "max_decimal_places": 0
+      },
+      "offers.max_discount": {
+        "min": "100.00",
+        "max": "250.00",
+        "max_decimal_places": 2
+      },
+      "bookings.booking_id": {
+        "min": "1",
+        "max": "160000",
+        "max_decimal_places": 0
+      },
+      "bookings.customer_id": {
+        "min": "1",
+        "max": "40000",
+        "max_decimal_places": 0
+      },
+      "bookings.show_id": {
+        "min": "1",
+        "max": "158392",
+        "max_decimal_places": 0
+      },
+      "bookings.num_tickets": {
+        "min": "1",
+        "max": "5",
+        "max_decimal_places": 0
+      },
+      "bookings.ticket_amount": {
+        "min": "180.00",
+        "max": "14235.00",
+        "max_decimal_places": 2
+      },
+      "bookings.convenience_fee": {
+        "min": "18.00",
+        "max": "1423.50",
+        "max_decimal_places": 2
+      },
+      "bookings.fnb_amount": {
+        "min": "0.00",
+        "max": "690.00",
+        "max_decimal_places": 2
+      },
+      "bookings.discount": {
+        "min": "0.00",
+        "max": "250.00",
+        "max_decimal_places": 2
+      },
+      "bookings.total_amount": {
+        "min": "108.00",
+        "max": "16348.50",
+        "max_decimal_places": 2
+      },
+      "booking_seats.booking_id": {
+        "min": "1",
+        "max": "160000",
+        "max_decimal_places": 0
+      },
+      "booking_seats.show_id": {
+        "min": "1",
+        "max": "158392",
+        "max_decimal_places": 0
+      },
+      "booking_seats.seat_id": {
+        "min": "121",
+        "max": "94013",
+        "max_decimal_places": 0
+      },
+      "booking_seats.price": {
+        "min": "234.00",
+        "max": "2847.00",
+        "max_decimal_places": 2
+      },
+      "movie_reviews.review_id": {
+        "min": "1",
+        "max": "32510",
+        "max_decimal_places": 0
+      },
+      "movie_reviews.movie_id": {
+        "min": "1",
+        "max": "300",
+        "max_decimal_places": 0
+      },
+      "movie_reviews.customer_id": {
+        "min": "2",
+        "max": "39999",
+        "max_decimal_places": 0
+      },
+      "movie_reviews.rating": {
+        "min": "2",
+        "max": "10",
+        "max_decimal_places": 0
+      }
+    },
+    "show_utc_offsets": [
+      "5:30:00"
+    ]
+  },
+  "issue_count": 0,
+  "warning_count": 0,
+  "status": "PASSED",
+  "issues": [],
+  "warnings": []
 }
