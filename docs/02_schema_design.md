@@ -129,7 +129,7 @@ A composite foreign key `(booking_id, show_id)` references the corresponding UNI
 | customers | bookings | 1:N |
 | shows | bookings | 1:N |
 | bookings | booking_seats | 1:N |
-| offers | bookings | 1:N; booking-side reference is optional |
+| offers | bookings | Offer to bookings: 0..N; booking to offer: 0..1 (nullable) |
 | movies | movie_reviews | 1:N |
 | customers | movie_reviews | 1:N |
 
@@ -359,7 +359,7 @@ Additional results:
 - Overlapping show pairs: 0.
 - Proposed review uniqueness warnings: 0.
 
-The 382,672 timestamp values across shows, bookings, customers, and movie reviews were timezone-aware and parsed successfully. The observed offset in the supplied data is `+05:30`. This is informational only; the validator permits multiple valid UTC offsets.
+The 542,672 timestamp values across shows, bookings, customers, and movie reviews were timezone-aware and parsed successfully (160,034 show start timestamps + 160,034 show end timestamps + 150,094 booking timestamps + 40,000 customer creation timestamps + 32,510 review creation timestamps). The observed offset in the supplied data is `+05:30`. This is informational only; the validator permits multiple valid UTC offsets.
 
 **Overall result: PASSED — 778,048 rows, 0 errors, 0 warnings.**
 
