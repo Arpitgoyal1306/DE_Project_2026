@@ -1,3 +1,4 @@
+
 # CP1 – Database Schema Design
 
 ## 1. Overview
@@ -276,7 +277,7 @@ The latest successful validator run reported:
 - Foreign-key relationships: 14 checked; 0 invalid and 0 missing references.
 - Primary-key and UNIQUE checks: 17 checked; 0 duplicate combinations.
 - Cross-table consistency: 0 booking-show mismatches, 0 seat-screen mismatches, and 0 missing parent records.
-- Show timestamps: 160,034 valid show intervals; all observed timestamps used UTC offset `+05:30`.
+- Show timestamps: 160,034 valid show intervals; every start and end timestamp was timezone-aware, and every show ended after it started. The supplied dataset currently uses UTC offset `+05:30`; this is an observation, not a rule enforced by the validator. Multiple valid UTC offsets are allowed.
 - Show overlaps: 0 overlapping show pairs on the same screen.
 
 ### 7.3 Machine-Readable Report
@@ -376,7 +377,7 @@ The following data types are proposed based on the CSV headers and inspected val
 - Monetary values use `NUMERIC(10,2)` to preserve decimal currency values without floating-point rounding.
 - `discount_pct` uses `NUMERIC(5,2)` to store percentage values with two decimal places.
 - Calendar-only values use `DATE`.
-- Date-time values with timezone offsets use `TIMESTAMPTZ`. The inspected show timestamps use UTC offset `+05:30`.
+- Date-time values with timezone offsets use `TIMESTAMPTZ`. The inspected show timestamps in the supplied dataset use UTC offset `+05:30`; the validator permits multiple valid offsets and checks each timestamp for timezone awareness and each interval for a valid end-after-start order.
 - `review_text` uses `TEXT` because review text does not require a fixed maximum length.
 - `SMALLINT` is proposed for small whole-number attributes such as seat numbers, duration in minutes, ticket counts, and ratings. These choices will be checked against the full dataset during loading.
 

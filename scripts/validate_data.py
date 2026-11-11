@@ -579,7 +579,7 @@ def validate_show_times(data):
         try:
             start = datetime.fromisoformat(row["starts_at"])
             end = datetime.fromisoformat(row["ends_at"])
-        except ValueError as error:
+        except (ValueError, TypeError) as error:
             errors += 1
             add_issue(
                 "shows",
@@ -593,6 +593,8 @@ def validate_show_times(data):
             )
             continue
 
+        # Both timestamps must be timezone-aware. Different valid UTC
+        # offsets are allowed; each timestamp represents an absolute instant.
         if start.tzinfo is None or start.utcoffset() is None:
             errors += 1
             add_issue(
@@ -615,26 +617,11 @@ def validate_show_times(data):
             )
             continue
 
-        start_offset = start.utcoffset()
-        end_offset = end.utcoffset()
-        observed_offsets.add(str(start_offset))
-        observed_offsets.add(str(end_offset))
+        observed_offsets.add(str(start.utcoffset()))
+        observed_offsets.add(str(end.utcoffset()))
 
-        if start_offset != end_offset:
-            errors += 1
-            add_issue(
-                "shows",
-                {"show_id": show_id},
-                "INCONSISTENT_ROW_TIMEZONE",
-                {
-                    "starts_at": row["starts_at"],
-                    "ends_at": row["ends_at"],
-                },
-                "Start and end timestamps use different UTC offsets."
-            )
-            continue
-
-        # Python compares aware datetimes using their actual instants.
+        # Comparing aware datetimes validates the actual instants, even
+        # when the start and end timestamps have different UTC offsets.
         if end <= start:
             errors += 1
             add_issue(
@@ -656,19 +643,8 @@ def validate_show_times(data):
             "end": end,
         })
 
-    if len(observed_offsets) > 1:
-        errors += 1
-        add_issue(
-            "shows",
-            None,
-            "DATASET_TIMEZONE_INCONSISTENCY",
-            {"observed_utc_offsets": sorted(observed_offsets)},
-            "The dataset contains multiple UTC offsets. "
-            "Confirm whether these are intentional before comparing times."
-        )
-
     print(f"Valid show intervals: {len(valid_shows):,}")
-    print(f"Observed UTC offsets: {sorted(observed_offsets)}")
+    print(f"Observed UTC offsets (informational only): {sorted(observed_offsets)}")
     print(f"Timestamp errors: {errors}")
     return valid_shows, errors
 
