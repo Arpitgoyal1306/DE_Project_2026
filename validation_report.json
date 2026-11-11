@@ -114,6 +114,7 @@
     "screen_capacity_errors": 0,
     "booking_allocation_errors": 0,
     "seat_screen_errors": 0,
+    "offer_date_range_errors": 0,
     "offer_validity_errors": 0,
     "negative_money_errors": 0,
     "booking_amount_formula_errors": 0,

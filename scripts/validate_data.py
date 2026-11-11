@@ -505,42 +505,114 @@ def validate_cross_table(data):
 
 
 def validate_business_rules(data):
-    # Offer validity at booking time.
-    offer_map = {r["offer_code"]: r for r in data.get("offers", [])}
-    invalid_offer_dates = 0
-    for row in data.get("bookings", []):
-        code = row["offer_code"]
-        if not code or code not in offer_map:
-            continue
+    # --------------------------------------------------------
+    # 1. Validate offer date ranges: valid_to >= valid_from
+    # --------------------------------------------------------
+    offer_date_range_errors = 0
+    offer_map = {}
+
+    for offer in data.get("offers", []):
+        code = offer["offer_code"]
+
         try:
-            booked = datetime.fromisoformat(row["booked_at"]).date()
-            offer = offer_map[code]
             start = date.fromisoformat(offer["valid_from"])
             end = date.fromisoformat(offer["valid_to"])
-            if not start <= booked <= end:
-                invalid_offer_dates += 1
-                record_issue("bookings", row_id("bookings", row), "OFFER_OUTSIDE_VALIDITY",
-                             {"offer_code": code, "booked_date": booked.isoformat(),
-                              "valid_from": start.isoformat(), "valid_to": end.isoformat()},
-                             "Booking date falls outside the offer validity period.")
-        except ValueError:
-            pass
 
-    # Monetary non-negativity and booking total arithmetic.
+            offer_map[code] = {
+                "row": offer,
+                "start": start,
+                "end": end
+            }
+
+            if end < start:
+                offer_date_range_errors += 1
+                record_issue(
+                    "offers",
+                    row_id("offers", offer),
+                    "OFFER_DATE_RANGE_INVALID",
+                    {
+                        "valid_from": start.isoformat(),
+                        "valid_to": end.isoformat()
+                    },
+                    "Offer valid_to must be greater than or equal to valid_from."
+                )
+
+        except ValueError:
+            # Invalid dates are already reported by date validation.
+            continue
+
+    # --------------------------------------------------------
+    # 2. Validate offer validity at booking time
+    # --------------------------------------------------------
+    invalid_offer_dates = 0
+
+    for row in data.get("bookings", []):
+        code = row["offer_code"]
+
+        if not code or code not in offer_map:
+            continue
+
+        offer = offer_map[code]
+
+        # Skip offers with an invalid date range.
+        if offer["end"] < offer["start"]:
+            continue
+
+        try:
+            booked = datetime.fromisoformat(row["booked_at"]).date()
+
+            if not offer["start"] <= booked <= offer["end"]:
+                invalid_offer_dates += 1
+
+                record_issue(
+                    "bookings",
+                    row_id("bookings", row),
+                    "OFFER_OUTSIDE_VALIDITY",
+                    {
+                        "offer_code": code,
+                        "booked_date": booked.isoformat(),
+                        "valid_from": offer["start"].isoformat(),
+                        "valid_to": offer["end"].isoformat()
+                    },
+                    "Booking date falls outside the offer validity period."
+                )
+
+        except ValueError:
+            # Invalid timestamps are already reported separately.
+            continue
+
+    # --------------------------------------------------------
+    # 3. Validate monetary values are non-negative
+    # --------------------------------------------------------
     money_errors = 0
+
     for table, col in MONEY_COLUMNS:
         for row in data.get(table, []):
             if not row[col]:
                 continue
+
             try:
                 if Decimal(row[col]) < 0:
                     money_errors += 1
-                    record_issue(table, row_id(table, row), "NEGATIVE_MONEY",
-                                 {col: row[col]}, "Monetary value must be non-negative.")
-            except InvalidOperation:
-                pass  # Numeric parser reports this separately.
 
+                    record_issue(
+                        table,
+                        row_id(table, row),
+                        "NEGATIVE_MONEY",
+                        {col: row[col]},
+                        "Monetary value must be non-negative."
+                    )
+
+            except InvalidOperation:
+                # Numeric parser reports this separately.
+                pass
+
+    # --------------------------------------------------------
+    # 4. Validate booking amount arithmetic
+    # total = ticket + fee + fnb - discount
+    # --------------------------------------------------------
     formula_errors = 0
+
     for row in data.get("bookings", []):
         try:
             ticket = Decimal(row["ticket_amount"])
@@ -548,22 +620,41 @@ def validate_business_rules(data):
             fnb = Decimal(row["fnb_amount"])
             discount = Decimal(row["discount"])
             total = Decimal(row["total_amount"])
+
             before_discount = ticket + fee + fnb
-            if discount > before_discount or total != before_discount - discount:
+            expected_total = before_discount - discount
+
+            if discount > before_discount or total != expected_total:
                 formula_errors += 1
-                record_issue("bookings", row_id("bookings", row), "BOOKING_AMOUNT_INCONSISTENT",
-                             {"ticket_amount": str(ticket), "convenience_fee": str(fee),
-                              "fnb_amount": str(fnb), "discount": str(discount),
-                              "total_amount": str(total),
-                              "expected_total": str(before_discount - discount)},
-                             "Discount or total amount violates the verified booking arithmetic.")
+
+                record_issue(
+                    "bookings",
+                    row_id("bookings", row),
+                    "BOOKING_AMOUNT_INCONSISTENT",
+                    {
+                        "ticket_amount": str(ticket),
+                        "convenience_fee": str(fee),
+                        "fnb_amount": str(fnb),
+                        "discount": str(discount),
+                        "total_amount": str(total),
+                        "expected_total": str(expected_total)
+                    },
+                    "Discount or total amount violates the verified booking arithmetic."
+                )
+
         except InvalidOperation:
             continue
 
+    # --------------------------------------------------------
+    # 5. Store results in validation report
+    # --------------------------------------------------------
+    CHECK_RESULTS["offer_date_range_errors"] = offer_date_range_errors
     CHECK_RESULTS["offer_validity_errors"] = invalid_offer_dates
     CHECK_RESULTS["negative_money_errors"] = money_errors
     CHECK_RESULTS["booking_amount_formula_errors"] = formula_errors
-    print(f"\nOffer validity errors: {invalid_offer_dates}")
+
+    print(f"\nOffer date range errors: {offer_date_range_errors}")
+    print(f"Offer validity errors: {invalid_offer_dates}")
     print(f"Negative monetary values: {money_errors}")
     print(f"Booking amount formula errors: {formula_errors}")
 
