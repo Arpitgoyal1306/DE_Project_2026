@@ -10,18 +10,16 @@ The platform must also support business reporting, including theatre occupancy, 
 
 ## 2. Business Problems, Stakeholders, and Workload Classification
 
-| Problem | Business need | Primary stakeholder(s) | Workload classification |
-|---|---|---|---|
-| **P1 – Movie discovery and showtime search** | Find currently showing movies, cinemas, and showtimes efficiently. | Movie-goers; customer app team | Customer-facing / real-time |
-| **P2 – Seat availability and booking** | Display accurate seat layouts and availability, and prevent concurrent duplicate seat allocation. | Movie-goers; booking engine team | Customer-facing / real-time |
-| **P3 – Pending payments and seat expiry** | Track pending payments, booking confirmation, and temporary seat reservations; release expired holds. | Payments team; seat-lock service | Operational / real-time |
-| **P4 – Customer bookings and account access** | Retrieve customer details, booking history, and individual bookings reliably. | Customers; customer support team | Customer-facing / real-time |
-| **P5 – Theatre occupancy and operations** | Check occupancy, identify never-sold seats, and find gaps between consecutive shows. | Cinema / venue managers; programming team | Operational and analytical |
-| **P6 – Unused offers** | Identify promotional offers that have not been redeemed. | Partnerships team | Reporting / analytics |
-| **P7 – Box-office reporting** | Produce show-wise and movie-wise ticket-sales and collection reports. | Distributors; business teams | Reporting / analytics |
-| **P8 – Business analytics** | Analyze revenue distribution, regional collections, ratings, customer loyalty, booking patterns, and cancellations. | Finance; insights and management teams | Reporting / analytics |
+- **P1 – Movie discovery and showtime search:** Find currently showing movies, cinemas, and showtimes. **Stakeholders:** movie-goers and customer app team. **Type:** customer-facing / real-time.
+- **P2 – Seat availability and booking:** Display accurate seat layouts and availability, preventing concurrent duplicate seat allocation. **Stakeholders:** movie-goers and booking engine team. **Type:** customer-facing / real-time.
+- **P3 – Pending payments and seat expiry:** Track pending payments, confirm bookings, and release expired temporary seat reservations. **Stakeholders:** payments team and seat-lock service. **Type:** operational / real-time.
+- **P4 – Customer bookings and account access:** Retrieve customer details, booking history, and individual bookings reliably. **Stakeholders:** customers and customer support team. **Type:** customer-facing / real-time.
+- **P5 – Theatre occupancy and operations:** Calculate occupancy, identify never-sold seats, and find gaps between consecutive shows. **Stakeholders:** cinema / venue managers and programming team. **Type:** operational and analytical.
+- **P6 – Unused offers:** Identify promotional offers that have not been redeemed. **Stakeholder:** partnerships team. **Type:** reporting / analytics.
+- **P7 – Box-office reporting:** Produce show-wise and movie-wise ticket-sales and collection reports. **Stakeholders:** distributors and business teams. **Type:** reporting / analytics.
+- **P8 – Business analytics:** Analyze revenue distribution, regional collections, ratings, customer loyalty, booking patterns, and cancellations. **Stakeholders:** finance, insights, and management teams. **Type:** reporting / analytics.
 
-P1–P4 are latency-sensitive operational workloads that require timely responses and transactional consistency. P5 combines interactive operational queries with analytical reporting. P6–P8 primarily aggregate historical data for business decisions.
+P1–P4 are latency-sensitive operational workloads requiring timely responses and transactional consistency. P5 combines interactive operations with analysis. P6–P8 primarily aggregate historical data for business decisions.
 
 ## 5. Assumptions and Project Scope
 
