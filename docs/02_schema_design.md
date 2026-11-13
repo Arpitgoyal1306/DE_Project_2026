@@ -202,9 +202,9 @@ The `offer_code` column is nullable because a booking does not necessarily use a
 
 | Column | Data type | Constraint | Description |
 |---|---|---|---|
-| booking_id | INTEGER | FOREIGN KEY, NOT NULL | References bookings.booking_id. |
-| show_id | INTEGER | FOREIGN KEY, NOT NULL | References shows.show_id. |
-| seat_id | INTEGER | FOREIGN KEY, NOT NULL | References seats.seat_id. |
+| booking_id | INTEGER | COMPOSITE FOREIGN KEY component, NOT NULL | Participates in `(booking_id, show_id) REFERENCES bookings(booking_id, show_id)`. It is not a standalone foreign key. |
+| show_id | INTEGER | FOREIGN KEY and COMPOSITE FOREIGN KEY component, NOT NULL | Separately references `shows.show_id` and participates in `(booking_id, show_id) REFERENCES bookings(booking_id, show_id)`. |
+| seat_id | INTEGER | FOREIGN KEY, NOT NULL | Separately references `seats.seat_id`. |
 | price | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Price of the allocated seat. |
 
 Primary key:
@@ -215,9 +215,18 @@ Additional unique constraint:
 
 `UNIQUE (booking_id, seat_id)`
 
-Composite foreign key:
+**Foreign-key relationships:**
 
-`FOREIGN KEY (booking_id, show_id) REFERENCES bookings(booking_id, show_id)`
+1. Composite foreign key:
+   `FOREIGN KEY (booking_id, show_id) REFERENCES bookings(booking_id, show_id)`
+
+2. Separate show foreign key:
+   `FOREIGN KEY (show_id) REFERENCES shows(show_id)`
+
+3. Separate seat foreign key:
+   `FOREIGN KEY (seat_id) REFERENCES seats(seat_id)`
+
+There is no standalone foreign key from `booking_seats.booking_id` to `bookings.booking_id`. The composite foreign key already verifies the booking identifier together with its associated show.
 
 The primary key prevents the same seat from being allocated more than once for a particular show.
 
