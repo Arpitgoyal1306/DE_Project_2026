@@ -202,9 +202,9 @@ The `offer_code` column is nullable because a booking does not necessarily use a
 
 | Column | Data type | Constraint | Description |
 |---|---|---|---|
-| booking_id | INTEGER | FOREIGN KEY, NOT NULL | References bookings.booking_id. |
-| show_id | INTEGER | FOREIGN KEY, NOT NULL | References shows.show_id. |
-| seat_id | INTEGER | FOREIGN KEY, NOT NULL | References seats.seat_id. |
+| booking_id | INTEGER | COMPOSITE FOREIGN KEY component, NOT NULL | Participates in `(booking_id, show_id) REFERENCES bookings(booking_id, show_id)`. It is not a standalone foreign key. |
+| show_id | INTEGER | FOREIGN KEY and COMPOSITE FOREIGN KEY component, NOT NULL | Separately references `shows.show_id` and participates in `(booking_id, show_id) REFERENCES bookings(booking_id, show_id)`. |
+| seat_id | INTEGER | FOREIGN KEY, NOT NULL | Separately references `seats.seat_id`. |
 | price | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Price of the allocated seat. |
 
 Primary key:
@@ -215,9 +215,18 @@ Additional unique constraint:
 
 `UNIQUE (booking_id, seat_id)`
 
-Composite foreign key:
+**Foreign-key relationships:**
 
-`FOREIGN KEY (booking_id, show_id) REFERENCES bookings(booking_id, show_id)`
+1. Composite foreign key:
+   `FOREIGN KEY (booking_id, show_id) REFERENCES bookings(booking_id, show_id)`
+
+2. Separate show foreign key:
+   `FOREIGN KEY (show_id) REFERENCES shows(show_id)`
+
+3. Separate seat foreign key:
+   `FOREIGN KEY (seat_id) REFERENCES seats(seat_id)`
+
+There is no standalone foreign key from `booking_seats.booking_id` to `bookings.booking_id`. The composite foreign key already verifies the booking identifier together with its associated show.
 
 The primary key prevents the same seat from being allocated more than once for a particular show.
 
@@ -317,7 +326,7 @@ This approach protects historical booking and review records from accidental del
 | bookings to booking_seats | 1:N |
 | shows to booking_seats | 1:N |
 | seats to booking_seats | 1:N |
-| offers to bookings | 1:N |
+| offers to bookings | Offer to bookings: 0..N; booking to offer: 0..1 (nullable) |
 | movies to movie_reviews | 1:N |
 | customers to movie_reviews | 1:N |
 
@@ -344,7 +353,7 @@ erDiagram
 
     CUSTOMERS ||--o{ BOOKINGS : places
     SHOWS ||--o{ BOOKINGS : receives
-    OFFERS ||--o{ BOOKINGS : applied_to
+    OFFERS o|--o{ BOOKINGS : applied_to
 
     BOOKINGS ||--o{ BOOKING_SEATS : allocates
     SHOWS ||--o{ BOOKING_SEATS : contains
@@ -627,6 +636,37 @@ All five integrity checks passed successfully.
 The schema also passed the previously executed seed-data, foreign-key, numeric, timestamp, uniqueness, and constraint audits.
 
 ---
+
+### 9.4 Python CSV Validation Evidence
+
+The original 11 CSV files were also validated using `scripts/validate_data.py`. The latest successful run generated `validation_report.json`.
+
+| Validation | Configured / Checked | Result |
+|---|---:|---:|
+| CSV files | 11 | 11 loaded |
+| Total dataset rows | 778,048 | PASS |
+| Individual foreign keys | 13 | 0 invalid |
+| Composite foreign keys | 1 | 0 invalid |
+| Primary and UNIQUE checks | 17 | 0 duplicates |
+| Numeric columns | 36 | 0 errors |
+| Proposed VARCHAR limits | 21 | 0 errors |
+| Date columns | 3 | 0 errors |
+| Timestamp columns | 5 | 0 errors |
+
+The five timestamp columns contain **542,672 values** in total: 160,034 show start timestamps, 160,034 show end timestamps, 150,094 booking timestamps, 40,000 customer creation timestamps, and 32,510 review creation timestamps. All were timezone-aware and parsed successfully.
+
+Additional cross-table validation results:
+
+- Missing show references in booking-seat allocations: 0.
+- Missing seat references in booking-seat allocations: 0.
+- Seat-screen mismatches: 0.
+- Screen capacity mismatches: 0.
+- Status-aware booking allocation mismatches: 0.
+- Offer date-range and booking validity errors: 0.
+- Negative monetary values and booking amount formula errors: 0.
+- Invalid show intervals and overlapping show pairs: 0.
+
+The validator completed with **0 errors and 0 warnings**. Its detailed machine-readable results are recorded in `validation_report.json`.
 
 ## 10. Conclusion
 
