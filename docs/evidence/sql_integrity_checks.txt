@@ -1,0 +1,36 @@
+SET
+CREATE TABLE
+Running Check 1: Seat-screen consistency...
+INSERT 0 1
+Running Check 2: Screen capacity...
+INSERT 0 1
+Running Check 3: Booking seat allocations...
+INSERT 0 1
+Running Check 4: Offer validity...
+INSERT 0 1
+Running Check 5: Show-time overlaps...
+INSERT 0 1
+
+============================================================
+BOOKMYSHOW INTEGRITY VALIDATION REPORT
+============================================================
+ check_id |                    check_name                    | violation_count | result
+----------+--------------------------------------------------+-----------------+--------
+        1 | Seat belongs to the screen of its show           |               0 | PASS
+        2 | Screen capacity matches actual seat count        |               0 | PASS
+        3 | Booking allocations match status and num_tickets |               0 | PASS
+        4 | Applied offer is valid on booking date           |               0 | PASS
+        5 | No overlapping shows on the same screen          |               0 | PASS
+(5 rows)
+
+ total_checks | passed_checks | failed_checks | total_violations
+--------------+---------------+---------------+------------------
+            5 |             5 |             0 |                0
+(1 row)
+
+psql:sql/03_integrity_checks.sql:198: NOTICE:  SUCCESS: All five integrity checks passed.
+DO
+DROP TABLE
+============================================================
+INTEGRITY VALIDATION COMPLETED SUCCESSFULLY
+============================================================

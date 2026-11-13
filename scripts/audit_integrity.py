@@ -65,6 +65,12 @@ check_fk("movie_reviews.movie_id", tables["movie_reviews"], "movie_id",
 check_fk("movie_reviews.customer_id", tables["movie_reviews"],
          "customer_id", ids("customers", "customer_id"))
 
+check_fk("booking_seats.seat_id", tables["booking_seats"],
+         "seat_id", ids("seats", "seat_id"))
+
+check_fk("booking_seats.show_id", tables["booking_seats"],
+         "show_id", ids("shows", "show_id"))
+
 print("\n=== COMPOSITE FOREIGN KEYS ===")
 
 booking_show = {

@@ -1,0 +1,30 @@
+=== FOREIGN KEY CHECKS ===
+venues.city_id: 0 invalid references
+screens.venue_id: 0 invalid references
+seats.screen_id: 0 invalid references
+shows.movie_id: 0 invalid references
+shows.screen_id: 0 invalid references
+customers.city_id: 0 invalid references
+bookings.customer_id: 0 invalid references
+bookings.show_id: 0 invalid references
+bookings.offer_code: 0 invalid references
+movie_reviews.movie_id: 0 invalid references
+movie_reviews.customer_id: 0 invalid references
+booking_seats.seat_id: 0 invalid references
+booking_seats.show_id: 0 invalid references
+
+=== COMPOSITE FOREIGN KEYS ===
+booking_seats(booking_id, show_id): 0 invalid references
+
+=== VARCHAR LENGTH CHECKS ===
+Values exceeding VARCHAR limits: 0
+
+=== DATE AND TIMESTAMP CHECKS ===
+Invalid dates: 0
+Invalid or timezone-free timestamps: 0
+
+=== SHOW TIME VALIDITY AND OVERLAPS ===
+Invalid show intervals: 0
+Overlapping show pairs: 0
+
+=== AUDIT COMPLETE ===

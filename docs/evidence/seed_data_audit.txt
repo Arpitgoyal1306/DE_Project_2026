@@ -1,0 +1,21 @@
+=== UNIQUENESS CHECKS ===
+customers.email: 0 duplicate keys
+customers.phone: 0 duplicate keys
+bookings.booking_code: 0 duplicate keys
+seats position: 0 duplicate keys
+booking_seats booking-seat: 0 duplicate keys
+booking_seats show-seat: 0 duplicate keys
+bookings booking-show: 0 duplicate keys
+
+=== BOOKING AMOUNT CHECKS ===
+Incorrect total calculations: 0
+Discount exceeds total components: 0
+
+=== SEAT-SCREEN CONSISTENCY ===
+Invalid seat-screen allocations: 0
+
+=== SMALLINT RANGE CHECKS ===
+Values outside SMALLINT range: 0
+
+=== SUMMARY ===
+Audit completed.
