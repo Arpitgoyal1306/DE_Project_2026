@@ -1,0 +1,40 @@
+digraph BMS {
+  graph [rankdir=LR, splines=polyline, nodesep=0.42, ranksep=0.85, pad=0.25, bgcolor="white", fontname="Arial", labelloc=t, label="BookMyShow Database | Entity Relationship Diagram (CP1)", fontsize=22, compound=true];
+  node [shape=plain, fontname="Arial", fontsize=10];
+  edge [color="#475569", penwidth=1.25, arrowsize=0.75, fontname="Arial", fontsize=9, labelfontcolor="#334155"];
+
+  cities [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>cities</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> city_id</TD></TR><TR><TD ALIGN="LEFT">city_name</TD></TR><TR><TD ALIGN="LEFT">state</TD></TR></TABLE>>];
+  venues [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>venues</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> venue_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> city_id</TD></TR><TR><TD ALIGN="LEFT">venue_name</TD></TR><TR><TD ALIGN="LEFT">chain</TD></TR><TR><TD ALIGN="LEFT">address</TD></TR></TABLE>>];
+  screens [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>screens</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> screen_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> venue_id</TD></TR><TR><TD ALIGN="LEFT">screen_name</TD></TR><TR><TD ALIGN="LEFT">screen_type</TD></TR><TR><TD ALIGN="LEFT">total_seats</TD></TR></TABLE>>];
+  seats [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>seats</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> seat_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> screen_id</TD></TR><TR><TD ALIGN="LEFT">row_label</TD></TR><TR><TD ALIGN="LEFT">seat_number</TD></TR><TR><TD ALIGN="LEFT">seat_class</TD></TR><TR><TD ALIGN="LEFT"><FONT COLOR="#475569">UQ (screen_id, row_label, seat_number)</FONT></TD></TR></TABLE>>];
+  movies [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>movies</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> movie_id</TD></TR><TR><TD ALIGN="LEFT">title</TD></TR><TR><TD ALIGN="LEFT">language</TD></TR><TR><TD ALIGN="LEFT">certificate</TD></TR><TR><TD ALIGN="LEFT">duration_min</TD></TR><TR><TD ALIGN="LEFT">release_date</TD></TR></TABLE>>];
+  shows [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>shows</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> show_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> movie_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> screen_id</TD></TR><TR><TD ALIGN="LEFT">starts_at</TD></TR><TR><TD ALIGN="LEFT">ends_at</TD></TR><TR><TD ALIGN="LEFT">format</TD></TR><TR><TD ALIGN="LEFT">base_price</TD></TR></TABLE>>];
+  customers [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>customers</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> customer_id</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> email</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> phone</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> city_id</TD></TR><TR><TD ALIGN="LEFT">full_name</TD></TR><TR><TD ALIGN="LEFT">created_at</TD></TR></TABLE>>];
+  offers [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>offers</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> offer_code</TD></TR><TR><TD ALIGN="LEFT">description</TD></TR><TR><TD ALIGN="LEFT">discount_pct</TD></TR><TR><TD ALIGN="LEFT">max_discount</TD></TR><TR><TD ALIGN="LEFT">valid_from</TD></TR><TR><TD ALIGN="LEFT">valid_to</TD></TR></TABLE>>];
+  bookings [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>bookings</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> booking_id</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> booking_code</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> (booking_id, show_id)</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> customer_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> show_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> offer_code (nullable)</TD></TR><TR><TD ALIGN="LEFT">booked_at, num_tickets</TD></TR><TR><TD ALIGN="LEFT">ticket_amount, convenience_fee</TD></TR><TR><TD ALIGN="LEFT">fnb_amount, discount, total_amount</TD></TR><TR><TD ALIGN="LEFT">payment_method, status</TD></TR></TABLE>>];
+  booking_seats [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#0f766e"><TR><TD BGCOLOR="#ccfbf1"><B>booking_seats</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> (show_id, seat_id)</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> (booking_id, seat_id)</TD></TR><TR><TD ALIGN="LEFT"><B>COMPOSITE FK</B> (booking_id, show_id) -&gt; bookings</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> show_id -&gt; shows</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> seat_id -&gt; seats</TD></TR><TR><TD ALIGN="LEFT">booking_id, price</TD></TR></TABLE>>];
+  movie_reviews [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>movie_reviews</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> review_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> movie_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> customer_id</TD></TR><TR><TD ALIGN="LEFT">rating</TD></TR><TR><TD ALIGN="LEFT">review_text (nullable)</TD></TR><TR><TD ALIGN="LEFT">created_at</TD></TR></TABLE>>];
+
+  {rank=same; cities; movies; offers}
+  {rank=same; venues; customers}
+  {rank=same; screens; shows; bookings; movie_reviews}
+  {rank=same; seats; booking_seats}
+
+  cities -> venues [label="1 : N"];
+  cities -> customers [label="1 : N"];
+  venues -> screens [label="1 : N"];
+  screens -> seats [label="1 : N"];
+  screens -> shows [label="1 : N"];
+  movies -> shows [label="1 : N"];
+  customers -> bookings [label="1 : N"];
+  shows -> bookings [label="1 : N"];
+  offers -> bookings [label="0..N bookings; 0..1 per booking"];
+  bookings -> booking_seats [label="0..N composite FK"];
+  shows -> booking_seats [label="0..N"];
+  seats -> booking_seats [label="0..N"];
+  movies -> movie_reviews [label="1 : N"];
+  customers -> movie_reviews [label="1 : N"];
+
+  note [shape=note, style=filled, fillcolor="#f8fafc", color="#94a3b8", fontname="Arial", fontsize=9, label="Legend: PK = Primary Key   UQ = Unique   FK = Foreign Key\nAll foreign keys use ON DELETE RESTRICT.\nbooking_seats key details are shown explicitly."];
+  {rank=sink; note}
+}
