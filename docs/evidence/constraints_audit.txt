@@ -1,0 +1,9 @@
+=== NOT NULL CHECKS ===
+Checked all required columns.
+
+=== NUMERIC CHECK CONSTRAINTS ===
+
+=== RESULTS ===
+Total violations: 0
+
+All tested NOT NULL and CHECK constraints passed.

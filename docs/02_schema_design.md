@@ -1,44 +1,470 @@
-# CP1 – Database Schema Design
+# BookMyShow Database: Schema Design
+
+**Project:** BookMyShow Ticketing Database
+**Database:** PostgreSQL 18.6
+**Schema:** `bms`
+**Phase:** CP1, Phase 2: Database Schema Design
+
+---
 
 ## 1. Overview
 
-The BookMyShow database is designed as 11 PostgreSQL relations based on the supplied CSV files. The schema separates cities, venues, screens, seats, movies, shows, customers, offers, bookings, booking-seat allocations, and movie reviews.
+The BookMyShow Ticketing Database models a cinema ticket booking system. It manages cities, cinema venues, screens, seats, movies, shows, customers, offers, bookings, allocated seats, and movie reviews.
 
-The design aims to reduce unnecessary redundancy, preserve referential integrity, prevent invalid seat allocations, and support the specified transactional and analytical SQL workload.
+The database is implemented using PostgreSQL and contains 11 relational tables.
 
-Performance-tuning indexes beyond those automatically created by PRIMARY KEY and UNIQUE constraints will be considered in later optimization phases.
+The schema is designed to:
+- Maintain referential integrity between related entities.
+- Prevent duplicate seat allocations for the same show.
+- Prevent overlapping shows on the same screen.
+- Validate booking amounts and other business rules.
+- Support reliable booking, ticket allocation, and reporting operations.
 
-**Implementation status:** The schema definitions, constraints, and triggers described in this document are proposed design decisions. They will be considered implemented only after the PostgreSQL DDL has been executed and tested successfully.
+All tables are created inside the `bms` schema.
 
-## 2. Relations, Attributes, and Keys
+## 2. Database Tables
 
-The following attributes are taken from the supplied CSV headers.
+The database contains the following 11 tables:
 
-| Relation | Attributes | Primary Key |
+| Table | Purpose |
+|---|---|
+| cities | Stores city and state information. |
+| venues | Stores cinema venue details and their locations. |
+| screens | Stores individual screens within venues. |
+| seats | Stores seat positions and classes within screens. |
+| movies | Stores movie information. |
+| shows | Stores movie showtimes, screens, and pricing. |
+| customers | Stores customer information. |
+| offers | Stores promotional offer details and validity periods. |
+| bookings | Stores customer booking and payment information. |
+| booking_seats | Stores the seats allocated to each booking. |
+| movie_reviews | Stores customer reviews and ratings for movies. |
+
+## 3. Data Dictionary
+
+### 3.1 cities
+
+**Purpose:** Stores the cities in which cinema venues and customers are located.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| city_id | SMALLINT | PRIMARY KEY, NOT NULL | Unique city identifier. |
+| city_name | VARCHAR(30) | NOT NULL | Name of the city. |
+| state | VARCHAR(30) | NOT NULL | State containing the city. |
+
+### 3.2 venues
+
+**Purpose:** Stores cinema venue information.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| venue_id | SMALLINT | PRIMARY KEY, NOT NULL | Unique venue identifier. |
+| venue_name | VARCHAR(60) | NOT NULL | Cinema venue name. |
+| city_id | SMALLINT | FOREIGN KEY, NOT NULL | References cities.city_id. |
+| chain | VARCHAR(30) | NOT NULL | Cinema chain name. |
+| address | VARCHAR(100) | NOT NULL | Venue address. |
+
+### 3.3 screens
+
+**Purpose:** Stores individual cinema screens belonging to venues.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| screen_id | SMALLINT | PRIMARY KEY, NOT NULL | Unique screen identifier. |
+| venue_id | SMALLINT | FOREIGN KEY, NOT NULL | References venues.venue_id. |
+| screen_name | VARCHAR(20) | NOT NULL | Screen name. |
+| screen_type | VARCHAR(20) | NOT NULL | Screen type. |
+| total_seats | SMALLINT | NOT NULL, CHECK > 0 | Declared seating capacity. |
+
+### 3.4 seats
+
+**Purpose:** Stores individual seats belonging to cinema screens.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| seat_id | INTEGER | PRIMARY KEY, NOT NULL | Unique seat identifier. |
+| screen_id | SMALLINT | FOREIGN KEY, NOT NULL | References screens.screen_id. |
+| row_label | VARCHAR(5) | NOT NULL | Seat row identifier. |
+| seat_number | SMALLINT | NOT NULL, CHECK > 0 | Seat number within the row. |
+| seat_class | VARCHAR(20) | NOT NULL | Seat category or class. |
+
+Additional constraint:
+
+`UNIQUE (screen_id, row_label, seat_number)`
+
+This prevents two seats on the same screen from having the same row and seat number.
+
+### 3.5 movies
+
+**Purpose:** Stores movie metadata.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| movie_id | SMALLINT | PRIMARY KEY, NOT NULL | Unique movie identifier. |
+| title | VARCHAR(100) | NOT NULL | Movie title. |
+| language | VARCHAR(30) | NOT NULL | Movie language. |
+| certificate | VARCHAR(10) | NOT NULL | Certification category. |
+| duration_min | SMALLINT | NOT NULL, CHECK > 0 | Movie duration in minutes. |
+| release_date | DATE | NOT NULL | Movie release date. |
+
+### 3.6 shows
+
+**Purpose:** Stores scheduled movie screenings.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| show_id | INTEGER | PRIMARY KEY, NOT NULL | Unique show identifier. |
+| movie_id | SMALLINT | FOREIGN KEY, NOT NULL | References movies.movie_id. |
+| screen_id | SMALLINT | FOREIGN KEY, NOT NULL | References screens.screen_id. |
+| starts_at | TIMESTAMPTZ | NOT NULL | Show start timestamp. |
+| ends_at | TIMESTAMPTZ | NOT NULL | Show end timestamp. |
+| format | VARCHAR(10) | NOT NULL | Screening format. |
+| base_price | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Base ticket price. |
+
+Additional constraints:
+
+- `CHECK (ends_at > starts_at)`
+- `CHECK (base_price >= 0)`
+- Exclusion constraint `ex_shows_no_overlap`.
+
+The exclusion constraint prevents two shows from overlapping on the same screen.
+
+It uses a GiST index and `tstzrange(starts_at, ends_at, '[)')`. The half-open interval allows one show to begin exactly when the previous show ends.
+
+The `btree_gist` PostgreSQL extension is required for this constraint.
+
+### 3.7 customers
+
+**Purpose:** Stores customer account information.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| customer_id | INTEGER | PRIMARY KEY, NOT NULL | Unique customer identifier. |
+| full_name | VARCHAR(100) | NOT NULL | Customer's full name. |
+| email | VARCHAR(100) | UNIQUE, NOT NULL | Customer email address. |
+| phone | VARCHAR(15) | UNIQUE, NOT NULL | Customer phone number. |
+| city_id | SMALLINT | FOREIGN KEY, NOT NULL | References cities.city_id. |
+| created_at | TIMESTAMPTZ | NOT NULL | Customer registration timestamp. |
+
+Email and phone are unique to prevent duplicate customer contact records.
+
+### 3.8 offers
+
+**Purpose:** Stores promotional offers and their validity periods.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| offer_code | VARCHAR(20) | PRIMARY KEY, NOT NULL | Unique offer identifier. |
+| description | VARCHAR(100) | NOT NULL | Offer description. |
+| discount_pct | NUMERIC(5,2) | NOT NULL, CHECK 0–100 | Percentage discount. |
+| max_discount | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Maximum discount amount. |
+| valid_from | DATE | NOT NULL | Offer starting date. |
+| valid_to | DATE | NOT NULL | Offer ending date. |
+
+Additional constraint:
+
+`CHECK (valid_to >= valid_from)`
+
+This ensures the offer's end date is not earlier than its start date.
+
+### 3.9 bookings
+
+**Purpose:** Stores customer booking, payment, pricing, and status information.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| booking_id | INTEGER | PRIMARY KEY, NOT NULL | Unique booking identifier. |
+| booking_code | VARCHAR(20) | UNIQUE, NOT NULL | Unique customer-facing booking code. |
+| customer_id | INTEGER | FOREIGN KEY, NOT NULL | References customers.customer_id. |
+| show_id | INTEGER | FOREIGN KEY, NOT NULL | References shows.show_id. |
+| booked_at | TIMESTAMPTZ | NOT NULL | Booking timestamp. |
+| num_tickets | SMALLINT | NOT NULL, CHECK > 0 | Number of tickets booked. |
+| ticket_amount | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Total ticket amount. |
+| convenience_fee | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Convenience fee. |
+| fnb_amount | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Food and beverage amount. |
+| offer_code | VARCHAR(20) | FOREIGN KEY, NULL allowed | Applied offer, if any. |
+| discount | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Discount applied. |
+| total_amount | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Final payable amount. |
+| payment_method | VARCHAR(20) | NOT NULL | Payment method. |
+| status | VARCHAR(20) | NOT NULL | Booking status. |
+
+Additional constraints:
+
+- `UNIQUE (booking_id, show_id)` supports the composite foreign key in booking_seats.
+- Discount cannot exceed the sum of ticket amount, convenience fee, and F&B amount.
+- Total amount must equal ticket amount plus convenience fee plus F&B amount minus discount.
+
+The `offer_code` column is nullable because a booking does not necessarily use a promotional offer.
+
+### 3.10 booking_seats
+
+**Purpose:** Stores the seats allocated to individual bookings.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| booking_id | INTEGER | FOREIGN KEY, NOT NULL | References bookings.booking_id. |
+| show_id | INTEGER | FOREIGN KEY, NOT NULL | References shows.show_id. |
+| seat_id | INTEGER | FOREIGN KEY, NOT NULL | References seats.seat_id. |
+| price | NUMERIC(10,2) | NOT NULL, CHECK >= 0 | Price of the allocated seat. |
+
+Primary key:
+
+`PRIMARY KEY (show_id, seat_id)`
+
+Additional unique constraint:
+
+`UNIQUE (booking_id, seat_id)`
+
+Composite foreign key:
+
+`FOREIGN KEY (booking_id, show_id) REFERENCES bookings(booking_id, show_id)`
+
+The primary key prevents the same seat from being allocated more than once for a particular show.
+
+The composite foreign key ensures that the booking and show referenced by an allocation belong together.
+
+### 3.11 movie_reviews
+
+**Purpose:** Stores movie ratings and customer reviews.
+
+| Column | Data type | Constraint | Description |
+|---|---|---|---|
+| review_id | INTEGER | PRIMARY KEY, NOT NULL | Unique review identifier. |
+| movie_id | SMALLINT | FOREIGN KEY, NOT NULL | References movies.movie_id. |
+| customer_id | INTEGER | FOREIGN KEY, NOT NULL | References customers.customer_id. |
+| rating | SMALLINT | NOT NULL, CHECK 1–10 | Customer rating. |
+| review_text | TEXT | NULL allowed | Optional written review. |
+| created_at | TIMESTAMPTZ | NOT NULL | Review creation timestamp. |
+
+The review text is nullable because a customer may submit a rating without writing a comment.
+
+---
+
+## 4. Keys and Referential Integrity
+
+### 4.1 Primary Keys
+
+Each of the 11 tables has a primary key.
+
+| Table | Primary key |
+|---|---|
+| cities | city_id |
+| venues | venue_id |
+| screens | screen_id |
+| seats | seat_id |
+| movies | movie_id |
+| shows | show_id |
+| customers | customer_id |
+| offers | offer_code |
+| bookings | booking_id |
+| booking_seats | (show_id, seat_id) |
+| movie_reviews | review_id |
+
+### 4.2 Additional UNIQUE Constraints
+
+| Table | Unique columns |
+|---|---|
+| seats | (screen_id, row_label, seat_number) |
+| customers | email |
+| customers | phone |
+| bookings | booking_code |
+| bookings | (booking_id, show_id) |
+| booking_seats | (booking_id, seat_id) |
+
+### 4.3 Foreign Keys
+
+| Child table | Foreign key | Parent table |
 |---|---|---|
-| cities | city_id, city_name, state | city_id |
-| venues | venue_id, venue_name, city_id, chain, address | venue_id |
-| screens | screen_id, venue_id, screen_name, screen_type, total_seats | screen_id |
-| seats | seat_id, screen_id, row_label, seat_number, seat_class | seat_id |
-| movies | movie_id, title, language, certificate, duration_min, release_date | movie_id |
-| shows | show_id, movie_id, screen_id, starts_at, ends_at, format, base_price | show_id |
-| customers | customer_id, full_name, email, phone, city_id, created_at | customer_id |
-| offers | offer_code, description, discount_pct, max_discount, valid_from, valid_to | offer_code |
-| bookings | booking_id, booking_code, customer_id, show_id, booked_at, num_tickets, ticket_amount, convenience_fee, fnb_amount, offer_code, discount, total_amount, payment_method, status | booking_id |
-| booking_seats | booking_id, show_id, seat_id, price | (show_id, seat_id) |
-| movie_reviews | review_id, movie_id, customer_id, rating, review_text, created_at | review_id |
+| venues | city_id | cities |
+| screens | venue_id | venues |
+| seats | screen_id | screens |
+| shows | movie_id | movies |
+| shows | screen_id | screens |
+| customers | city_id | cities |
+| bookings | customer_id | customers |
+| bookings | show_id | shows |
+| bookings | offer_code | offers |
+| booking_seats | (booking_id, show_id) | bookings |
+| booking_seats | show_id | shows |
+| booking_seats | seat_id | seats |
+| movie_reviews | movie_id | movies |
+| movie_reviews | customer_id | customers |
 
-The `booking_seats` relation also has the alternate candidate key `(booking_id, seat_id)`.
+There are 14 foreign-key constraints, including one composite foreign key.
 
-The supplied CSV files contain blank values in `bookings.offer_code` and `movie_reviews.review_text`. These columns will therefore permit NULL. The remaining columns are proposed as required, subject to PostgreSQL loading and validation.
+### 4.4 Delete Rules
 
-## 3. Candidate Keys and Functional Dependencies
+All foreign-key relationships use `ON DELETE RESTRICT`.
 
-A functional dependency (FD) X → Y means that a value of X determines exactly one value of Y within a relation.
+This prevents deleting a referenced city, venue, screen, seat, movie, show, customer, or offer while dependent records exist.
 
-The principal functional dependencies are:
+This approach protects historical booking and review records from accidental deletion.
 
-| Relation | Functional Dependencies |
+---
+
+## 5. Relationship Cardinalities
+
+| Relationship | Cardinality |
+|---|---|
+| cities to venues | 1:N |
+| cities to customers | 1:N |
+| venues to screens | 1:N |
+| screens to seats | 1:N |
+| screens to shows | 1:N |
+| movies to shows | 1:N |
+| customers to bookings | 1:N |
+| shows to bookings | 1:N |
+| bookings to booking_seats | 1:N |
+| shows to booking_seats | 1:N |
+| seats to booking_seats | 1:N |
+| offers to bookings | Offer to bookings: 0..N; booking to offer: 0..1 (nullable) |
+| movies to movie_reviews | 1:N |
+| customers to movie_reviews | 1:N |
+
+A booking can contain multiple seats, while a seat can be allocated to different shows at different times.
+
+The booking_seats table represents the allocation relationship between bookings, shows, and seats.
+
+---
+
+## 6. Entity Relationship Diagram
+
+The following Mermaid ER diagram represents the implemented relational schema.
+
+```mermaid
+erDiagram
+    CITIES ||--o{ VENUES : contains
+    CITIES ||--o{ CUSTOMERS : associated_with
+
+    VENUES ||--o{ SCREENS : contains
+    SCREENS ||--o{ SEATS : has
+    SCREENS ||--o{ SHOWS : hosts
+
+    MOVIES ||--o{ SHOWS : scheduled_as
+
+    CUSTOMERS ||--o{ BOOKINGS : places
+    SHOWS ||--o{ BOOKINGS : receives
+    OFFERS o|--o{ BOOKINGS : applied_to
+
+    BOOKINGS ||--o{ BOOKING_SEATS : allocates
+    SHOWS ||--o{ BOOKING_SEATS : contains
+    SEATS ||--o{ BOOKING_SEATS : allocated_as
+
+    MOVIES ||--o{ MOVIE_REVIEWS : receives
+    CUSTOMERS ||--o{ MOVIE_REVIEWS : writes
+
+    CITIES {
+        smallint city_id PK
+        varchar city_name
+        varchar state
+    }
+
+    VENUES {
+        smallint venue_id PK
+        varchar venue_name
+        smallint city_id FK
+        varchar chain
+        varchar address
+    }
+
+    SCREENS {
+        smallint screen_id PK
+        smallint venue_id FK
+        varchar screen_name
+        varchar screen_type
+        smallint total_seats
+    }
+
+    SEATS {
+        int seat_id PK
+        smallint screen_id FK
+        varchar row_label
+        smallint seat_number
+        varchar seat_class
+    }
+
+    MOVIES {
+        smallint movie_id PK
+        varchar title
+        varchar language
+        varchar certificate
+        smallint duration_min
+        date release_date
+    }
+
+    SHOWS {
+        int show_id PK
+        smallint movie_id FK
+        smallint screen_id FK
+        timestamptz starts_at
+        timestamptz ends_at
+        varchar format
+        numeric base_price
+    }
+
+    CUSTOMERS {
+        int customer_id PK
+        varchar full_name
+        varchar email UK
+        varchar phone UK
+        smallint city_id FK
+        timestamptz created_at
+    }
+
+    OFFERS {
+        varchar offer_code PK
+        varchar description
+        numeric discount_pct
+        numeric max_discount
+        date valid_from
+        date valid_to
+    }
+
+    BOOKINGS {
+        int booking_id PK
+        varchar booking_code UK
+        int customer_id FK
+        int show_id FK
+        timestamptz booked_at
+        smallint num_tickets
+        numeric ticket_amount
+        numeric convenience_fee
+        numeric fnb_amount
+        varchar offer_code FK
+        numeric discount
+        numeric total_amount
+        varchar payment_method
+        varchar status
+    }
+
+    BOOKING_SEATS {
+        int booking_id PK, FK
+        int show_id PK, FK
+        int seat_id PK, FK
+        numeric price
+    }
+
+    MOVIE_REVIEWS {
+        int review_id PK
+        smallint movie_id FK
+        int customer_id FK
+        smallint rating
+        text review_text
+        timestamptz created_at
+    }
+```
+
+The composite key of booking_seats is `(show_id, seat_id)`. Its composite foreign key `(booking_id, show_id)` references bookings.
+
+---
+
+## 7. Functional Dependencies and Normalization
+
+Functional dependencies describe how one set of attributes determines another set of attributes.
+
+### 7.1 Functional Dependencies
+
+| Table | Main functional dependency |
 |---|---|
 | cities | city_id → city_name, state |
 | venues | venue_id → venue_name, city_id, chain, address |
@@ -48,413 +474,197 @@ The principal functional dependencies are:
 | movies | movie_id → title, language, certificate, duration_min, release_date |
 | shows | show_id → movie_id, screen_id, starts_at, ends_at, format, base_price |
 | customers | customer_id → full_name, email, phone, city_id, created_at |
-| customers | email → customer_id and remaining customer attributes (proposed) |
-| customers | phone → customer_id and remaining customer attributes (proposed) |
+| customers | email → customer_id, full_name, phone, city_id, created_at |
+| customers | phone → customer_id, full_name, email, city_id, created_at |
 | offers | offer_code → description, discount_pct, max_discount, valid_from, valid_to |
-| bookings | booking_id → booking_code and all remaining booking attributes |
-| bookings | booking_code → booking_id and all remaining booking attributes (proposed) |
+| bookings | booking_id → all other booking attributes |
+| bookings | booking_code → all other booking attributes |
+| booking_seats | (show_id, seat_id) → booking_id, price |
+| booking_seats | (booking_id, seat_id) → show_id, price |
+| booking_seats | booking_id → show_id |
 | movie_reviews | review_id → movie_id, customer_id, rating, review_text, created_at |
 
-### 3.1 Candidate-key evidence and rationale
+For movie_reviews, the current schema does not enforce uniqueness on `(customer_id, movie_id)`. Multiple reviews by one customer for the same movie are therefore possible.
 
-The validator checked the following alternate unique combinations in the supplied dataset. Each had zero duplicate combinations:
+### 7.2 Normalization Analysis
 
-| Relation | Proposed alternate key | Dataset evidence | Business-rule rationale |
-|---|---|---|---|
-| seats | (screen_id, row_label, seat_number) | 94,056 seat rows; zero duplicate combinations | A physical seat position should identify one seat within a screen |
-| customers | email | 40,000 customer rows; zero duplicate values | An email address is proposed as a unique customer contact identifier |
-| customers | phone | 40,000 customer rows; zero duplicate values | A phone number is proposed as a unique customer contact identifier |
-| bookings | booking_code | 150,094 booking rows; zero duplicate values | A booking code should identify one booking externally |
-| booking_seats | (booking_id, seat_id) | 300,389 allocation rows; zero duplicate combinations | A seat should appear at most once within a booking |
-| bookings | (booking_id, show_id) | 150,094 booking rows; zero duplicate combinations | Supports the composite foreign key from booking-seat allocations |
+The schema is designed to minimize redundancy and maintain relational integrity.
 
-The observed uniqueness supports these proposed constraints for the supplied dataset. It does not, by itself, prove that every alternate key is a universal business rule. In particular, the owner should confirm whether email and phone must be unique for the application.
+Most tables satisfy BCNF because their non-trivial functional dependencies have candidate keys as determinants.
 
-The candidate keys implied by the proposed uniqueness rules include:
+The booking_seats relation has a special case:
 
-- `cities`: city_id
-- `venues`: venue_id
-- `screens`: screen_id
-- `seats`: seat_id; (screen_id, row_label, seat_number)
-- `movies`: movie_id
-- `shows`: show_id
-- `customers`: customer_id; email; phone (alternate keys proposed)
-- `offers`: offer_code
-- `bookings`: booking_id; booking_code (alternate key proposed)
-- `booking_seats`: (show_id, seat_id); (booking_id, seat_id)
-- `movie_reviews`: review_id
+- Candidate key 1: `(show_id, seat_id)`
+- Candidate key 2: `(booking_id, seat_id)`
+- Functional dependency: `booking_id → show_id`
 
-**Review uniqueness decision pending owner confirmation:** The dataset contains 32,510 reviews and zero duplicate `(customer_id, movie_id)` pairs. We propose `UNIQUE (customer_id, movie_id)` to represent one review per customer per movie. This is not included as an enforced candidate key until the repository owner confirms that business rule.
+The dependency `booking_id → show_id` is supported by the unique booking identifier and the composite foreign key to bookings.
 
-### 3.2 booking_seats: Functional Dependencies and Key Selection
+Because `booking_id` is not a superkey of booking_seats, this relation does not satisfy BCNF.
 
-The `booking_seats` CSV contains four attributes:
+However, `show_id` is a prime attribute because it belongs to a candidate key. Therefore, the relation satisfies 3NF.
 
-`(booking_id, show_id, seat_id, price)`
+The composite structure is retained because it ensures that an allocated seat belongs to the same show as its booking.
 
-A booking belongs to exactly one show. Therefore, the `bookings` relation establishes:
+### 7.3 Derived and Redundant Attributes
 
-`booking_id → show_id`
+Some attributes could theoretically be calculated from other records.
 
-The inspected allocation data supports two candidate keys:
+**screens.total_seats**
 
-1. `(show_id, seat_id)` — a particular seat can be allocated at most once for a particular show.
-2. `(booking_id, seat_id)` — a particular seat can occur at most once within a booking.
+This value could be calculated by counting the seats associated with a screen. It is retained as declared capacity information and for convenient capacity checks.
 
-The corresponding dependencies are:
+**bookings.ticket_amount**
 
-- `(show_id, seat_id) → booking_id, price`
-- `(booking_id, seat_id) → show_id, price`
+This amount is related to the prices of the allocated seats. It is retained as a booking-level financial snapshot.
 
-The second dependency is consistent with `booking_id → show_id` in the parent `bookings` relation.
+**booking_seats.show_id**
 
-We select `(show_id, seat_id)` as the primary key because the most important business rule is that the same seat must not be allocated twice for the same show. The alternate key `(booking_id, seat_id)` will be enforced using a UNIQUE constraint.
+The show is already associated with a booking through bookings.show_id. It is retained to support the composite foreign key and enforce booking-show consistency.
 
-Although `show_id` can be derived by joining `bookings` using `booking_id`, it is retained in `booking_seats` to enforce seat-per-show uniqueness directly.
+**shows.ends_at**
 
-A composite foreign key `(booking_id, show_id)` references the corresponding UNIQUE key in `bookings`. This ensures that the repeated `show_id` agrees with the show assigned to the booking. The individual `booking_seats.booking_id → bookings.booking_id` foreign key is omitted as redundant: the composite foreign key already guarantees that the booking/show pair exists in `bookings`. The individual `booking_seats.show_id → shows.show_id` and `booking_seats.seat_id → seats.seat_id` references remain.
+The end timestamp could potentially be calculated using the movie duration and show start time. It is retained because the actual scheduled end time is explicitly stored and used by the show-overlap exclusion constraint.
 
-**Normal-form implication:** In `booking_seats`, `booking_id → show_id` has a determinant that is not a superkey. However, `show_id` is a prime attribute because it belongs to the candidate key `(show_id, seat_id)`. Therefore, this dependency does not violate 3NF, but it does violate BCNF. This is a deliberate and documented trade-off to retain direct enforcement of seat-per-show uniqueness.
+---
 
-## 4. Relationships and Cardinalities
+## 8. Integrity Constraints
 
-| Parent | Child | Cardinality |
-|---|---|---|
-| cities | venues | 1:N |
-| cities | customers | 1:N |
-| venues | screens | 1:N |
-| screens | seats | 1:N |
-| screens | shows | 1:N |
-| movies | shows | 1:N |
-| customers | bookings | 1:N |
-| shows | bookings | 1:N |
-| bookings | booking_seats | 1:N |
-| offers | bookings | Offer to bookings: 0..N; booking to offer: 0..1 (nullable) |
-| movies | movie_reviews | 1:N |
-| customers | movie_reviews | 1:N |
+### 8.1 Constraint Summary
 
-Bookings and seats form a many-to-many relationship, resolved through `booking_seats`.
+The implemented schema contains:
 
-## 5. Normalization Analysis
+| Constraint category | Count |
+|---|---:|
+| Primary keys | 11 |
+| Foreign keys | 14 |
+| Additional UNIQUE constraints | 6 |
+| CHECK constraints | 18 |
+| Exclusion constraints | 1 |
 
-### 5.1 First Normal Form (1NF)
+PostgreSQL automatically creates indexes for primary-key and unique constraints. The exclusion constraint also creates its required GiST index.
 
-A relation satisfies 1NF when each attribute contains a single atomic value and there are no repeating groups.
+No additional performance-tuning indexes or custom triggers are created in this phase.
 
-In the supplied data, a booking does not contain repeated columns such as `seat_1`, `seat_2`, or `seat_3`. Instead, each seat allocation is represented as an individual row in `booking_seats`.
+### 8.2 Important Business Rules
 
-All 11 relations use individual attributes for their stored values, and each relation has a key to identify its rows.
+The schema enforces the following rules:
 
-Therefore, the proposed relations satisfy 1NF.
+1. Every venue must reference an existing city.
+2. Every screen must belong to an existing venue.
+3. Every seat must belong to an existing screen.
+4. Every show must reference an existing movie and screen.
+5. Show end time must be later than start time.
+6. Show base price cannot be negative.
+7. Two shows on the same screen cannot overlap.
+8. Every customer must reference an existing city.
+9. Customer email and phone must be unique.
+10. Every booking must reference an existing customer and show.
+11. Booking codes must be unique.
+12. Ticket count must be greater than zero.
+13. Monetary amounts cannot be negative.
+14. Discount cannot exceed the total booking components.
+15. Total amount must match the booking amount calculation.
+16. Offer discount percentage must be between 0 and 100.
+17. Offer end date must not precede its start date.
+18. Movie review ratings must be between 1 and 10.
+19. A seat cannot be allocated twice for the same show.
 
-### 5.2 Second Normal Form (2NF)
+The rules above are enforced through primary keys, foreign keys, unique constraints, CHECK constraints, and the exclusion constraint, as appropriate.
 
-A relation satisfies 2NF when it is in 1NF and no non-prime attribute depends on only a proper subset of a candidate key.
+Seat-screen consistency, screen capacity, booking allocation counts, and offer validity across different tables are additionally verified using SQL integrity checks.
 
-Most relations have single-column primary keys. Therefore, they cannot have partial dependencies on a composite primary key.
+---
 
-For `seats`, the alternate candidate key `(screen_id, row_label, seat_number)` determines `seat_id` and `seat_class` as a complete combination. Neither `screen_id` alone nor `row_label` alone determines the complete seat information.
+## 9. Data Loading and Validation
 
-For `booking_seats`, the candidate keys are `(show_id, seat_id)` and `(booking_id, seat_id)`. The allocation price depends on the complete allocation key rather than on either component independently.
+The database was populated using `sql/02_load_data.sql`.
 
-Thus, the proposed relations satisfy 2NF.
+All 11 CSV files were loaded using PostgreSQL `\copy` commands in parent-before-child order.
 
-### 5.3 Third Normal Form (3NF)
+### 9.1 Verified Row Counts
 
-A relation satisfies 3NF when it is in 2NF and every non-trivial functional dependency X → A has either a superkey as X or a prime attribute as A.
-
-The entity relations separate attributes according to the entity that determines them:
-
-- `venues` stores `city_id`, not repeated city names and state details.
-- `screens` stores `venue_id`, not repeated venue addresses.
-- `seats` stores `screen_id`, not repeated screen and venue details.
-- `shows` stores `movie_id` and `screen_id`, not repeated movie and screen descriptions.
-- `bookings` stores `customer_id` and `show_id`, not repeated customer and movie details.
-- `movie_reviews` stores references to movies and customers rather than duplicating their details.
-
-For example, `venue_id → city_id` in `venues`, while `city_id → city_name, state` is represented in `cities`. This avoids storing city descriptions repeatedly in the venue relation.
-
-The `booking_seats` relation has the additional dependency `booking_id → show_id`. As explained in Section 3.2, `show_id` is prime, so this dependency is permitted by 3NF even though it does not satisfy BCNF.
-
-The proposed design therefore satisfies 3NF, with the documented BCNF exception in `booking_seats`.
-
-## 6. Intended Integrity Constraints
-
-The final SQL schema will implement the following constraints, subject to verification against the supplied CSV data. These are proposed constraints and are not considered implemented until successfully tested in PostgreSQL.
-
-### 6.1 PRIMARY KEY Constraints
-
-- Primary keys on all 11 relations.
-- Composite primary key `(show_id, seat_id)` on `booking_seats`.
-
-### 6.2 FOREIGN KEY Constraints
-
-There are **13 individual foreign-key relationships and 1 composite foreign-key relationship**, for 14 FK constraints in total.
-
-**Individual foreign keys (13):**
-
-- `venues.city_id` → `cities.city_id`
-- `screens.venue_id` → `venues.venue_id`
-- `seats.screen_id` → `screens.screen_id`
-- `shows.movie_id` → `movies.movie_id`
-- `shows.screen_id` → `screens.screen_id`
-- `customers.city_id` → `cities.city_id`
-- `bookings.customer_id` → `customers.customer_id`
-- `bookings.show_id` → `shows.show_id`
-- `bookings.offer_code` → `offers.offer_code` (nullable)
-- `booking_seats.show_id` → `shows.show_id`
-- `booking_seats.seat_id` → `seats.seat_id`
-- `movie_reviews.movie_id` → `movies.movie_id`
-- `movie_reviews.customer_id` → `customers.customer_id`
-
-**Composite foreign key (1):**
-
-- `booking_seats(booking_id, show_id)` → `bookings(booking_id, show_id)`
-
-The individual `booking_seats.booking_id → bookings.booking_id` constraint is intentionally omitted because the composite FK already verifies the booking identifier together with its associated show. The composite foreign key requires a matching UNIQUE constraint on `(booking_id, show_id)` in `bookings`.
-
-### 6.3 UNIQUE Constraints
-
-The proposed alternate UNIQUE constraints are:
-
-- `customers.email`
-- `customers.phone`
-- `bookings.booking_code`
-- `seats(screen_id, row_label, seat_number)`
-- `booking_seats(booking_id, seat_id)`
-- `bookings(booking_id, show_id)` to support the composite foreign key.
-
-Each combination had zero duplicates in the supplied dataset. The proposed `UNIQUE (customer_id, movie_id)` on `movie_reviews` remains pending owner confirmation and is not counted among the 17 validator primary/unique checks.
-
-The primary keys also enforce uniqueness.
-
-### 6.4 NOT NULL Constraints
-
-All required columns will be declared NOT NULL, including identifiers, foreign keys, timestamps, amounts, and descriptive fields.
-
-The two exceptions supported by the CSV data are:
-
-- `bookings.offer_code`
-- `movie_reviews.review_text`
-
-These columns will permit NULL values.
-
-### 6.5 CHECK Constraints
-
-The proposed row-level checks include:
-
-- `shows.ends_at > shows.starts_at`
-- `movies.duration_min > 0`
-- `screens.total_seats > 0`
-- `seats.seat_number > 0`
-- `bookings.num_tickets > 0`
-- `shows.base_price >= 0`
-- `booking_seats.price >= 0`
-- `bookings.ticket_amount >= 0`
-- `bookings.convenience_fee >= 0`
-- `bookings.fnb_amount >= 0`
-- `bookings.discount >= 0`
-- `bookings.total_amount >= 0`
-- `offers.discount_pct BETWEEN 0 AND 100`
-- `offers.max_discount >= 0`
-- `offers.valid_to >= offers.valid_from`
-- `movie_reviews.rating BETWEEN 1 AND 10`
-
-The inspected dataset also supports these booking amount consistency rules:
-
-- `discount <= ticket_amount + convenience_fee + fnb_amount`
-- `total_amount = ticket_amount + convenience_fee + fnb_amount - discount`
-
-All 150,094 booking rows passed both checks, with zero negative monetary values and zero amount-calculation mismatches. These rules can be enforced with row-level CHECK constraints.
-
-Further checks for booking status, payment method, screen type, seat class, show format, and other categorical values will be based on the distinct values found in the CSVs. No unsupported enum values will be assumed.
-
-### 6.6 Show Overlap Constraint
-
-Two shows must not overlap on the same screen.
-
-This rule is proposed to be enforced using a PostgreSQL exclusion constraint on `screen_id` and the show time range. The half-open range `[starts_at, ends_at)` allows one show to start exactly when the preceding show ends.
-
-The implementation will use PostgreSQL's `btree_gist` extension where available.
-
-### 6.7 Seat-to-Screen Consistency
-
-A seat allocated to a show must belong to the same screen on which that show is scheduled. This rule spans `booking_seats`, `shows`, and `seats`, so ordinary foreign keys on the individual IDs do not enforce it by themselves.
-
-A trigger is proposed to validate this relationship when a row is inserted or updated in `booking_seats`. Corresponding protection is also needed when the referenced `shows.screen_id` or `seats.screen_id` is changed, so that an update cannot make an existing allocation inconsistent.
-
-This trigger is a proposed design decision and has not yet been implemented or tested in PostgreSQL.
-
-### 6.8 Cross-table Business Integrity Rules
-
-The CSV inspection established the following results:
-
-| Rule | Inspection result | Proposed treatment |
-|---|---|---|
-| Screen capacity equals the number of seat rows for that screen | 490 screens checked; 0 mismatches | Validate as a cross-table rule |
-| Booking ticket count matches allocated seats | All 133,568 CONFIRMED and 10 PENDING bookings matched; all 8,910 CANCELLED and 7,606 PAYMENT_FAILED bookings had zero allocated seats | Status-aware validation |
-| Applied offer is valid on booking date | 22,435 offer-using bookings checked; 0 invalid dates | Validate when an offer is applied |
-| One review per customer/movie | 32,510 reviews; 0 duplicate customer/movie pairs | Proposed UNIQUE rule pending owner approval |
-
-For booking allocation, the observed status-aware rule is:
-
-- `CONFIRMED` and `PENDING`: allocated seat count equals `num_tickets`.
-- `CANCELLED` and `PAYMENT_FAILED`: allocated seat count is zero.
-
-These are cross-table rules and cannot be enforced by ordinary row-level CHECK constraints. They require validation queries or appropriately designed triggers if database-level enforcement is required.
-
-The review uniqueness rule is deliberately not treated as approved. The observed absence of duplicates is dataset evidence; the decision to allow only one review per customer per movie requires owner confirmation.
-
-## 7. CSV Dataset Validation Evidence
-
-The supplied CSV dataset was checked using `scripts/validate_data.py`. The latest run validates CSV structure and row counts, required values, numeric ranges and precision, proposed VARCHAR limits, dates, timezone-aware timestamps, foreign-key references (including the composite FK), primary and alternate unique keys, cross-table consistency, monetary rules, offer validity, show intervals, and show overlaps.
-
-### 7.1 Expected and Actual Row Counts
-
-| CSV file | Expected rows | Actual rows | Result |
-|---|---:|---:|---|
-| cities.csv | 10 | 10 | PASS |
-| venues.csv | 140 | 140 | PASS |
-| screens.csv | 490 | 490 | PASS |
-| seats.csv | 94,056 | 94,056 | PASS |
-| movies.csv | 300 | 300 | PASS |
-| shows.csv | 160,034 | 160,034 | PASS |
-| customers.csv | 40,000 | 40,000 | PASS |
-| offers.csv | 25 | 25 | PASS |
-| bookings.csv | 150,094 | 150,094 | PASS |
-| booking_seats.csv | 300,389 | 300,389 | PASS |
-| movie_reviews.csv | 32,510 | 32,510 | PASS |
-| **Total** | **778,048** | **778,048** | **PASS** |
-
-### 7.2 Latest Validation Results
-
-The latest successful run and its generated `validation_report.json` reported:
-
-| Validation | Configured | Result |
+| Table | Expected records | Loaded records |
 |---|---:|---:|
-| Row-count checks | 11 | 11 passed |
-| Individual FK relationships | 13 | 0 invalid |
-| Composite FK relationships | 1 | 0 invalid |
-| Primary/unique key checks | 17 | 0 duplicates |
+| cities | 10 | 10 |
+| venues | 140 | 140 |
+| screens | 490 | 490 |
+| seats | 94,056 | 94,056 |
+| movies | 300 | 300 |
+| shows | 160,034 | 160,034 |
+| customers | 40,000 | 40,000 |
+| offers | 25 | 25 |
+| bookings | 150,094 | 150,094 |
+| booking_seats | 300,389 | 300,389 |
+| movie_reviews | 32,510 | 32,510 |
+| **Total** | **778,048** | **778,048** |
+
+All expected records were successfully loaded and verified.
+
+### 9.2 Integrity Check Results
+
+Five cross-table integrity checks were executed using `sql/03_integrity_checks.sql`.
+
+| Check | Description | Violations | Result |
+|---|---|---:|---|
+| 1 | Seat belongs to the screen of its show | 0 | PASS |
+| 2 | Screen capacity matches actual seat count | 0 | PASS |
+| 3 | Booking allocations match status and num_tickets | 0 | PASS |
+| 4 | Applied offer is valid on booking date | 0 | PASS |
+| 5 | No overlapping shows on the same screen | 0 | PASS |
+
+### 9.3 Final Validation Summary
+
+| Metric | Result |
+|---|---:|
+| Total integrity checks | 5 |
+| Passed checks | 5 |
+| Failed checks | 0 |
+| Total violations | 0 |
+
+All five integrity checks passed successfully.
+
+The schema also passed the previously executed seed-data, foreign-key, numeric, timestamp, uniqueness, and constraint audits.
+
+---
+
+### 9.4 Python CSV Validation Evidence
+
+The original 11 CSV files were also validated using `scripts/validate_data.py`. The latest successful run generated `validation_report.json`.
+
+| Validation | Configured / Checked | Result |
+|---|---:|---:|
+| CSV files | 11 | 11 loaded |
+| Total dataset rows | 778,048 | PASS |
+| Individual foreign keys | 13 | 0 invalid |
+| Composite foreign keys | 1 | 0 invalid |
+| Primary and UNIQUE checks | 17 | 0 duplicates |
 | Numeric columns | 36 | 0 errors |
 | Proposed VARCHAR limits | 21 | 0 errors |
 | Date columns | 3 | 0 errors |
 | Timestamp columns | 5 | 0 errors |
 
-Additional results:
+The five timestamp columns contain **542,672 values** in total: 160,034 show start timestamps, 160,034 show end timestamps, 150,094 booking timestamps, 40,000 customer creation timestamps, and 32,510 review creation timestamps. All were timezone-aware and parsed successfully.
 
-- Required-value errors: 0.
-- Foreign-key errors: 0.
-- Numeric errors: 0.
-- String-length errors: 0.
-- Date errors: 0.
-- Timestamp errors, including missing timezone: 0.
+Additional cross-table validation results:
+
+- Missing show references in booking-seat allocations: 0.
+- Missing seat references in booking-seat allocations: 0.
+- Seat-screen mismatches: 0.
 - Screen capacity mismatches: 0.
 - Status-aware booking allocation mismatches: 0.
-- Seat-screen mismatches: 0.
-- Offer validity errors: 0.
-- Negative monetary values: 0.
-- Booking amount formula errors: 0.
-- Show interval errors: 0.
-- Overlapping show pairs: 0.
-- Proposed review uniqueness warnings: 0.
+- Offer date-range and booking validity errors: 0.
+- Negative monetary values and booking amount formula errors: 0.
+- Invalid show intervals and overlapping show pairs: 0.
 
-The 542,672 timestamp values across shows, bookings, customers, and movie reviews were timezone-aware and parsed successfully (160,034 show start timestamps + 160,034 show end timestamps + 150,094 booking timestamps + 40,000 customer creation timestamps + 32,510 review creation timestamps). The observed offset in the supplied data is `+05:30`. This is informational only; the validator permits multiple valid UTC offsets.
+The validator completed with **0 errors and 0 warnings**. Its detailed machine-readable results are recorded in `validation_report.json`.
 
-**Overall result: PASSED — 778,048 rows, 0 errors, 0 warnings.**
+## 10. Conclusion
 
-### 7.3 Machine-Readable Report
+The BookMyShow database schema contains 11 relational tables and implements the required primary keys, foreign keys, unique constraints, CHECK constraints, and show-time exclusion constraint.
 
-The validator generates `validation_report.json` in the project root. It records expected and actual row counts, configured check counts, per-check results, observed numeric ranges, maximum string lengths, observed timestamp offsets, issue and warning counts, and detailed issue records.
+The database successfully loaded and verified all 778,048 records from the provided seed dataset.
 
-These results establish that the supplied CSV files passed the implemented Python validation checks. They do not replace PostgreSQL constraints or prove that the database schema and loading process have been tested. Equivalent database-level checks will be performed after PostgreSQL implementation and data loading.
+All five cross-table integrity checks returned zero violations.
 
-## 8. Proposed Data Types and Nullability
-
-The following proposed data types align with the numeric range and string-length configurations in `scripts/validate_data.py`. The configured VARCHAR lengths provide headroom above the observed maximum values in the supplied CSVs. These are design limits for this project, not claims about universal business limits.
-
-`NOT NULL` is proposed for every column except the two nullable columns identified in Section 2.
-
-| Relation | Column | Proposed PostgreSQL type | Nullability / key |
-|---|---|---|---|
-| cities | city_id | SMALLINT | NOT NULL, PK |
-| cities | city_name | VARCHAR(30) | NOT NULL |
-| cities | state | VARCHAR(30) | NOT NULL |
-| venues | venue_id | SMALLINT | NOT NULL, PK |
-| venues | venue_name | VARCHAR(60) | NOT NULL |
-| venues | city_id | SMALLINT | NOT NULL, FK |
-| venues | chain | VARCHAR(30) | NOT NULL |
-| venues | address | VARCHAR(100) | NOT NULL |
-| screens | screen_id | SMALLINT | NOT NULL, PK |
-| screens | venue_id | SMALLINT | NOT NULL, FK |
-| screens | screen_name | VARCHAR(20) | NOT NULL |
-| screens | screen_type | VARCHAR(20) | NOT NULL |
-| screens | total_seats | SMALLINT | NOT NULL |
-| seats | seat_id | INTEGER | NOT NULL, PK |
-| seats | screen_id | SMALLINT | NOT NULL, FK |
-| seats | row_label | VARCHAR(5) | NOT NULL |
-| seats | seat_number | SMALLINT | NOT NULL |
-| seats | seat_class | VARCHAR(20) | NOT NULL |
-| movies | movie_id | SMALLINT | NOT NULL, PK |
-| movies | title | VARCHAR(100) | NOT NULL |
-| movies | language | VARCHAR(30) | NOT NULL |
-| movies | certificate | VARCHAR(10) | NOT NULL |
-| movies | duration_min | SMALLINT | NOT NULL |
-| movies | release_date | DATE | NOT NULL |
-| shows | show_id | INTEGER | NOT NULL, PK |
-| shows | movie_id | SMALLINT | NOT NULL, FK |
-| shows | screen_id | SMALLINT | NOT NULL, FK |
-| shows | starts_at | TIMESTAMPTZ | NOT NULL |
-| shows | ends_at | TIMESTAMPTZ | NOT NULL |
-| shows | format | VARCHAR(10) | NOT NULL |
-| shows | base_price | NUMERIC(10,2) | NOT NULL |
-| customers | customer_id | INTEGER | NOT NULL, PK |
-| customers | full_name | VARCHAR(100) | NOT NULL |
-| customers | email | VARCHAR(100) | NOT NULL, UNIQUE proposed |
-| customers | phone | VARCHAR(15) | NOT NULL, UNIQUE proposed |
-| customers | city_id | SMALLINT | NOT NULL, FK |
-| customers | created_at | TIMESTAMPTZ | NOT NULL |
-| offers | offer_code | VARCHAR(20) | NOT NULL, PK |
-| offers | description | VARCHAR(100) | NOT NULL |
-| offers | discount_pct | NUMERIC(5,2) | NOT NULL |
-| offers | max_discount | NUMERIC(10,2) | NOT NULL |
-| offers | valid_from | DATE | NOT NULL |
-| offers | valid_to | DATE | NOT NULL |
-| bookings | booking_id | INTEGER | NOT NULL, PK |
-| bookings | booking_code | VARCHAR(20) | NOT NULL, UNIQUE proposed |
-| bookings | customer_id | INTEGER | NOT NULL, FK |
-| bookings | show_id | INTEGER | NOT NULL, FK |
-| bookings | booked_at | TIMESTAMPTZ | NOT NULL |
-| bookings | num_tickets | SMALLINT | NOT NULL |
-| bookings | ticket_amount | NUMERIC(10,2) | NOT NULL |
-| bookings | convenience_fee | NUMERIC(10,2) | NOT NULL |
-| bookings | fnb_amount | NUMERIC(10,2) | NOT NULL |
-| bookings | offer_code | VARCHAR(20) | NULL allowed, FK |
-| bookings | discount | NUMERIC(10,2) | NOT NULL |
-| bookings | total_amount | NUMERIC(10,2) | NOT NULL |
-| bookings | payment_method | VARCHAR(20) | NOT NULL |
-| bookings | status | VARCHAR(20) | NOT NULL |
-| booking_seats | booking_id | INTEGER | NOT NULL, composite FK component |
-| booking_seats | show_id | INTEGER | NOT NULL, PK component, FK |
-| booking_seats | seat_id | INTEGER | NOT NULL, PK component, FK |
-| booking_seats | price | NUMERIC(10,2) | NOT NULL |
-| movie_reviews | review_id | INTEGER | NOT NULL, PK |
-| movie_reviews | movie_id | SMALLINT | NOT NULL, FK |
-| movie_reviews | customer_id | INTEGER | NOT NULL, FK |
-| movie_reviews | rating | SMALLINT | NOT NULL |
-| movie_reviews | review_text | TEXT | NULL allowed |
-| movie_reviews | created_at | TIMESTAMPTZ | NOT NULL |
-
-### 8.1 Type Selection Notes
-
-- `SMALLINT` is used for identifiers and whole-number attributes whose observed values fit within PostgreSQL's signed SMALLINT range (-32,768 to 32,767). The largest observed values in these configured columns are at most 32,767.
-- `INTEGER` is used for larger identifiers such as `seat_id`, `show_id`, `customer_id`, and `booking_id`.
-- `phone` uses `VARCHAR(15)` rather than a numeric type because phone numbers are identifiers, not quantities; this also avoids losing leading zeros or a possible plus sign.
-- Monetary values use `NUMERIC(10,2)` to preserve decimal currency values without floating-point rounding.
-- `discount_pct` uses `NUMERIC(5,2)` to store percentage values with two decimal places.
-- Calendar-only values use `DATE`.
-- Date-time values with timezone offsets use `TIMESTAMPTZ`. The inspected data uses `+05:30`, but multiple valid offsets are supported.
-- `review_text` uses `TEXT` because review text does not require a fixed maximum length.
-- Configured VARCHAR lengths are larger than the observed maximum lengths: for example, `venues.venue_name` has an observed maximum of 41 characters against a proposed limit of 60, and `customers.email` has an observed maximum of 33 against a proposed limit of 100.
-
-**Status:** The data types, nullability, and constraints in this section remain proposed until the SQL schema is created, all CSV data is loaded, and PostgreSQL integrity checks pass.
+The schema provides a consistent foundation for the next project phases, including query benchmarking, performance optimization, and scalability analysis.
