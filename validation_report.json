@@ -125,10 +125,10 @@
   },
   "observed": {
     "utc_offsets": {
-      "shows.ends_at": [
+      "shows.starts_at": [
         "5:30:00"
       ],
-      "shows.starts_at": [
+      "shows.ends_at": [
         "5:30:00"
       ],
       "customers.created_at": [
