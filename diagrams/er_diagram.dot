@@ -29,9 +29,9 @@ digraph BMS {
   customers -> bookings [label="1 : N"];
   shows -> bookings [label="1 : N"];
   offers -> bookings [label="0..N bookings; 0..1 per booking"];
-  bookings -> booking_seats [label="1 : N composite FK"];
-  shows -> booking_seats [label="1 : N"];
-  seats -> booking_seats [label="1 : N"];
+  bookings -> booking_seats [label="0..N composite FK"];
+  shows -> booking_seats [label="0..N"];
+  seats -> booking_seats [label="0..N"];
   movies -> movie_reviews [label="1 : N"];
   customers -> movie_reviews [label="1 : N"];
 
