@@ -40,6 +40,26 @@ The database contains the following 11 tables:
 | booking_seats | Stores the seats allocated to each booking. |
 | movie_reviews | Stores customer reviews and ratings for movies. |
 
+### 2.1 CSV Files and Exact Header Order
+
+The validator checks each CSV header against the following ordered column list. The order shown is the order expected by the supplied CSV files and used by the loading script.
+
+| CSV file | Exact header order |
+|---|---|
+| `cities.csv` | `city_id, city_name, state` |
+| `venues.csv` | `venue_id, venue_name, city_id, chain, address` |
+| `screens.csv` | `screen_id, venue_id, screen_name, screen_type, total_seats` |
+| `seats.csv` | `seat_id, screen_id, row_label, seat_number, seat_class` |
+| `movies.csv` | `movie_id, title, language, certificate, duration_min, release_date` |
+| `shows.csv` | `show_id, movie_id, screen_id, starts_at, ends_at, format, base_price` |
+| `customers.csv` | `customer_id, full_name, email, phone, city_id, created_at` |
+| `offers.csv` | `offer_code, description, discount_pct, max_discount, valid_from, valid_to` |
+| `bookings.csv` | `booking_id, booking_code, customer_id, show_id, booked_at, num_tickets, ticket_amount, convenience_fee, fnb_amount, offer_code, discount, total_amount, payment_method, status` |
+| `booking_seats.csv` | `booking_id, show_id, seat_id, price` |
+| `movie_reviews.csv` | `review_id, movie_id, customer_id, rating, review_text, created_at` |
+
+The two nullable source fields are `bookings.offer_code` and `movie_reviews.review_text`. All other columns are required by the current schema and validator.
+
 ## 3. Data Dictionary
 
 ### 3.1 cities
@@ -495,7 +515,25 @@ Functional dependencies describe how one set of attributes determines another se
 
 For movie_reviews, the current schema does not enforce uniqueness on `(customer_id, movie_id)`. Multiple reviews by one customer for the same movie are therefore possible.
 
-### 7.2 Normalization Analysis
+### 7.2 Normal Form of Each Table
+
+The following classification summarizes the normal form of every relation, based on the functional dependencies and candidate keys described above.
+
+| Table | Highest normal form | Reason |
+|---|---|---|
+| cities | BCNF | The determinant city_id is a candidate key. |
+| venues | BCNF | The determinant venue_id is a candidate key. |
+| screens | BCNF | The determinant screen_id is a candidate key. |
+| seats | BCNF | seat_id and (screen_id, row_label, seat_number) are candidate keys. |
+| movies | BCNF | The determinant movie_id is a candidate key. |
+| shows | BCNF | The determinant show_id is a candidate key. |
+| customers | BCNF | customer_id, email, and phone are candidate keys. |
+| offers | BCNF | The determinant offer_code is a candidate key. |
+| bookings | BCNF | booking_id and booking_code are candidate keys; (booking_id, show_id) is a superkey but not a minimal candidate key. |
+| booking_seats | 3NF, not BCNF | booking_id → show_id, but booking_id is not a superkey; show_id is a prime attribute. |
+| movie_reviews | BCNF | The determinant review_id is a candidate key. |
+
+### 7.3 Normalization Analysis
 
 The schema is designed to minimize redundancy and maintain relational integrity.
 
@@ -515,7 +553,7 @@ However, `show_id` is a prime attribute because it belongs to a candidate key. T
 
 The composite structure is retained because it ensures that an allocated seat belongs to the same show as its booking.
 
-### 7.3 Derived and Redundant Attributes
+### 7.4 Derived and Redundant Attributes
 
 Some attributes could theoretically be calculated from other records.
 
@@ -667,6 +705,22 @@ Additional cross-table validation results:
 - Invalid show intervals and overlapping show pairs: 0.
 
 The validator completed with **0 errors and 0 warnings**. Its detailed machine-readable results are recorded in `validation_report.json`.
+
+### 9.5 Data Problems and Observed Characteristics
+
+The supplied dataset was checked for structural and relational data-quality problems. The completed validation run found:
+
+- No missing or unexpected CSV headers or files.
+- No row-count mismatches across the 11 tables.
+- No missing required values, invalid numeric values, or VARCHAR length violations.
+- No invalid dates or timestamps; all timestamp values included timezone information.
+- No invalid individual or composite foreign-key references.
+- No duplicate primary-key or declared unique-key values.
+- No seat-to-screen mismatches, screen-capacity mismatches, or booking-allocation/status mismatches.
+- No invalid offer date ranges, invalid offer use on booking dates, negative monetary values, or booking total formula errors.
+- No invalid show intervals or overlapping show pairs.
+
+The validator reported **0 errors and 0 warnings**. No row-level data correction was required for the supplied dataset. Timestamps were observed with the UTC offset `+05:30`; this is a characteristic of the supplied data, not a validation error.
 
 ## 10. Conclusion
 
