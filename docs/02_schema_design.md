@@ -358,7 +358,7 @@ The booking_seats table represents the allocation relationship between bookings,
 
 ## 6. Entity Relationship Diagram
 
-The ER diagram image and its editable Mermaid source are provided below.
+The ER diagram image, editable Graphviz source (`diagrams/er_diagram.dot`), and Mermaid source are provided below. The Graphviz source is maintained from the implemented SQL schema and can be rendered with `dot -Tpng diagrams/er_diagram.dot -o diagrams/er_diagram.png`.
 
 ![BookMyShow database entity relationship diagram](../diagrams/er_diagram.png)
 
