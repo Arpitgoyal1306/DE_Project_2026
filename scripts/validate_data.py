@@ -451,58 +451,156 @@ def validate_uniqueness(data):
 
 
 def validate_cross_table(data):
-    errors = 0
     screens = {r["screen_id"]: r for r in data.get("screens", [])}
     shows = {r["show_id"]: r for r in data.get("shows", [])}
     seats = {r["seat_id"]: r for r in data.get("seats", [])}
     bookings = {r["booking_id"]: r for r in data.get("bookings", [])}
 
-    actual_capacity = Counter(r["screen_id"] for r in data.get("seats", []))
+    # --------------------------------------------------------
+    # 1. Screen capacity versus actual seat count
+    # --------------------------------------------------------
+    actual_capacity = Counter(
+        r["screen_id"] for r in data.get("seats", [])
+    )
+
     capacity_errors = 0
+
     for sid, screen in screens.items():
         actual = actual_capacity[sid]
         expected = int(screen["total_seats"])
+
         if actual != expected:
             capacity_errors += 1
-            record_issue("screens", {"screen_id": sid}, "SCREEN_CAPACITY_MISMATCH",
-                         {"declared": expected, "actual_seats": actual},
-                         "Declared screen capacity differs from seat records.")
 
-    allocated = Counter(r["booking_id"] for r in data.get("booking_seats", []))
+            record_issue(
+                "screens",
+                {"screen_id": sid},
+                "SCREEN_CAPACITY_MISMATCH",
+                {
+                    "declared": expected,
+                    "actual_seats": actual
+                },
+                "Declared screen capacity differs from seat records."
+            )
+
+    # --------------------------------------------------------
+    # 2. Booking ticket count versus allocated seats
+    # --------------------------------------------------------
+    allocated = Counter(
+        r["booking_id"] for r in data.get("booking_seats", [])
+    )
+
     allocation_errors = 0
+
     for bid, booking in bookings.items():
         expected = int(booking["num_tickets"])
         actual = allocated[bid]
         status = booking["status"]
+
         valid = (
             status in {"CONFIRMED", "PENDING"} and actual == expected
         ) or (
             status in {"CANCELLED", "PAYMENT_FAILED"} and actual == 0
         )
+
         if not valid:
             allocation_errors += 1
-            record_issue("bookings", {"booking_id": bid}, "BOOKING_SEAT_ALLOCATION_MISMATCH",
-                         {"status": status, "num_tickets": expected, "allocated_seats": actual},
-                         "Seat allocation does not match the status-aware booking rule.")
 
+            record_issue(
+                "bookings",
+                {"booking_id": bid},
+                "BOOKING_SEAT_ALLOCATION_MISMATCH",
+                {
+                    "status": status,
+                    "num_tickets": expected,
+                    "allocated_seats": actual
+                },
+                "Seat allocation does not match the status-aware booking rule."
+            )
+
+    # --------------------------------------------------------
+    # 3. Booking-seat references and seat-screen consistency
+    # --------------------------------------------------------
+    missing_show_errors = 0
+    missing_seat_errors = 0
     seat_screen_errors = 0
+
     for row in data.get("booking_seats", []):
+
         show = shows.get(row["show_id"])
         seat = seats.get(row["seat_id"])
-        if show and seat and show["screen_id"] != seat["screen_id"]:
-            seat_screen_errors += 1
-            record_issue("booking_seats", row_id("booking_seats", row),
-                         "SEAT_SCREEN_MISMATCH",
-                         {"show_screen_id": show["screen_id"], "seat_screen_id": seat["screen_id"]},
-                         "Allocated seat does not belong to the show's screen.")
 
+        # Explicitly report a missing show reference.
+        if show is None:
+            missing_show_errors += 1
+
+            record_issue(
+                "booking_seats",
+                row_id("booking_seats", row),
+                "MISSING_SHOW_REFERENCE",
+                {
+                    "booking_id": row["booking_id"],
+                    "show_id": row["show_id"],
+                    "seat_id": row["seat_id"],
+                    "missing_reference": "shows.show_id",
+                    "missing_value": row["show_id"]
+                },
+                "Booking-seat allocation references a show that does not exist."
+            )
+
+        # Explicitly report a missing seat reference.
+        if seat is None:
+            missing_seat_errors += 1
+
+            record_issue(
+                "booking_seats",
+                row_id("booking_seats", row),
+                "MISSING_SEAT_REFERENCE",
+                {
+                    "booking_id": row["booking_id"],
+                    "show_id": row["show_id"],
+                    "seat_id": row["seat_id"],
+                    "missing_reference": "seats.seat_id",
+                    "missing_value": row["seat_id"]
+                },
+                "Booking-seat allocation references a seat that does not exist."
+            )
+
+        # Compare screens only when both referenced records exist.
+        if show is None or seat is None:
+            continue
+
+        if show["screen_id"] != seat["screen_id"]:
+            seat_screen_errors += 1
+
+            record_issue(
+                "booking_seats",
+                row_id("booking_seats", row),
+                "SEAT_SCREEN_MISMATCH",
+                {
+                    "booking_id": row["booking_id"],
+                    "show_id": row["show_id"],
+                    "seat_id": row["seat_id"],
+                    "show_screen_id": show["screen_id"],
+                    "seat_screen_id": seat["screen_id"]
+                },
+                "Allocated seat does not belong to the show's screen."
+            )
+
+    # --------------------------------------------------------
+    # 4. Store validation results
+    # --------------------------------------------------------
     CHECK_RESULTS["screen_capacity_errors"] = capacity_errors
     CHECK_RESULTS["booking_allocation_errors"] = allocation_errors
+    CHECK_RESULTS["missing_show_reference_errors"] = missing_show_errors
+    CHECK_RESULTS["missing_seat_reference_errors"] = missing_seat_errors
     CHECK_RESULTS["seat_screen_errors"] = seat_screen_errors
+
     print(f"\nScreen capacity mismatches: {capacity_errors}")
     print(f"Status-aware booking allocation mismatches: {allocation_errors}")
+    print(f"Missing show references in booking_seats: {missing_show_errors}")
+    print(f"Missing seat references in booking_seats: {missing_seat_errors}")
     print(f"Seat-screen mismatches: {seat_screen_errors}")
-
 
 def validate_business_rules(data):
     # --------------------------------------------------------
