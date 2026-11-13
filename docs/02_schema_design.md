@@ -343,9 +343,9 @@ This approach protects historical booking and review records from accidental del
 | movies to shows | 1:N |
 | customers to bookings | 1:N |
 | shows to bookings | 1:N |
-| bookings to booking_seats | 1:N |
-| shows to booking_seats | 1:N |
-| seats to booking_seats | 1:N |
+| bookings to booking_seats | 1 to 0..N |
+| shows to booking_seats | 1 to 0..N |
+| seats to booking_seats | 1 to 0..N |
 | offers to bookings | Offer to bookings: 0..N; booking to offer: 0..1 (nullable) |
 | movies to movie_reviews | 1:N |
 | customers to movie_reviews | 1:N |
