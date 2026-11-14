@@ -1,7 +1,7 @@
 digraph BMS {
-  graph [rankdir=LR, splines=polyline, nodesep=0.42, ranksep=0.85, pad=0.25, bgcolor="white", fontname="Arial", labelloc=t, label="BookMyShow Database | Entity Relationship Diagram (CP1)", fontsize=22, compound=true];
+  graph [layout=neato, splines=polyline, overlap=false, sep=0.35, pad=0.28, bgcolor="white", fontname="Arial", labelloc=t, label="BookMyShow Database | Entity Relationship Diagram (CP1)", fontsize=22];
   node [shape=plain, fontname="Arial", fontsize=10];
-  edge [color="#475569", penwidth=1.25, arrowsize=0.75, fontname="Arial", fontsize=9, labelfontcolor="#334155"];
+  edge [color="#334155", penwidth=1.2, arrowsize=0.72, fontname="Arial", fontsize=9, labelfontcolor="#334155"];
 
   cities [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>cities</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> city_id</TD></TR><TR><TD ALIGN="LEFT">city_name</TD></TR><TR><TD ALIGN="LEFT">state</TD></TR></TABLE>>];
   venues [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>venues</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> venue_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> city_id</TD></TR><TR><TD ALIGN="LEFT">venue_name</TD></TR><TR><TD ALIGN="LEFT">chain</TD></TR><TR><TD ALIGN="LEFT">address</TD></TR></TABLE>>];
@@ -12,13 +12,21 @@ digraph BMS {
   customers [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>customers</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> customer_id</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> email</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> phone</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> city_id</TD></TR><TR><TD ALIGN="LEFT">full_name</TD></TR><TR><TD ALIGN="LEFT">created_at</TD></TR></TABLE>>];
   offers [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>offers</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> offer_code</TD></TR><TR><TD ALIGN="LEFT">description</TD></TR><TR><TD ALIGN="LEFT">discount_pct</TD></TR><TR><TD ALIGN="LEFT">max_discount</TD></TR><TR><TD ALIGN="LEFT">valid_from</TD></TR><TR><TD ALIGN="LEFT">valid_to</TD></TR></TABLE>>];
   bookings [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>bookings</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> booking_id</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> booking_code</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> (booking_id, show_id)</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> customer_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> show_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> offer_code (nullable)</TD></TR><TR><TD ALIGN="LEFT">booked_at, num_tickets</TD></TR><TR><TD ALIGN="LEFT">ticket_amount, convenience_fee</TD></TR><TR><TD ALIGN="LEFT">fnb_amount, discount, total_amount</TD></TR><TR><TD ALIGN="LEFT">payment_method, status</TD></TR></TABLE>>];
-  booking_seats [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#0f766e"><TR><TD BGCOLOR="#ccfbf1"><B>booking_seats</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> (show_id, seat_id)</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> (booking_id, seat_id)</TD></TR><TR><TD ALIGN="LEFT"><B>COMPOSITE FK</B> (booking_id, show_id) -&gt; bookings</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> show_id -&gt; shows</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> seat_id -&gt; seats</TD></TR><TR><TD ALIGN="LEFT">booking_id, price</TD></TR></TABLE>>];
+  booking_seats [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#059669"><TR><TD BGCOLOR="#a7f3d0"><B>booking_seats</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> (show_id, seat_id)</TD></TR><TR><TD ALIGN="LEFT"><B>UQ</B> (booking_id, seat_id)</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> (booking_id, show_id) -&gt; bookings</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> show_id -&gt; shows</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> seat_id -&gt; seats</TD></TR><TR><TD ALIGN="LEFT">booking_id, price</TD></TR></TABLE>>];
   movie_reviews [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#64748b"><TR><TD BGCOLOR="#dbeafe"><B>movie_reviews</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> review_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> movie_id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> customer_id</TD></TR><TR><TD ALIGN="LEFT">rating</TD></TR><TR><TD ALIGN="LEFT">review_text (nullable)</TD></TR><TR><TD ALIGN="LEFT">created_at</TD></TR></TABLE>>];
 
-  {rank=same; cities; movies; offers}
-  {rank=same; venues; customers}
-  {rank=same; screens; shows; bookings; movie_reviews}
-  {rank=same; seats; booking_seats}
+  // Fixed positions reproduce the attached reference layout while keeping the diagram readable.
+  cities [pos="72,554!"];
+  venues [pos="288,576!"];
+  screens [pos="504,576!"];
+  seats [pos="792,576!"];
+  movies [pos="72,317!"];
+  customers [pos="288,338!"];
+  movie_reviews [pos="504,445!"];
+  shows [pos="504,225!"];
+  booking_seats [pos="792,331!"];
+  offers [pos="72,20!"];
+  bookings [pos="482,-35!"];
 
   cities -> venues [label="1 : N"];
   cities -> customers [label="1 : N"];
@@ -28,13 +36,13 @@ digraph BMS {
   movies -> shows [label="1 : N"];
   customers -> bookings [label="1 : N"];
   shows -> bookings [label="1 : N"];
-  offers -> bookings [label="0..N bookings; 0..1 per booking"];
-  bookings -> booking_seats [label="0..N composite FK"];
-  shows -> booking_seats [label="0..N"];
-  seats -> booking_seats [label="0..N"];
+  offers -> bookings [label="0 : N bookings; 0 : 1 per booking"];
+  bookings -> booking_seats [label="0 : N"];
+  shows -> booking_seats [label="0 : N"];
+  seats -> booking_seats [label="0 : N"];
   movies -> movie_reviews [label="1 : N"];
   customers -> movie_reviews [label="1 : N"];
 
-  note [shape=note, style=filled, fillcolor="#f8fafc", color="#94a3b8", fontname="Arial", fontsize=9, label="Legend: PK = Primary Key   UQ = Unique   FK = Foreign Key\nAll foreign keys use ON DELETE RESTRICT.\nbooking_seats key details are shown explicitly."];
-  {rank=sink; note}
+  note [shape=note, style=filled, fillcolor="#f8fafc", color="#94a3b8", fontname="Arial", fontsize=9, label="Legend: PK = Primary Key   UQ = Unique Key   FK = Foreign Key\nAll foreign keys use ON DELETE RESTRICT."];
+  note [pos="994,338!"];
 }
