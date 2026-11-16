@@ -1,0 +1,36 @@
+=== R13 run 1 ===
+Seq Scan on offers o  (cost=4060.18..4061.49 rows=12 width=32) (actual time=13.904..13.904 rows=0.00 loops=1)
+  Filter: (NOT (ANY ((offer_code)::text = ((hashed SubPlan 1).col1)::text)))
+  Rows Removed by Filter: 25
+  Buffers: shared hit=2185
+  SubPlan 1
+    ->  Seq Scan on bookings b  (cost=0.00..3684.94 rows=150094 width=10) (actual time=0.008..7.560 rows=150094.00 loops=1)
+          Buffers: shared hit=2184
+Planning:
+  Buffers: shared hit=109
+Planning Time: 0.281 ms
+Execution Time: 13.943 ms
+=== R13 run 2 ===
+Seq Scan on offers o  (cost=4060.18..4061.49 rows=12 width=32) (actual time=12.799..12.799 rows=0.00 loops=1)
+  Filter: (NOT (ANY ((offer_code)::text = ((hashed SubPlan 1).col1)::text)))
+  Rows Removed by Filter: 25
+  Buffers: shared hit=2185
+  SubPlan 1
+    ->  Seq Scan on bookings b  (cost=0.00..3684.94 rows=150094 width=10) (actual time=0.006..6.928 rows=150094.00 loops=1)
+          Buffers: shared hit=2184
+Planning:
+  Buffers: shared hit=109
+Planning Time: 0.223 ms
+Execution Time: 12.832 ms
+=== R13 run 3 ===
+Seq Scan on offers o  (cost=4060.18..4061.49 rows=12 width=32) (actual time=12.658..12.659 rows=0.00 loops=1)
+  Filter: (NOT (ANY ((offer_code)::text = ((hashed SubPlan 1).col1)::text)))
+  Rows Removed by Filter: 25
+  Buffers: shared hit=2185
+  SubPlan 1
+    ->  Seq Scan on bookings b  (cost=0.00..3684.94 rows=150094 width=10) (actual time=0.006..6.910 rows=150094.00 loops=1)
+          Buffers: shared hit=2184
+Planning:
+  Buffers: shared hit=109
+Planning Time: 0.217 ms
+Execution Time: 12.691 ms
