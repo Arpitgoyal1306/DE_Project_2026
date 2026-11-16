@@ -1,0 +1,126 @@
+=== R01 run 1 ===
+Sort  (cost=2200.37..2200.68 rows=126 width=36) (actual time=8.476..8.480 rows=93.00 loops=1)
+  Sort Key: (count(*)) DESC
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=9160
+  ->  GroupAggregate  (cost=2172.94..2195.97 rows=126 width=36) (actual time=8.378..8.455 rows=93.00 loops=1)
+        Group Key: m.movie_id
+        Buffers: shared hit=9157
+        ->  Merge Join  (cost=2172.94..2194.08 rows=126 width=28) (actual time=8.371..8.426 rows=249.00 loops=1)
+              Merge Cond: (m.movie_id = s.movie_id)
+              Buffers: shared hit=9157
+              ->  Index Scan using movies_pkey on movies m  (cost=0.15..18.65 rows=300 width=28) (actual time=0.004..0.021 rows=300.00 loops=1)
+                    Index Searches: 1
+                    Buffers: shared hit=4
+              ->  Sort  (cost=2172.79..2173.11 rows=126 width=2) (actual time=8.192..8.199 rows=249.00 loops=1)
+                    Sort Key: s.movie_id
+                    Sort Method: quicksort  Memory: 25kB
+                    Buffers: shared hit=9153
+                    ->  Nested Loop  (cost=4.31..2168.40 rows=126 width=2) (actual time=1.396..8.161 rows=249.00 loops=1)
+                          Buffers: shared hit=9153
+                          ->  Hash Join  (cost=4.03..14.26 rows=77 width=2) (actual time=0.037..0.102 rows=75.00 loops=1)
+                                Hash Cond: (sc.venue_id = v.venue_id)
+                                Buffers: shared hit=6
+                                ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.005..0.031 rows=490.00 loops=1)
+                                      Buffers: shared hit=4
+                                ->  Hash  (cost=3.75..3.75 rows=22 width=2) (actual time=0.022..0.022 rows=22.00 loops=1)
+                                      Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                      Buffers: shared hit=2
+                                      ->  Seq Scan on venues v  (cost=0.00..3.75 rows=22 width=2) (actual time=0.005..0.015 rows=22.00 loops=1)
+                                            Filter: (city_id = 1)
+                                            Rows Removed by Filter: 118
+                                            Buffers: shared hit=2
+                          ->  Index Scan using ex_shows_no_overlap on shows s  (cost=0.28..27.96 rows=2 width=4) (actual time=0.077..0.107 rows=3.32 loops=75)
+                                Index Cond: (screen_id = sc.screen_id)
+                                Filter: (date(starts_at) = '2026-07-02'::date)
+                                Rows Removed by Filter: 322
+                                Index Searches: 75
+                                Buffers: shared hit=9147
+Planning:
+  Buffers: shared hit=263
+Planning Time: 0.954 ms
+Execution Time: 8.573 ms
+=== R01 run 2 ===
+Sort  (cost=2200.37..2200.68 rows=126 width=36) (actual time=6.621..6.625 rows=93.00 loops=1)
+  Sort Key: (count(*)) DESC
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=9160
+  ->  GroupAggregate  (cost=2172.94..2195.97 rows=126 width=36) (actual time=6.529..6.605 rows=93.00 loops=1)
+        Group Key: m.movie_id
+        Buffers: shared hit=9157
+        ->  Merge Join  (cost=2172.94..2194.08 rows=126 width=28) (actual time=6.524..6.577 rows=249.00 loops=1)
+              Merge Cond: (m.movie_id = s.movie_id)
+              Buffers: shared hit=9157
+              ->  Index Scan using movies_pkey on movies m  (cost=0.15..18.65 rows=300 width=28) (actual time=0.002..0.020 rows=300.00 loops=1)
+                    Index Searches: 1
+                    Buffers: shared hit=4
+              ->  Sort  (cost=2172.79..2173.11 rows=126 width=2) (actual time=6.517..6.524 rows=249.00 loops=1)
+                    Sort Key: s.movie_id
+                    Sort Method: quicksort  Memory: 25kB
+                    Buffers: shared hit=9153
+                    ->  Nested Loop  (cost=4.31..2168.40 rows=126 width=2) (actual time=0.659..6.494 rows=249.00 loops=1)
+                          Buffers: shared hit=9153
+                          ->  Hash Join  (cost=4.03..14.26 rows=77 width=2) (actual time=0.018..0.073 rows=75.00 loops=1)
+                                Hash Cond: (sc.venue_id = v.venue_id)
+                                Buffers: shared hit=6
+                                ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.003..0.024 rows=490.00 loops=1)
+                                      Buffers: shared hit=4
+                                ->  Hash  (cost=3.75..3.75 rows=22 width=2) (actual time=0.011..0.011 rows=22.00 loops=1)
+                                      Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                      Buffers: shared hit=2
+                                      ->  Seq Scan on venues v  (cost=0.00..3.75 rows=22 width=2) (actual time=0.002..0.007 rows=22.00 loops=1)
+                                            Filter: (city_id = 1)
+                                            Rows Removed by Filter: 118
+                                            Buffers: shared hit=2
+                          ->  Index Scan using ex_shows_no_overlap on shows s  (cost=0.28..27.96 rows=2 width=4) (actual time=0.060..0.085 rows=3.32 loops=75)
+                                Index Cond: (screen_id = sc.screen_id)
+                                Filter: (date(starts_at) = '2026-07-02'::date)
+                                Rows Removed by Filter: 322
+                                Index Searches: 75
+                                Buffers: shared hit=9147
+Planning:
+  Buffers: shared hit=263
+Planning Time: 0.611 ms
+Execution Time: 6.677 ms
+=== R01 run 3 ===
+Sort  (cost=2200.37..2200.68 rows=126 width=36) (actual time=5.999..6.003 rows=93.00 loops=1)
+  Sort Key: (count(*)) DESC
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=9160
+  ->  GroupAggregate  (cost=2172.94..2195.97 rows=126 width=36) (actual time=5.907..5.982 rows=93.00 loops=1)
+        Group Key: m.movie_id
+        Buffers: shared hit=9157
+        ->  Merge Join  (cost=2172.94..2194.08 rows=126 width=28) (actual time=5.903..5.955 rows=249.00 loops=1)
+              Merge Cond: (m.movie_id = s.movie_id)
+              Buffers: shared hit=9157
+              ->  Index Scan using movies_pkey on movies m  (cost=0.15..18.65 rows=300 width=28) (actual time=0.003..0.019 rows=300.00 loops=1)
+                    Index Searches: 1
+                    Buffers: shared hit=4
+              ->  Sort  (cost=2172.79..2173.11 rows=126 width=2) (actual time=5.896..5.902 rows=249.00 loops=1)
+                    Sort Key: s.movie_id
+                    Sort Method: quicksort  Memory: 25kB
+                    Buffers: shared hit=9153
+                    ->  Nested Loop  (cost=4.31..2168.40 rows=126 width=2) (actual time=0.768..5.873 rows=249.00 loops=1)
+                          Buffers: shared hit=9153
+                          ->  Hash Join  (cost=4.03..14.26 rows=77 width=2) (actual time=0.023..0.072 rows=75.00 loops=1)
+                                Hash Cond: (sc.venue_id = v.venue_id)
+                                Buffers: shared hit=6
+                                ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.003..0.022 rows=490.00 loops=1)
+                                      Buffers: shared hit=4
+                                ->  Hash  (cost=3.75..3.75 rows=22 width=2) (actual time=0.014..0.014 rows=22.00 loops=1)
+                                      Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                      Buffers: shared hit=2
+                                      ->  Seq Scan on venues v  (cost=0.00..3.75 rows=22 width=2) (actual time=0.003..0.010 rows=22.00 loops=1)
+                                            Filter: (city_id = 1)
+                                            Rows Removed by Filter: 118
+                                            Buffers: shared hit=2
+                          ->  Index Scan using ex_shows_no_overlap on shows s  (cost=0.28..27.96 rows=2 width=4) (actual time=0.055..0.077 rows=3.32 loops=75)
+                                Index Cond: (screen_id = sc.screen_id)
+                                Filter: (date(starts_at) = '2026-07-02'::date)
+                                Rows Removed by Filter: 322
+                                Index Searches: 75
+                                Buffers: shared hit=9147
+Planning:
+  Buffers: shared hit=263
+Planning Time: 0.698 ms
+Execution Time: 6.061 ms

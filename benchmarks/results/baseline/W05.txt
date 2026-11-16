@@ -1,0 +1,33 @@
+=== W05 run 1 ===
+Update on shows  (cost=0.00..4464.69 rows=0 width=0) (actual time=5.194..5.194 rows=0.00 loops=1)
+  Buffers: shared hit=2018 dirtied=73
+  ->  Seq Scan on shows  (cost=0.00..4464.69 rows=1 width=22) (actual time=3.649..3.855 rows=40.00 loops=1)
+        Filter: ((starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND (movie_id = 2) AND (EXTRACT(isodow FROM starts_at) = ANY ('{6,7}'::numeric[])))
+        Rows Removed by Filter: 159994
+        Buffers: shared hit=1264
+Planning:
+  Buffers: shared hit=164
+Planning Time: 0.250 ms
+Execution Time: 5.234 ms
+=== W05 run 2 ===
+Update on shows  (cost=0.00..4464.69 rows=0 width=0) (actual time=4.842..4.842 rows=0.00 loops=1)
+  Buffers: shared hit=2114 dirtied=1
+  ->  Seq Scan on shows  (cost=0.00..4464.69 rows=1 width=22) (actual time=3.530..3.767 rows=40.00 loops=1)
+        Filter: ((starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND (movie_id = 2) AND (EXTRACT(isodow FROM starts_at) = ANY ('{6,7}'::numeric[])))
+        Rows Removed by Filter: 159994
+        Buffers: shared hit=1264
+Planning:
+  Buffers: shared hit=164
+Planning Time: 0.228 ms
+Execution Time: 4.880 ms
+=== W05 run 3 ===
+Update on shows  (cost=0.00..4464.69 rows=0 width=0) (actual time=4.811..4.812 rows=0.00 loops=1)
+  Buffers: shared hit=2115 dirtied=3
+  ->  Seq Scan on shows  (cost=0.00..4464.69 rows=1 width=22) (actual time=3.501..3.734 rows=40.00 loops=1)
+        Filter: ((starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND (movie_id = 2) AND (EXTRACT(isodow FROM starts_at) = ANY ('{6,7}'::numeric[])))
+        Rows Removed by Filter: 159994
+        Buffers: shared hit=1264
+Planning:
+  Buffers: shared hit=164
+Planning Time: 0.233 ms
+Execution Time: 4.848 ms
