@@ -1,0 +1,54 @@
+=== W04 run 1 ===
+Delete on booking_seats bs  (cost=0.56..79.26 rows=0 width=0) (actual time=0.059..0.059 rows=0.00 loops=1)
+  Buffers: shared hit=50
+  ->  Nested Loop  (cost=0.56..79.26 rows=10 width=12) (actual time=0.015..0.043 rows=12.00 loops=1)
+        Buffers: shared hit=38
+        ->  Index Scan using idx_bookings_pending on bookings b  (cost=0.14..19.24 rows=5 width=10) (actual time=0.010..0.020 rows=6.00 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Filter: ((status)::text = 'PENDING'::text)
+              Index Searches: 1
+              Buffers: shared hit=14
+        ->  Index Scan using uq_booking_seats_booking_seat on booking_seats bs  (cost=0.42..11.97 rows=3 width=10) (actual time=0.003..0.004 rows=2.00 loops=6)
+              Index Cond: (booking_id = b.booking_id)
+              Index Searches: 6
+              Buffers: shared hit=24
+Planning:
+  Buffers: shared hit=353
+Planning Time: 0.566 ms
+Execution Time: 0.104 ms
+=== W04 run 2 ===
+Delete on booking_seats bs  (cost=0.56..79.26 rows=0 width=0) (actual time=0.066..0.066 rows=0.00 loops=1)
+  Buffers: shared hit=46
+  ->  Nested Loop  (cost=0.56..79.26 rows=10 width=12) (actual time=0.018..0.052 rows=12.00 loops=1)
+        Buffers: shared hit=34
+        ->  Index Scan using idx_bookings_pending on bookings b  (cost=0.14..19.24 rows=5 width=10) (actual time=0.010..0.019 rows=6.00 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Filter: ((status)::text = 'PENDING'::text)
+              Index Searches: 1
+              Buffers: shared hit=10
+        ->  Index Scan using uq_booking_seats_booking_seat on booking_seats bs  (cost=0.42..11.97 rows=3 width=10) (actual time=0.005..0.005 rows=2.00 loops=6)
+              Index Cond: (booking_id = b.booking_id)
+              Index Searches: 6
+              Buffers: shared hit=24
+Planning:
+  Buffers: shared hit=352
+Planning Time: 0.555 ms
+Execution Time: 0.109 ms
+=== W04 run 3 ===
+Delete on booking_seats bs  (cost=0.56..79.26 rows=0 width=0) (actual time=0.065..0.065 rows=0.00 loops=1)
+  Buffers: shared hit=46
+  ->  Nested Loop  (cost=0.56..79.26 rows=10 width=12) (actual time=0.020..0.054 rows=12.00 loops=1)
+        Buffers: shared hit=34
+        ->  Index Scan using idx_bookings_pending on bookings b  (cost=0.14..19.24 rows=5 width=10) (actual time=0.011..0.021 rows=6.00 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Filter: ((status)::text = 'PENDING'::text)
+              Index Searches: 1
+              Buffers: shared hit=10
+        ->  Index Scan using uq_booking_seats_booking_seat on booking_seats bs  (cost=0.42..11.97 rows=3 width=10) (actual time=0.005..0.005 rows=2.00 loops=6)
+              Index Cond: (booking_id = b.booking_id)
+              Index Searches: 6
+              Buffers: shared hit=24
+Planning:
+  Buffers: shared hit=352
+Planning Time: 0.639 ms
+Execution Time: 0.111 ms

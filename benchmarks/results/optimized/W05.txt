@@ -1,0 +1,51 @@
+=== W05 run 1 ===
+Update on shows  (cost=4.75..121.42 rows=0 width=0) (actual time=2.192..2.192 rows=0.00 loops=1)
+  Buffers: shared hit=1196 dirtied=1
+  ->  Bitmap Heap Scan on shows  (cost=4.75..121.42 rows=1 width=22) (actual time=0.053..0.106 rows=40.00 loops=1)
+        Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+        Filter: (EXTRACT(isodow FROM starts_at) = ANY ('{6,7}'::numeric[]))
+        Rows Removed by Filter: 111
+        Heap Blocks: exact=84
+        Buffers: shared hit=90
+        ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..4.75 rows=33 width=0) (actual time=0.011..0.011 rows=191.00 loops=1)
+              Index Cond: ((movie_id = 2) AND (starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+              Index Searches: 1
+              Buffers: shared hit=6
+Planning:
+  Buffers: shared hit=211
+Planning Time: 0.313 ms
+Execution Time: 2.234 ms
+=== W05 run 2 ===
+Update on shows  (cost=4.75..121.42 rows=0 width=0) (actual time=1.345..1.345 rows=0.00 loops=1)
+  Buffers: shared hit=1184 dirtied=1
+  ->  Bitmap Heap Scan on shows  (cost=4.75..121.42 rows=1 width=22) (actual time=0.054..0.120 rows=40.00 loops=1)
+        Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+        Filter: (EXTRACT(isodow FROM starts_at) = ANY ('{6,7}'::numeric[]))
+        Rows Removed by Filter: 111
+        Heap Blocks: exact=84
+        Buffers: shared hit=90
+        ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..4.75 rows=33 width=0) (actual time=0.011..0.011 rows=191.00 loops=1)
+              Index Cond: ((movie_id = 2) AND (starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+              Index Searches: 1
+              Buffers: shared hit=6
+Planning:
+  Buffers: shared hit=211
+Planning Time: 0.305 ms
+Execution Time: 1.386 ms
+=== W05 run 3 ===
+Update on shows  (cost=4.75..121.42 rows=0 width=0) (actual time=1.376..1.376 rows=0.00 loops=1)
+  Buffers: shared hit=1184 dirtied=1
+  ->  Bitmap Heap Scan on shows  (cost=4.75..121.42 rows=1 width=22) (actual time=0.056..0.126 rows=40.00 loops=1)
+        Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+        Filter: (EXTRACT(isodow FROM starts_at) = ANY ('{6,7}'::numeric[]))
+        Rows Removed by Filter: 111
+        Heap Blocks: exact=84
+        Buffers: shared hit=90
+        ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..4.75 rows=33 width=0) (actual time=0.011..0.012 rows=191.00 loops=1)
+              Index Cond: ((movie_id = 2) AND (starts_at >= '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+              Index Searches: 1
+              Buffers: shared hit=6
+Planning:
+  Buffers: shared hit=211
+Planning Time: 0.310 ms
+Execution Time: 1.419 ms

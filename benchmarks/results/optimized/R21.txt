@@ -1,0 +1,57 @@
+=== R21 run 1 ===
+Limit  (cost=6764.27..6764.32 rows=20 width=44) (actual time=38.822..38.824 rows=20.00 loops=1)
+  Buffers: shared hit=2190, temp read=250 written=602
+  ->  Sort  (cost=6764.27..6849.20 rows=33971 width=44) (actual time=38.822..38.822 rows=20.00 loops=1)
+        Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+        Sort Method: top-N heapsort  Memory: 27kB
+        Buffers: shared hit=2190, temp read=250 written=602
+        ->  HashAggregate  (cost=5435.68..5860.31 rows=33971 width=44) (actual time=28.271..37.247 rows=38601.00 loops=1)
+              Group Key: customer_id
+              Batches: 5  Memory Usage: 8241kB  Disk Usage: 3376kB
+              Buffers: shared hit=2184, temp read=250 written=602
+              ->  Seq Scan on bookings  (cost=0.00..4435.41 rows=133369 width=10) (actual time=0.003..9.717 rows=133568.00 loops=1)
+                    Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 16526
+                    Buffers: shared hit=2184
+Planning:
+  Buffers: shared hit=264
+Planning Time: 0.388 ms
+Execution Time: 39.584 ms
+=== R21 run 2 ===
+Limit  (cost=6764.27..6764.32 rows=20 width=44) (actual time=37.245..37.246 rows=20.00 loops=1)
+  Buffers: shared hit=2190, temp read=250 written=602
+  ->  Sort  (cost=6764.27..6849.20 rows=33971 width=44) (actual time=37.244..37.245 rows=20.00 loops=1)
+        Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+        Sort Method: top-N heapsort  Memory: 27kB
+        Buffers: shared hit=2190, temp read=250 written=602
+        ->  HashAggregate  (cost=5435.68..5860.31 rows=33971 width=44) (actual time=26.940..35.704 rows=38601.00 loops=1)
+              Group Key: customer_id
+              Batches: 5  Memory Usage: 8241kB  Disk Usage: 3376kB
+              Buffers: shared hit=2184, temp read=250 written=602
+              ->  Seq Scan on bookings  (cost=0.00..4435.41 rows=133369 width=10) (actual time=0.002..9.400 rows=133568.00 loops=1)
+                    Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 16526
+                    Buffers: shared hit=2184
+Planning:
+  Buffers: shared hit=264
+Planning Time: 0.373 ms
+Execution Time: 37.959 ms
+=== R21 run 3 ===
+Limit  (cost=6764.27..6764.32 rows=20 width=44) (actual time=42.145..42.147 rows=20.00 loops=1)
+  Buffers: shared hit=2190, temp read=250 written=602
+  ->  Sort  (cost=6764.27..6849.20 rows=33971 width=44) (actual time=42.144..42.145 rows=20.00 loops=1)
+        Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+        Sort Method: top-N heapsort  Memory: 27kB
+        Buffers: shared hit=2190, temp read=250 written=602
+        ->  HashAggregate  (cost=5435.68..5860.31 rows=33971 width=44) (actual time=30.127..40.565 rows=38601.00 loops=1)
+              Group Key: customer_id
+              Batches: 5  Memory Usage: 8241kB  Disk Usage: 3376kB
+              Buffers: shared hit=2184, temp read=250 written=602
+              ->  Seq Scan on bookings  (cost=0.00..4435.41 rows=133369 width=10) (actual time=0.003..9.807 rows=133568.00 loops=1)
+                    Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 16526
+                    Buffers: shared hit=2184
+Planning:
+  Buffers: shared hit=264
+Planning Time: 0.378 ms
+Execution Time: 42.849 ms
