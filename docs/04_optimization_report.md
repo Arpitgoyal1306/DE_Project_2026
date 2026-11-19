@@ -15,7 +15,7 @@ This report documents the optimization of the 30-query BookMyShow ticketing data
   - R10 (Cleaning gap detection): **7.36× speed-up** (249.938 ms → 33.979 ms, 86.4% faster)
 - **Critical write operations:**
   - W04 (Lock expiry cleanup): **70.6× speed-up** (7.625 ms → 0.108 ms, 98.6% faster)
-  - W05 (Dynamic pricing update): **2.97× speed-up** (4.987 ms → 1.680 ms, 66.3% faster)
+  - W05 (open-ended weekend pricing update from 1 July 2026): **2.97× speed-up** (4.987 ms → 1.680 ms, 66.3% faster)
 - **Bug fix:** Corrected query **R13**, which previously returned 0 rows due to a subtle SQL `NOT IN` NULL evaluation bug, restoring the correct result of 7 unredeemed offers.
 
 ---
@@ -176,7 +176,9 @@ The partial index `idx_bookings_pending` is exceptionally compact (only 16 kB, 2
 | **W02** | Add 2 seats to oldest pending booking | 9.598 | 9.230 | -0.368 ms | Net improvement (+3.8%). Faster pending lookup offsets insert costs. |
 | **W03** | Confirm oldest pending booking (status update) | 0.569 | 0.208 | -0.361 ms | **2.74× faster**. Index-only scan on pending booking reduces search time. |
 | **W04** | Purge expired seat locks (bulk delete) | 7.625 | 0.108 | -7.517 ms | **70.6× faster**. Direct index scan avoids sequential scan of 150k rows. |
-| **W05** | Update ticket prices on July weekends | 4.987 | 1.680 | -3.307 ms | **2.97× faster**. Bitmap index scan filters target shows directly. |
+| **W05** | Update ticket prices on weekend shows from 1 July 2026 onward (no upper bound in supplied SQL) | 4.987 | 1.680 | -3.307 ms | **2.97× faster**. Bitmap index scan filters target shows directly. |
+
+**W05 scope note:** The supplied SQL applies `starts_at >= '2026-07-01'` and filters Saturdays/Sundays, but has no upper date bound. Therefore it is not restricted to July 2026; later weekend shows for movie 2 also qualify. The original workload query was not changed. The 2.97× timing comparison describes the supplied open-ended predicate.
 
 **Conclusion on Write Overhead:**
 4 out of 5 write queries became faster because finding target rows via partial and composite indexes provided larger savings than the index maintenance cost. The only query exhibiting write overhead was single-row insert `W01`, which increased by an acceptable +0.12 ms.
