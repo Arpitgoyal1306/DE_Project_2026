@@ -132,3 +132,28 @@ Capture the dataset counts from the same database and timestamp as the benchmark
 - [ ] Re-run on the exact current shared Neon dataset only if the team requires a fresh measurement; no new run is claimed by this document.
 
 **Evidence limitation:** This document summarizes committed repository evidence. It does not claim a new benchmark was executed as part of this documentation change. The exact local hardware details beyond the recorded macOS/Apple Silicon description, and a timestamped fresh Neon row-count snapshot, should only be added from the machine/database that actually performs that run.
+
+
+## 7. Workload composition and service-level implications
+
+The classification above produces the following mix:
+
+| Workload group | Query IDs | Count | Share of all 30 |
+|---|---|---:|---:|
+| OLTP reads | R02–R06, R09, R23 | 7 | 23.3% |
+| OLAP reads | R08, R11–R16, R18–R21, R24 | 13 | 43.3% |
+| Hybrid reads | R01, R07, R10, R17, R25 | 5 | 16.7% |
+| OLTP / batch writes | W01–W05 | 5 | 16.7% |
+
+This is a mixed workload rather than a pure transactional benchmark: 18 of the 25 reads are analytical or hybrid, while the five writes model checkout, seat allocation, payment confirmation, lock expiry, and pricing maintenance.
+
+The distinction matters when interpreting aggregate timing. A large reduction in a reporting query can dominate summed execution time without necessarily changing the p95 latency of a high-volume checkout endpoint. For a production service, collect request-weighted latency (p50/p95/p99), throughput, concurrency, lock waits, and error rates in addition to this fixed-query benchmark. The current three-run query benchmark is useful for plan comparison, but it is not a load or concurrency test.
+
+## 8. Benchmark interpretation and limitations
+
+- EXPLAIN (ANALYZE, BUFFERS) executes the statement. The W queries are real writes during each measurement, even though the harness rolls them back afterward.
+- Rollback protects the logical dataset from committed changes; it does not make concurrent benchmarking harmless. Run the write workload in an isolated test database or quiet maintenance window, not concurrently with real booking traffic.
+- Three repetitions provide a small comparison sample. Averages can be affected by cache state, background activity, connection setup, and PostgreSQL variance. Keep raw plans and compare individual runs as well as averages.
+- EXPLAIN ANALYZE execution time is server-side statement execution time. It excludes application serialization, network transfer, connection-pool queueing, and end-to-end API latency.
+- Scan-node names in the summary CSV are extracted from the final run's plan only. Use full raw plans when evaluating join order, estimated versus actual rows, buffers, loops, and sort/hash memory.
+- Indexes can improve selective lookups while adding storage and maintenance work to inserts, updates, and deletes. The observed W01 regression is a reminder to assess read gains alongside write costs.
