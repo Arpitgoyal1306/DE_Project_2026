@@ -1,0 +1,134 @@
+# Query Workload Analysis and Benchmark Evidence
+
+**Project:** BookMyShow database  
+**Repository:** `Arpitgoyal1306/DE_Project_2026`  
+**Workload source:** `queries/workload_30.sql` (R01–R25 and W01–W05)  
+**Schema source:** `sql/01_schema.sql`  
+**Benchmark harness:** `benchmarks/run_benchmark.sh`
+
+## 1. Scope and classification
+
+The workload contains 25 read queries and 5 write queries. Classification below describes the dominant business purpose, not merely whether a statement is syntactically a SELECT or DML statement:
+
+- **OLTP:** point lookups or operational actions in the customer-facing booking flow, support, payment, seat-lock, or pricing services. These are latency-sensitive and usually target a narrow set of rows.
+- **OLAP:** reporting, aggregation, trend analysis, or broad scans used by cinema operations, finance, partnerships, distributors, and management.
+- **Hybrid:** operationally useful reports that aggregate a bounded operational period or combine transactional data with operational monitoring.
+
+The original workload file is the immutable benchmark baseline. Do not edit it; optimized equivalents belong in `sql/06_optimized_queries.sql`.
+
+## 2. Query-by-query workload map
+
+| ID | Business question / purpose | Expected result | Workload class | Tables and schema columns used |
+|---|---|---|---|---|
+| R01 | Which movies have shows in Bengaluru on 2 July 2026, and how many shows does each have? | One row per movie with show count, ordered by popularity for that date. | Hybrid | `shows(movie_id, screen_id, starts_at)`, `movies(movie_id, title, language, certificate)`, `screens(screen_id, venue_id)`, `venues(venue_id, city_id)` |
+| R02 | What are the showtimes for movie 2 in Bengaluru on 2 July 2026, grouped by cinema? | Matching venue, screen type, show ID, start time, format, and base price. | OLTP | `shows(movie_id, screen_id, starts_at, format, base_price)`, `screens(screen_id, venue_id, screen_type)`, `venues(venue_id, city_id, venue_name)` |
+| R03 | Which seats are available or sold for show 144446? | Every seat on the show's screen, with a boolean sold indicator. | OLTP | `shows(show_id, screen_id)`, `seats(screen_id, row_label, seat_number, seat_class, seat_id)`, `booking_seats(show_id, seat_id)` |
+| R04 | Can support locate a booking from its booking code? | At most one booking with customer, show, ticket count, amount, status, and booking timestamp. | OLTP | `bookings(booking_code, booking_id, customer_id, show_id, num_tickets, total_amount, status, booked_at)` |
+| R05 | What upcoming confirmed bookings belong to customer 1331? | Booking code, movie title, show time, venue, and ticket count in chronological order. | OLTP | `bookings(customer_id, status, show_id, booking_code, num_tickets)`, `shows(show_id, movie_id, screen_id, starts_at)`, `movies(movie_id, title)`, `screens(screen_id, venue_id)`, `venues(venue_id, venue_name)` |
+| R06 | Which movie titles contain “kalki”? | Matching movie IDs, titles, languages, and release dates, newest release first. | OLTP | `movies(movie_id, title, language, release_date)` |
+| R07 | What is the seat occupancy of each show at venue 11 on 28 June 2026? | Per-show sold seats, screen capacity, and occupancy percentage. | Hybrid | `shows(show_id, screen_id, starts_at)`, `screens(screen_id, venue_id, screen_name, total_seats)`, `booking_seats(show_id, seat_id)` |
+| R08 | Which 10 movies collected the most ticket revenue over 26–28 June 2026? | Top 10 movie titles with confirmed booking count and ticket collections. | OLAP | `bookings(show_id, status, booking_id, ticket_amount)`, `shows(show_id, movie_id, starts_at)`, `movies(movie_id, title)` |
+| R09 | Which pending bookings were already older than the 10-minute seat-lock threshold at the specified cutoff? | Expired pending booking IDs, show IDs, ticket counts, and timestamps. | OLTP | `bookings(status, booked_at, booking_id, show_id, num_tickets)` |
+| R10 | Which consecutive shows on the same screen leave less than 30 minutes for cleaning during June 2026? | Screen, earlier show end, next show start, and cleaning gap. | Hybrid | `shows(screen_id, show_id, starts_at, ends_at)` |
+| R11 | How much ticket revenue comes from recliner seats for each screen type? | Revenue and recliner revenue percentage per screen type. | OLAP | `booking_seats(seat_id, price)`, `seats(seat_id, screen_id, seat_class)`, `screens(screen_id, screen_type)` |
+| R12 | Which customers booked the same movie more than once? | Customer/movie pairs and number of confirmed bookings, most frequent first. | OLAP | `bookings(customer_id, show_id, status)`, `shows(show_id, movie_id)` |
+| R13 | Which offers have never been redeemed by any booking? | Offer code, description, and discount percentage for unused offers. | OLAP | `offers(offer_code, description, discount_pct)`, `bookings(offer_code)` |
+| R14 | Which 2026 releases have at least 20 reviews, and what are their average ratings? | Up to 20 movies with average rating and review count, highest rated first. | OLAP | `movies(movie_id, title, release_date)`, `movie_reviews(movie_id, rating)` |
+| R15 | At what weekday/hour combinations are bookings made? | Booking counts grouped by ISO weekday and hour. | OLAP | `bookings(booked_at)` |
+| R16 | What is the cancellation rate per venue for June 2026 shows? | Per-venue booking totals and cancellation percentage. | OLAP | `bookings(show_id, status)`, `shows(show_id, screen_id, starts_at)`, `screens(screen_id, venue_id)`, `venues(venue_id, venue_name)` |
+| R17 | Which seats on screen 101 were never sold for any June 2026 show? | Seat IDs, row labels, seat numbers, and seat classes that were never allocated. | Hybrid | `seats(screen_id, seat_id, row_label, seat_number, seat_class)`, `booking_seats(seat_id, show_id)`, `shows(show_id, starts_at)` |
+| R18 | What were confirmed ticket collections by language and city during 2026? | City/language groups with total collections, ordered by city and revenue. | OLAP | `bookings(show_id, status, ticket_amount)`, `shows(show_id, movie_id, screen_id, starts_at)`, `movies(movie_id, language)`, `screens(screen_id, venue_id)`, `venues(venue_id, city_id)` |
+| R19 | How many confirmed tickets were sold for each June 2026 show of movie 2? | Show ID, start time, screen ID, and tickets sold (zero when none). | OLAP | `shows(movie_id, show_id, starts_at, screen_id)`, `bookings(show_id, status, num_tickets)` |
+| R20 | What were daily confirmed booking collections and the running total for June 2026? | Daily collections and cumulative collections ordered by date. | OLAP | `bookings(booked_at, status, total_amount)` |
+| R21 | Which 20 customers made the most confirmed bookings in 2026, and how much did they spend? | Customer ID, booking count, and spend, ranked by count then spend. | OLAP | `bookings(customer_id, status, booked_at, total_amount)` |
+| R22 | What records appear on page 4,001 of the support booking list (25 per page)? | 25 newest booking records after offset 100,000. | OLTP | `bookings(booked_at, booking_id, booking_code, customer_id, show_id, status)` |
+| R23 | Which customer account matches a supplied mobile number? | Customer ID, full name, and city ID (at most one row). | OLTP | `customers(phone, customer_id, full_name, city_id)` |
+| R24 | What is the average paid seat price by seat class and city in 2026? | City/seat-class groups with average price and ticket count. | OLAP | `booking_seats(seat_id, price)`, `seats(seat_id, screen_id, seat_class)`, `screens(screen_id, venue_id)`, `venues(venue_id, city_id)` |
+| R25 | What is the occupancy of late-night shows (22:30 onward) in June 2026? | Up to 50 shows with start time, capacity, and sold-seat count. | Hybrid | `shows(show_id, starts_at, screen_id)`, `screens(screen_id, total_seats)`, `booking_seats(show_id, seat_id)` |
+| W01 | Can checkout create a pending booking for two tickets on show 144446? | Insert one PENDING booking with the supplied payment and amount fields. | OLTP write | `bookings(booking_id, booking_code, customer_id, show_id, booked_at, num_tickets, ticket_amount, convenience_fee, fnb_amount, discount, total_amount, payment_method, status)` |
+| W02 | Can the seat-lock service allocate two lowest-ID unsold seats to the oldest pending booking? | Insert up to two booking-seat rows, avoiding already allocated show/seat pairs. | OLTP write | `bookings(booking_id, show_id, status)`, `shows(show_id, screen_id)`, `seats(screen_id, seat_id)`, `booking_seats(booking_id, show_id, seat_id, price)` |
+| W03 | Can the payment callback confirm the oldest pending booking? | Update the oldest PENDING booking to CONFIRMED. | OLTP write | `bookings(booking_id, status)` |
+| W04 | Can the seat-lock expiry process release seats held by expired pending bookings? | Delete booking-seat allocations whose booking remains PENDING past the cutoff. | OLTP write | `booking_seats(booking_id)`, `bookings(booking_id, status, booked_at)` |
+| W05 | Can pricing increase the base price by 10% for July weekend shows of movie 2? | Update matching shows' base prices, rounded to whole currency units. | OLTP write / batch | `shows(movie_id, starts_at, base_price)` |
+
+## 3. Schema compatibility check
+
+The query references above were checked against `sql/01_schema.sql`, which defines the 11 tables used by the workload:
+
+`cities`, `venues`, `screens`, `seats`, `movies`, `shows`, `customers`, `offers`, `bookings`, `booking_seats`, and `movie_reviews`.
+
+All table and column names in the 30 supplied statements are present in that schema. The original query file must remain unchanged for baseline reproducibility. In particular:
+
+- `booking_seats` is keyed by `(show_id, seat_id)`, which supports the seat-allocation conflict check in W02.
+- `bookings.booking_code` and `customers.phone` are unique lookup keys used by R04 and R23.
+- The supplied baseline R13 uses `NOT IN` against nullable `bookings.offer_code`. Because NULL values can make `NOT IN` evaluate to UNKNOWN, the original query can return no offers even when some are unused. The optimized `NOT EXISTS` rewrite is a correctness fix, not a like-for-like timing-only rewrite; the optimization report documents the 7-row corrected result.
+- The supplied write workload is designed to run in a transaction and roll back. The benchmark harness wraps each W query in `BEGIN ... ROLLBACK`; do not commit these test writes.
+
+## 4. Benchmark evidence already committed
+
+The repository already contains a complete baseline and optimized benchmark set:
+
+- `docs/03_baseline_timings.md`: 25 read and 5 write queries, three runs per query, averages.
+- `benchmarks/results/baseline/summary.csv`: one summary row for each of the 30 query IDs.
+- `benchmarks/results/baseline/R01.txt` through `R25.txt` and `W01.txt` through `W05.txt`: raw plans, with three run sections per query.
+- `benchmarks/results/optimized/summary.csv` and corresponding 30 raw-plan files.
+- `docs/04_optimization_report.md`: index and query rewrites, before/after comparison, correctness discussion, and representative plan excerpts.
+
+The baseline timing document records 778,048 total dataset records across the 11 tables. The optimization report records PostgreSQL 17 on macOS (Apple Silicon). The raw plan files show three execution sections per query; the summary CSVs report average, median, minimum, maximum, and scan nodes.
+
+### Baseline observations
+
+The slowest baseline reads by recorded average execution time are:
+
+| Query | Average (ms) | Main observed cost |
+|---|---:|---|
+| R10 | 249.938 | Self-join of shows; plan reports over 8.1 million rows removed by join filter. |
+| R19 | 235.055 | Correlated booking aggregate executed once per matching show. |
+| R12 | 63.162 | Aggregation over confirmed bookings grouped by customer and movie. |
+| R18 | 63.621 | Multi-table aggregation for city/language collections. |
+| R24 | 58.542 | Broad aggregation of seat revenue by city and class. |
+| R11 | 48.135 | Full aggregation over booking-seat revenue by screen type. |
+
+The exact per-query plans and timings remain the source of truth; these observations are not synthetic re-runs.
+
+### Optimized observations
+
+The committed optimization report records an overall workload average-sum reduction from 1,000.628 ms to 443.935 ms (2.25× aggregate speed-up, 55.6% lower summed execution time). The largest reported read improvements are R19 (377.9×), R09 (140.9×), R17 (123.3×), and R05 (68.7×). The report also records small regressions on broad analytical scans and W01, so the result is not described as every query becoming faster.
+
+R13 requires the correctness qualification above: its optimized result differs because the baseline query's NULL-sensitive `NOT IN` logic was incorrect for the intended “never redeemed” business question.
+
+## 5. Reproduction procedure
+
+Use the same loaded database, schema, dataset, PostgreSQL major version, and query parameters for baseline and optimized measurements. The repository's script accepts a libpq database name and reads connection settings from `PGHOST`, `PGPORT`, and `PGUSER` (and the usual password environment variable). Do not commit connection strings or credentials.
+
+From the repository root, the documented harness invocation is:
+
+```bash
+chmod +x benchmarks/run_benchmark.sh
+./benchmarks/run_benchmark.sh "$PGDATABASE" before 3
+./benchmarks/run_benchmark.sh "$PGDATABASE" after 3 sql/06_optimized_queries.sql
+```
+
+Set the libpq environment variables for the intended database before running. If using Neon, use the project's existing connection details locally; do not run `sql/01_schema.sql` or `sql/02_load_data.sql` against an already populated shared database. The script writes raw plan files and `summary.csv` under `benchmarks/results/before` or `benchmarks/results/after` according to the phase argument. For the committed repository layout, the corresponding baseline and optimized evidence is stored under `benchmarks/results/baseline/` and `benchmarks/results/optimized/`.
+
+To record the actual environment during a new run:
+
+```bash
+psql --version
+psql -d "$PGDATABASE" -X -c "SELECT version();"
+psql -d "$PGDATABASE" -X -c "SELECT current_database(), current_schema();"
+```
+
+Capture the dataset counts from the same database and timestamp as the benchmark. The committed dataset documentation lists the principal table sizes, including 160,034 shows, 150,094 bookings, and 300,389 booking-seat rows. Do not compare a run on a changed dataset as if it were the original baseline.
+
+## 6. Completion status and limitations
+
+- [x] All 30 supplied workload statements mapped to their business purpose and expected result.
+- [x] OLTP, OLAP, and hybrid workload classes identified with rationale.
+- [x] Query table and column references checked against the agreed schema.
+- [x] Baseline workload measured three times per query; timing table and raw plans committed.
+- [x] Optimized workload measured three times per query; timing table and raw plans committed.
+- [x] Before/after comparison, regressions, correctness issue, and major plan changes documented.
+- [ ] Re-run on the exact current shared Neon dataset only if the team requires a fresh measurement; no new run is claimed by this document.
+
+**Evidence limitation:** This document summarizes committed repository evidence. It does not claim a new benchmark was executed as part of this documentation change. The exact local hardware details beyond the recorded macOS/Apple Silicon description, and a timestamped fresh Neon row-count snapshot, should only be added from the machine/database that actually performs that run.
