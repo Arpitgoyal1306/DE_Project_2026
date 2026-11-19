@@ -157,3 +157,15 @@ The distinction matters when interpreting aggregate timing. A large reduction in
 - EXPLAIN ANALYZE execution time is server-side statement execution time. It excludes application serialization, network transfer, connection-pool queueing, and end-to-end API latency.
 - Scan-node names in the summary CSV are extracted from the final run's plan only. Use full raw plans when evaluating join order, estimated versus actual rows, buffers, loops, and sort/hash memory.
 - Indexes can improve selective lookups while adding storage and maintenance work to inserts, updates, and deletes. The observed W01 regression is a reminder to assess read gains alongside write costs.
+
+
+## 9. Reading the benchmark results responsibly
+
+The baseline and optimized summaries should be interpreted query by query, not only through the sum of average execution times.
+
+- **Large selective-query wins:** R05, R09, R17, and R19 show the clearest evidence that indexes and query-shape changes reduced unnecessary row visits or repeated work.
+- **Broad analytical scans:** R11, R15, R21, and R24 still read a substantial fraction of their input relations. A sequential scan can be the correct plan when most rows are needed; adding an index does not automatically make such a query faster.
+- **Observed regressions:** R08, R11, R15, R16, R21, and R24 are slower in the recorded optimized sample. R06 and R14 are effectively unchanged within small timing differences. These results should remain visible rather than being hidden by the aggregate improvement.
+- **Write trade-off:** W01 becomes slower in the optimized sample, consistent with maintaining additional indexes on bookings; W03 and W04 benefit from the partial pending-booking index.
+
+For a repeatable comparison, use the same PostgreSQL major version, schema, dataset snapshot, query parameters, connection route, and benchmark run count. Record whether the database was warm or cold, and avoid comparing a local database run directly with a remote Neon run as if only the SQL had changed. The committed figures are historical evidence for the environment described in the optimization report, not a guarantee of current production latency.
