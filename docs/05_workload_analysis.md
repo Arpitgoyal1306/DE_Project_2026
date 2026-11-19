@@ -43,13 +43,13 @@ The original workload file is the immutable benchmark baseline. Do not edit it; 
 | R21 | Which 20 customers made the most confirmed bookings in 2026, and how much did they spend? | Customer ID, booking count, and spend, ranked by count then spend. | OLAP | `bookings(customer_id, status, booked_at, total_amount)` |
 | R22 | What records appear on page 4,001 of the support booking list (25 per page)? | 25 newest booking records after offset 100,000. | OLTP | `bookings(booked_at, booking_id, booking_code, customer_id, show_id, status)` |
 | R23 | Which customer account matches a supplied mobile number? | Customer ID, full name, and city ID (at most one row). | OLTP | `customers(phone, customer_id, full_name, city_id)` |
-| R24 | What is the average paid seat price by seat class and city in 2026? | City/seat-class groups with average price and ticket count. | OLAP | `booking_seats(seat_id, price)`, `seats(seat_id, screen_id, seat_class)`, `screens(screen_id, venue_id)`, `venues(venue_id, city_id)` |
+| R24 | What is the average recorded booking-seat price by seat class and city across all booking-seat records? | City/seat-class groups with average price and ticket count; no date restriction is applied. | OLAP | `booking_seats(seat_id, price)`, `seats(seat_id, screen_id, seat_class)`, `screens(screen_id, venue_id)`, `venues(venue_id, city_id)` |
 | R25 | What is the occupancy of late-night shows (22:30 onward) in June 2026? | Up to 50 shows with start time, capacity, and sold-seat count. | Hybrid | `shows(show_id, starts_at, screen_id)`, `screens(screen_id, total_seats)`, `booking_seats(show_id, seat_id)` |
 | W01 | Can checkout create a pending booking for two tickets on show 144446? | Insert one PENDING booking with the supplied payment and amount fields. | OLTP write | `bookings(booking_id, booking_code, customer_id, show_id, booked_at, num_tickets, ticket_amount, convenience_fee, fnb_amount, discount, total_amount, payment_method, status)` |
 | W02 | Can the seat-lock service allocate two lowest-ID unsold seats to the oldest pending booking? | Insert up to two booking-seat rows, avoiding already allocated show/seat pairs. | OLTP write | `bookings(booking_id, show_id, status)`, `shows(show_id, screen_id)`, `seats(screen_id, seat_id)`, `booking_seats(booking_id, show_id, seat_id, price)` |
 | W03 | Can the payment callback confirm the oldest pending booking? | Update the oldest PENDING booking to CONFIRMED. | OLTP write | `bookings(booking_id, status)` |
 | W04 | Can the seat-lock expiry process release seats held by expired pending bookings? | Delete booking-seat allocations whose booking remains PENDING past the cutoff. | OLTP write | `booking_seats(booking_id)`, `bookings(booking_id, status, booked_at)` |
-| W05 | Can pricing increase the base price by 10% for July weekend shows of movie 2? | Update matching shows' base prices, rounded to whole currency units. | OLTP write / batch | `shows(movie_id, starts_at, base_price)` |
+| W05 | Can pricing increase the base price by 10% for weekend shows of movie 2 starting on or after 1 July 2026? | Update all matching weekend shows from 1 July 2026 onward, with no upper date bound; prices are rounded to whole currency units. | OLTP write / batch | `shows(movie_id, starts_at, base_price)` |
 
 ## 3. Schema compatibility check
 
@@ -63,6 +63,8 @@ All table and column names in the 30 supplied statements are present in that sch
 - `bookings.booking_code` and `customers.phone` are unique lookup keys used by R04 and R23.
 - The supplied baseline R13 uses `NOT IN` against nullable `bookings.offer_code`. Because NULL values can make `NOT IN` evaluate to UNKNOWN, the original query can return no offers even when some are unused. The optimized `NOT EXISTS` rewrite is a correctness fix, not a like-for-like timing-only rewrite; the optimization report documents the 7-row corrected result.
 - The supplied write workload is designed to run in a transaction and roll back. The benchmark harness wraps each W query in `BEGIN ... ROLLBACK`; do not commit these test writes.
+- **R24 specification mismatch:** the supplied SQL comment labels the result as a 2026 pricing report, but the SQL joins only `booking_seats`, `seats`, `screens`, and `venues`, and applies no date predicate or `shows` join. This document describes the SQL as written (all booking-seat records); the supplied workload is left unchanged pending an explicit team decision.
+- **W05 specification mismatch:** the supplied SQL comment describes July weekend shows, but the predicate has only `starts_at >= '2026-07-01'` plus the weekend-day filter. There is no upper bound, so qualifying weekends after July are also updated. This document describes the actual open-ended predicate; the supplied workload is left unchanged pending an explicit team decision.
 
 ## 4. Benchmark evidence already committed
 
@@ -74,7 +76,7 @@ The repository already contains a complete baseline and optimized benchmark set:
 - `benchmarks/results/optimized/summary.csv` and corresponding 30 raw-plan files.
 - `docs/04_optimization_report.md`: index and query rewrites, before/after comparison, correctness discussion, and representative plan excerpts.
 
-The baseline timing document records 778,048 total dataset records across the 11 tables. The optimization report records PostgreSQL 17 on macOS (Apple Silicon). The raw plan files show three execution sections per query; the summary CSVs report average, median, minimum, maximum, and scan nodes.
+The baseline timing document records 778,048 total dataset records across the 11 tables. The repository-root [`validation_report.json`](../validation_report.json) is the auditable validation evidence: all 11 expected-versus-actual row-count checks passed (778,048 expected and actual rows), with 0 failed checks. Table-by-table expected/actual counts are: cities 10/10; venues 140/140; screens 490/490; seats 94,056/94,056; movies 300/300; shows 160,034/160,034; customers 40,000/40,000; offers 25/25; bookings 150,094/150,094; booking_seats 300,389/300,389; movie_reviews 32,510/32,510. The optimization report records PostgreSQL 17 on macOS (Apple Silicon). The raw plan files show three execution sections per query; the summary CSVs report average, median, minimum, maximum, and scan nodes.
 
 ### Baseline observations
 
@@ -84,8 +86,8 @@ The slowest baseline reads by recorded average execution time are:
 |---|---:|---|
 | R10 | 249.938 | Self-join of shows; plan reports over 8.1 million rows removed by join filter. |
 | R19 | 235.055 | Correlated booking aggregate executed once per matching show. |
-| R12 | 63.162 | Aggregation over confirmed bookings grouped by customer and movie. |
 | R18 | 63.621 | Multi-table aggregation for city/language collections. |
+| R12 | 63.162 | Aggregation over confirmed bookings grouped by customer and movie. |
 | R24 | 58.542 | Broad aggregation of seat revenue by city and class. |
 | R11 | 48.135 | Full aggregation over booking-seat revenue by screen type. |
 
@@ -140,12 +142,12 @@ The classification above produces the following mix:
 
 | Workload group | Query IDs | Count | Share of all 30 |
 |---|---|---:|---:|
-| OLTP reads | R02–R06, R09, R23 | 7 | 23.3% |
-| OLAP reads | R08, R11–R16, R18–R21, R24 | 13 | 43.3% |
+| OLTP reads | R02–R06, R09, R22, R23 | 8 | 26.7% |
+| OLAP reads | R08, R11–R16, R18–R21, R24 | 12 | 40.0% |
 | Hybrid reads | R01, R07, R10, R17, R25 | 5 | 16.7% |
-| OLTP / batch writes | W01–W05 | 5 | 16.7% |
+| OLTP writes | W01–W05 | 5 | 16.7% |
 
-This is a mixed workload rather than a pure transactional benchmark: 18 of the 25 reads are analytical or hybrid, while the five writes model checkout, seat allocation, payment confirmation, lock expiry, and pricing maintenance.
+This is a mixed workload rather than a pure transactional benchmark: 17 of the 25 reads are analytical or hybrid (12 OLAP + 5 hybrid), while the eight OLTP reads are operational lookups/listing operations. The five OLTP writes model checkout, seat allocation, payment confirmation, lock expiry, and pricing maintenance.
 
 The distinction matters when interpreting aggregate timing. A large reduction in a reporting query can dominate summed execution time without necessarily changing the p95 latency of a high-volume checkout endpoint. For a production service, collect request-weighted latency (p50/p95/p99), throughput, concurrency, lock waits, and error rates in addition to this fixed-query benchmark. The current three-run query benchmark is useful for plan comparison, but it is not a load or concurrency test.
 
