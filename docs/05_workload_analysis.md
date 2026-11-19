@@ -109,7 +109,7 @@ chmod +x benchmarks/run_benchmark.sh
 ./benchmarks/run_benchmark.sh "$PGDATABASE" after 3 sql/06_optimized_queries.sql
 ```
 
-Set the libpq environment variables for the intended database before running. If using Neon, use the project's existing connection details locally; do not run `sql/01_schema.sql` or `sql/02_load_data.sql` against an already populated shared database. The script writes raw plan files and `summary.csv` under `benchmarks/results/before` or `benchmarks/results/after` according to the phase argument. For the committed repository layout, the corresponding baseline and optimized evidence is stored under `benchmarks/results/baseline/` and `benchmarks/results/optimized/`.
+Set the libpq environment variables for the intended database before running. If using Neon, use the project's existing connection details locally; do not run `sql/01_schema.sql` or `sql/02_load_data.sql` against an already populated shared database. The script writes raw plan files and `summary.csv` under `benchmarks/results/before` or `benchmarks/results/after` according to the phase argument. These are the literal output directories created by the harness; they are not automatically named `baseline` and `optimized`. The repository's committed historical evidence is stored separately under `benchmarks/results/baseline/` and `benchmarks/results/optimized/`. For a fresh run, inspect the generated summaries first, then deliberately promote/copy verified outputs into the historical baseline/optimized locations only if appropriate. Do not overwrite committed evidence until the new run has been reviewed and its environment recorded.
 
 To record the actual environment during a new run:
 
