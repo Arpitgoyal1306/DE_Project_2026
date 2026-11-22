@@ -104,6 +104,35 @@ The large benchmark shows five target misses. The available repository contains 
 
 These five misses remain **open optimization work** until the proposed changes are implemented, checked for result equivalence, and benchmarked on the large dataset. No target is marked as met based on a proposed design alone.
 
+### 5.1 Local large-dataset experiments (23 November 2026)
+
+The faculty large dataset was loaded into a separate local PostgreSQL database, `bookmyshow_large`, preserving the original seed database. It contains 15,571,506 rows across 11 tables. The following experiments were run on the same local database using three `EXPLAIN (ANALYZE, BUFFERS)` executions per benchmark phase. These local timings are reported separately from the historical large-plan timings in §4 because hardware, cache state and run conditions differ; they must not be substituted into the original growth-factor calculation.
+
+| Query | Local before avg (ms) | Local tested avg (ms) | Tested change | Result / target |
+|---|---:|---:|---|---|
+| R06 | 2.934 | 2.939 | No SQL or index change; sequential scan retained for `ILIKE '%kalki%'`. | No measurable improvement; 5 ms target met in this local run. |
+| R13 | 1,282.540 | 215.878 | Replaced NULL-sensitive `NOT IN` with `NOT EXISTS` anti-join. | Correctness fix: original returned 0 rows; corrected query returned 7. The bookings table is still sequentially scanned. The corrected query is below the 250 ms target in this local run. These results are intentionally not described as result-equivalent because the original result was incorrect. |
+| R21 | 4,193.645 | 1,109.241 | Same SELECT; tested a session-level `SET enable_indexscan = off` to compare a sequential-scan plan with the customer-index plan. | 73.6% faster. The result sets were compared with bidirectional `EXCEPT`; 0 differing rows. The sequential scan reads 2,671,876 qualifying rows and performs a hash-based aggregate/sort. This is a planner experiment, not a permanent index or SQL change. |
+| R22 | 132.435 | 7.194 | Added test-only covering index `(booked_at DESC) INCLUDE (booking_id, booking_code, customer_id, show_id, status)`. | 94.5% faster; plan changed to Index Only Scan with 0 heap fetches. The test index is 193 MB. The page query returned 25 rows; a full row-for-row equivalence comparison was not completed, so treat this as a promising performance result pending that final correctness check and write-overhead review. |
+| W02 | 82.857 | 82.661 | No SQL or index change; same INSERT was run three times per phase under the benchmark runner's transaction/rollback handling. | No meaningful improvement; remains above the 5 ms target. A separate transaction check inserted 2 rows (6,016,946 → 6,016,948) and then rolled back; the permanent count returned to 6,016,946. The plan still probes all 16 booking_seats partitions. |
+
+R13 NULL-correctness verification on the large dataset:
+- Original `NOT IN` result count: 0.
+- Corrected `NOT EXISTS` result count: 7.
+- `bookings.offer_code IS NULL` count: 2,553,802.
+
+R21 plan comparison:
+- Customer-index plan: 2,671,876 qualifying rows fetched by `idx_bookings_customer_id`, followed by GroupAggregate and top-N sort; average 4,193.645 ms.
+- Sequential-scan plan: sequentially reads the bookings table and performs the same aggregate; runs were 1,077.023, 1,157.784 and 1,092.917 ms (average 1,109.241 ms).
+- Bidirectional EXCEPT comparison between the two top-20 result tables returned 0 rows.
+
+R22 covering-index plan evidence:
+- The three tested executions used `idx_bookings_booked_at_cover_test` with Index Only Scan and `Heap Fetches: 0`.
+- The index occupies 193 MB. This is a local experimental index only; it has not been added to `sql/05_indexes.sql`. Its ongoing write/storage cost should be weighed before adopting it.
+
+R06 and W02 had no proposed SQL/index improvement in these runs; the measurements therefore document the current plan's behavior rather than a successful optimization. W02 remains a miss. The local experiments do not change the original §4 historical target statuses, which are based on the committed large benchmark run. Raw local plans and CSV summaries were saved on the benchmark machine under `benchmarks/results/local_before`, `local_after`, `local_seqscan` and `local_cover_test`; these machine-local artifacts were not part of the GitHub repository at the time this report was updated.
+
+
 ## 6. Storage measurements and measurement limitation
 
 ### 6.1 Seed database (measured)
@@ -126,11 +155,34 @@ The seed database `bookmyshow` was measured locally using PostgreSQL size functi
 
 Values are PostgreSQL's displayed rounded sizes, so displayed per-table totals may not sum exactly to the database-level size.
 
-### 6.2 Large database (not measured locally)
+### 6.2 Large database (measured locally)
 
-The large dataset validation file and all 30 large benchmark plans are present in the repository, but the large database is not present in this working copy. Consequently, its measured database size and heap/index/partition breakdown cannot be reported from this machine. The 15,571,506 row count is known, but **row count is not a substitute for measured disk size**. This measurement remains outstanding and must be collected on the machine that holds the large database (the database used for PR #10, or a team machine that loads the faculty archive). It would be misleading to extrapolate 116 MB linearly and label it as an observed size.
+The faculty large dataset was loaded into the separate local database `bookmyshow_large`. PostgreSQL reports a total database size of **2,580 MB** (approximately 2.52 GiB).
 
-Run the following from a psql session connected to the loaded large database. The first query reports the database total. The second groups ordinary tables and leaf partitions by their logical parent, so the 16 booking_seats leaf partitions are summed once and the partitioned parent is not double-counted.
+| Table | Heap size | Index size | Total relation size |
+|---|---:|---:|---:|
+| booking_seats (16 leaf partitions summed) | 299 MB | 506 MB | 806 MB |
+| bookings | 338 MB | 358 MB | 696 MB |
+| shows | 188 MB | 477 MB | 664 MB |
+| customers | 75 MB | 105 MB | 180 MB |
+| seats | 89 MB | 81 MB | 170 MB |
+| movie_reviews | 40 MB | 14 MB | 54 MB |
+| screens | 504 kB | 232 kB | 768 kB |
+| movies | 424 kB | 152 kB | 608 kB |
+| venues | 248 kB | 80 kB | 360 kB |
+| cities | 8 kB | 16 kB | 24 kB |
+| offers | 8 kB | 16 kB | 24 kB |
+
+The table sizes are PostgreSQL's rounded display values; their sum may differ slightly from the database-level total because database size also includes catalog, TOAST and other relation/overhead storage. The `booking_seats` total is calculated by summing its 16 leaf partitions and their indexes, not by reading the partitioned parent's relation size.
+
+The exact summed `booking_seats` partition sizes were:
+- Heap: 314,032,128 bytes.
+- Indexes: 530,874,368 bytes.
+- Total: 844,906,496 bytes (about 806 MiB).
+
+The local test-only R22 covering index (193 MB) was created after the above storage measurement and is therefore **not included** in the reported 2,580 MB database total or the table/index breakdown above.
+
+Run the following SQL on the loaded database to reproduce the database and logical-table measurements. Leaf partitions are grouped under their parent so the 16 `booking_seats` partitions are counted once and the partitioned parent is not double-counted.
 
 ```sql
 -- 1. Whole database size
@@ -171,8 +223,6 @@ WHERE n.nspname = 'bms'
   AND p.relname = 'booking_seats'
 ORDER BY c.relname;
 ```
-
-Record the database total and the grouped booking_seats total in the report; retain the third query's 16-row output as the partition-level evidence. The byte columns are included so totals can be checked without rounding.
 
 ## 7. 100× architecture design
 
