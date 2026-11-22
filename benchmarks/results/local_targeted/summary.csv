@@ -1,0 +1,6 @@
+query_id,before_avg_ms,tested_avg_ms,tested_plan_or_change
+R06,2.934,2.939,"Unchanged SQL; Seq Scan on movies"
+R13,1282.540,215.878,"NOT IN to NOT EXISTS; Seq Scan bookings + Hash Right Anti Join"
+R21,4193.645,1109.241,"Same SELECT; enable_indexscan=off; Seq Scan + aggregate"
+R22,132.435,7.194,"193 MB covering index; Index Only Scan; 0 heap fetches"
+W02,82.857,82.661,"Unchanged INSERT; 16 partition probes; transaction rollback verified"
