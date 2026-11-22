@@ -1,0 +1,72 @@
+=== R19 run 1 ===
+Sort  (cost=2807.80..2808.23 rows=172 width=22) (actual time=3.493..3.503 rows=222 loops=1)
+  Sort Key: ((SubPlan 1)) DESC, s.starts_at
+  Sort Method: quicksort  Memory: 37kB
+  Buffers: shared hit=536 read=606
+  ->  Bitmap Heap Scan on shows s  (cost=6.62..2801.41 rows=172 width=22) (actual time=0.090..3.420 rows=222 loops=1)
+        Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+        Heap Blocks: exact=222
+        Buffers: shared hit=530 read=606
+        ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.58 rows=172 width=0) (actual time=0.039..0.039 rows=222 loops=1)
+              Index Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+              Buffers: shared hit=3 read=4
+        SubPlan 1
+          ->  Aggregate  (cost=12.47..12.48 rows=1 width=8) (actual time=0.010..0.010 rows=1 loops=222)
+                Buffers: shared hit=527 read=380
+                ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.47 rows=2 width=2) (actual time=0.008..0.010 rows=1 loops=222)
+                      Index Cond: (show_id = s.show_id)
+                      Filter: ((status)::text = 'CONFIRMED'::text)
+                      Rows Removed by Filter: 0
+                      Buffers: shared hit=527 read=380
+Planning:
+  Buffers: shared hit=272 read=44
+Planning Time: 1.737 ms
+Execution Time: 3.556 ms
+=== R19 run 2 ===
+Sort  (cost=2807.80..2808.23 rows=172 width=22) (actual time=1.854..1.863 rows=222 loops=1)
+  Sort Key: ((SubPlan 1)) DESC, s.starts_at
+  Sort Method: quicksort  Memory: 37kB
+  Buffers: shared hit=1142
+  ->  Bitmap Heap Scan on shows s  (cost=6.62..2801.41 rows=172 width=22) (actual time=0.069..1.788 rows=222 loops=1)
+        Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+        Heap Blocks: exact=222
+        Buffers: shared hit=1136
+        ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.58 rows=172 width=0) (actual time=0.028..0.029 rows=222 loops=1)
+              Index Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+              Buffers: shared hit=7
+        SubPlan 1
+          ->  Aggregate  (cost=12.47..12.48 rows=1 width=8) (actual time=0.006..0.006 rows=1 loops=222)
+                Buffers: shared hit=907
+                ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.47 rows=2 width=2) (actual time=0.005..0.006 rows=1 loops=222)
+                      Index Cond: (show_id = s.show_id)
+                      Filter: ((status)::text = 'CONFIRMED'::text)
+                      Rows Removed by Filter: 0
+                      Buffers: shared hit=907
+Planning:
+  Buffers: shared hit=316
+Planning Time: 0.956 ms
+Execution Time: 1.909 ms
+=== R19 run 3 ===
+Sort  (cost=2807.80..2808.23 rows=172 width=22) (actual time=1.796..1.806 rows=222 loops=1)
+  Sort Key: ((SubPlan 1)) DESC, s.starts_at
+  Sort Method: quicksort  Memory: 37kB
+  Buffers: shared hit=1142
+  ->  Bitmap Heap Scan on shows s  (cost=6.62..2801.41 rows=172 width=22) (actual time=0.065..1.732 rows=222 loops=1)
+        Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+        Heap Blocks: exact=222
+        Buffers: shared hit=1136
+        ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.58 rows=172 width=0) (actual time=0.027..0.027 rows=222 loops=1)
+              Index Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+              Buffers: shared hit=7
+        SubPlan 1
+          ->  Aggregate  (cost=12.47..12.48 rows=1 width=8) (actual time=0.006..0.006 rows=1 loops=222)
+                Buffers: shared hit=907
+                ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.47 rows=2 width=2) (actual time=0.004..0.005 rows=1 loops=222)
+                      Index Cond: (show_id = s.show_id)
+                      Filter: ((status)::text = 'CONFIRMED'::text)
+                      Rows Removed by Filter: 0
+                      Buffers: shared hit=907
+Planning:
+  Buffers: shared hit=316
+Planning Time: 0.915 ms
+Execution Time: 1.849 ms

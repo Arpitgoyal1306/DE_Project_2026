@@ -1,0 +1,31 @@
+query_id,type,avg_ms,median_ms,min_ms,max_ms,scan_nodes
+R01,READ,681.060,183.883,180.421,1678.875,Seq Scan on screens | Seq Scan on venues | Index Scan using idx_shows_screen_starts on shows | Seq Scan on movies
+R02,READ,0.843,0.246,0.244,2.038,Index Scan using idx_shows_movie_starts on shows | Index Scan using screens_pkey on screens | Index Scan using venues_pkey on venues
+R03,READ,0.778,0.442,0.357,1.536,Index Scan using shows_pkey on shows | Index Scan using uq_seats_screen_position on seats | Index Only Scan using pk_booking_seats on booking_seats
+R04,READ,0.294,0.159,0.137,0.586,Index Scan using uq_bookings_booking_code on bookings
+R05,READ,0.668,0.234,0.228,1.541,Index Scan using idx_bookings_customer_id on bookings | Index Scan using shows_pkey on shows | Index Scan using movies_pkey on movies | Index Scan using screens_pkey on screens | Index Scan using venues_pkey on venues
+R06,READ,6.018,6.876,4.241,6.936,Seq Scan on movies
+R07,READ,2.617,2.933,1.693,3.224,Seq Scan on screens | Bitmap Heap Scan on shows | Bitmap Index Scan on idx_shows_screen_starts | Index Only Scan using pk_booking_seats on booking_seats
+R08,READ,604.937,544.000,515.204,755.606,Seq Scan on bookings | Seq Scan on shows | Seq Scan on movies
+R09,READ,0.288,0.228,0.219,0.417,Index Scan using idx_bookings_pending on bookings
+R10,READ,6685.873,6714.549,6610.051,6733.018,Seq Scan on shows
+R11,READ,1731.972,1614.134,1561.970,2019.812,Seq Scan on booking_seats | Seq Scan on seats | Seq Scan on screens
+R12,READ,3908.946,3902.080,3398.781,4425.976,Seq Scan on bookings | Seq Scan on shows
+R13,READ,2594.205,2587.369,2574.392,2620.853,Seq Scan on offers | Seq Scan on bookings
+R14,READ,106.897,87.348,85.192,148.151,Seq Scan on movie_reviews | Seq Scan on movies
+R15,READ,509.665,483.724,480.849,564.421,Index Only Scan using idx_bookings_booked_at on bookings
+R16,READ,830.514,814.696,757.795,919.052,Seq Scan on bookings | Seq Scan on shows | Seq Scan on screens | Seq Scan on venues
+R17,READ,981.627,851.861,832.323,1260.697,Seq Scan on booking_seats | Seq Scan on shows | Seq Scan on seats
+R18,READ,5176.249,5128.689,5123.795,5276.262,Seq Scan on shows | Index Scan using idx_bookings_show_id on bookings | Seq Scan on movies | Seq Scan on screens | Seq Scan on venues
+R19,READ,2.438,1.909,1.849,3.556,Bitmap Heap Scan on shows | Bitmap Index Scan on idx_shows_movie_starts | Index Scan using idx_bookings_show_id on bookings
+R20,READ,417.325,415.047,407.749,429.179,Seq Scan on bookings
+R21,READ,8661.274,8654.172,8593.456,8736.193,Index Scan using idx_bookings_customer_id on bookings
+R22,READ,269.132,273.908,244.121,289.367,Index Scan using idx_bookings_booked_at on bookings
+R23,READ,0.305,0.074,0.048,0.793,Index Scan using uq_customers_phone on customers
+R24,READ,1884.708,1882.165,1798.583,1973.375,Seq Scan on booking_seats | Seq Scan on seats | Seq Scan on screens | Seq Scan on venues
+R25,READ,590.918,465.638,465.213,841.903,Seq Scan on booking_seats | Seq Scan on shows | Seq Scan on screens
+W01,WRITE,2.325,1.250,1.187,4.537,(no scan)
+W02,WRITE,162.128,160.733,155.940,169.711,Index Only Scan using idx_bookings_pending on bookings | Index Scan using seats_pkey on seats | Index Only Scan using uq_bookings_id_show on bookings | Index Scan using shows_pkey on shows | Index Only Scan using pk_booking_seats on booking_seats
+W03,WRITE,0.859,0.465,0.457,1.655,Index Only Scan using idx_bookings_pending on bookings | Index Scan using uq_bookings_id_show on bookings
+W04,WRITE,6.858,2.106,1.754,16.715,Index Scan using idx_bookings_pending on bookings | Index Scan using uq_booking_seats_booking_seat on booking_seats
+W05,WRITE,20.115,8.536,6.869,44.939,Bitmap Heap Scan on shows | Bitmap Index Scan on idx_shows_movie_starts
