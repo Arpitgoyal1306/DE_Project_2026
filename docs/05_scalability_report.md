@@ -128,9 +128,51 @@ Values are PostgreSQL's displayed rounded sizes, so displayed per-table totals m
 
 ### 6.2 Large database (not measured locally)
 
-The large dataset validation file and benchmark plans are present in the repository, but the large CSV archive is not present in this working copy and `de_project_2026` is not among the local PostgreSQL databases. Consequently, a measured large database size and heap/index/partition breakdown cannot be reported from this machine. The 15,571,506 row count is known, but **row count is not a substitute for measured disk size**. This measurement remains outstanding and must be collected on a machine that has the loaded large database. It would be misleading to extrapolate 116 MB linearly and label it as an observed size.
+The large dataset validation file and all 30 large benchmark plans are present in the repository, but the large database is not present in this working copy. Consequently, its measured database size and heap/index/partition breakdown cannot be reported from this machine. The 15,571,506 row count is known, but **row count is not a substitute for measured disk size**. This measurement remains outstanding and must be collected on the machine that holds the large database (the database used for PR #10, or a team machine that loads the faculty archive). It would be misleading to extrapolate 116 MB linearly and label it as an observed size.
 
-The large storage measurement should include parent and child partition relation sizes, indexes, TOAST where applicable, and total database size, using `pg_database_size`, `pg_total_relation_size`, `pg_relation_size` and `pg_indexes_size`.
+Run the following from a psql session connected to the loaded large database. The first query reports the database total. The second groups ordinary tables and leaf partitions by their logical parent, so the 16 booking_seats leaf partitions are summed once and the partitioned parent is not double-counted.
+
+```sql
+-- 1. Whole database size
+SELECT current_database() AS database_name,
+       pg_size_pretty(pg_database_size(current_database())) AS database_size;
+
+-- 2. Heap, index and total relation size.
+-- Leaf partitions are grouped under their parent table.
+SELECT
+    COALESCE(parent.relname, c.relname) AS table_name,
+    pg_size_pretty(SUM(pg_relation_size(c.oid))) AS heap_size,
+    pg_size_pretty(SUM(pg_indexes_size(c.oid))) AS indexes_size,
+    pg_size_pretty(SUM(pg_total_relation_size(c.oid))) AS total_size,
+    SUM(pg_relation_size(c.oid)) AS heap_bytes,
+    SUM(pg_indexes_size(c.oid)) AS index_bytes,
+    SUM(pg_total_relation_size(c.oid)) AS total_bytes
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+LEFT JOIN pg_inherits i ON i.inhrelid = c.oid
+LEFT JOIN pg_class parent ON parent.oid = i.inhparent
+WHERE n.nspname = 'bms'
+  AND c.relkind = 'r'
+GROUP BY COALESCE(parent.relname, c.relname)
+ORDER BY SUM(pg_total_relation_size(c.oid)) DESC;
+
+-- 3. Explicit child-partition detail for booking_seats
+SELECT
+    c.relname AS partition_name,
+    pg_size_pretty(pg_relation_size(c.oid)) AS heap_size,
+    pg_size_pretty(pg_indexes_size(c.oid)) AS indexes_size,
+    pg_size_pretty(pg_total_relation_size(c.oid)) AS total_size,
+    pg_total_relation_size(c.oid) AS total_bytes
+FROM pg_inherits i
+JOIN pg_class p ON p.oid = i.inhparent
+JOIN pg_class c ON c.oid = i.inhrelid
+JOIN pg_namespace n ON n.oid = p.relnamespace
+WHERE n.nspname = 'bms'
+  AND p.relname = 'booking_seats'
+ORDER BY c.relname;
+```
+
+Record the database total and the grouped booking_seats total in the report; retain the third query's 16-row output as the partition-level evidence. The byte columns are included so totals can be checked without rounding.
 
 ## 7. 100× architecture design
 
