@@ -84,8 +84,8 @@ The required comparison is optimized seed → large dataset. Target groups and l
 
 For interpretation, the observed growth factors are grouped as below. These are descriptive bands, not additional project targets.
 
-- **Below 10×:** R02, R03, R05, R09, R23, W01 and W03. These queries remain relatively selective or use efficient point/range lookups.
-- **10× to below 25×:** R04, R07, R10, R14, R15, R17, R19, R20, R22 and W05. Their work increases with larger input sets, but the measured increase is below 25×.
+- **Below 10×:** R02, R03, R05, R09, R23, W01, W03 and W05. These queries remain relatively selective or use efficient point/range lookups.
+- **10× to below 25×:** R04, R07, R10, R14, R15, R17, R19, R20, R22 and W02. Their work increases with larger input sets, but the measured increase is below 25×.
 - **25× or more:** R01, R06, R08, R11, R12, R13, R16, R18, R21, R24, R25 and W04. These plans process more rows, perform broad scans/aggregations, or encounter less selective access paths at the larger scale.
 
 The overall row count grew about 20×, but query latency did not grow uniformly. Some queries grew less than 10×, while R21 grew 214.54× and W04 276.88×. This reflects the amount and shape of work performed by each query, not just table-size growth.
@@ -156,6 +156,7 @@ All writes and correctness-sensitive seat/booking reads must go to the primary:
 Read replicas can serve read-heavy or slightly stale-tolerant queries:
 - R01/R02 show discovery and showtimes.
 - R06 movie search.
+- R23 phone-number sign-in lookup may use a replica only when the application can tolerate replication lag; for immediate read-after-write sign-in/profile changes, route to the primary.
 - R07/R17 cinema operational summaries when a small replication delay is acceptable.
 - R08, R10–R16, R18–R22 and R24–R25 analytical/reporting reads.
 
