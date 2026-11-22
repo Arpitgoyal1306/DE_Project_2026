@@ -1,0 +1,72 @@
+=== R10 run 1 ===
+Gather Merge  (cost=3986827.90..7501553.25 rows=30124114 width=42) (actual time=689.063..691.928 rows=5021 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  Buffers: shared hit=2934930 read=34138
+  ->  Sort  (cost=3985827.88..4023483.02 rows=15062057 width=42) (actual time=686.632..686.695 rows=1674 loops=3)
+        Sort Key: ((s2.starts_at - s1.ends_at)), s1.screen_id
+        Sort Method: quicksort  Memory: 163kB
+        Buffers: shared hit=2934930 read=34138
+        Worker 0:  Sort Method: quicksort  Memory: 166kB
+        Worker 1:  Sort Method: quicksort  Memory: 170kB
+        ->  Nested Loop  (cost=0.43..800087.15 rows=15062057 width=42) (actual time=53.899..685.871 rows=1674 loops=3)
+              Buffers: shared hit=2934894 read=34138
+              ->  Parallel Seq Scan on shows s1  (cost=0.00..44055.93 rows=410451 width=14) (actual time=52.282..95.777 rows=326660 loops=3)
+                    Filter: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                    Rows Removed by Filter: 740429
+                    Buffers: shared hit=589 read=23459
+              ->  Index Scan using idx_shows_screen_starts on shows s2  (cost=0.43..1.39 rows=36 width=14) (actual time=0.002..0.002 rows=0 loops=979980)
+                    Index Cond: ((screen_id = s1.screen_id) AND (starts_at >= s1.ends_at) AND (starts_at < (s1.ends_at + '00:30:00'::interval)))
+                    Buffers: shared hit=2934305 read=10679
+Planning:
+  Buffers: shared hit=300
+Planning Time: 0.821 ms
+Execution Time: 692.181 ms
+=== R10 run 2 ===
+Gather Merge  (cost=3986827.90..7501553.25 rows=30124114 width=42) (actual time=520.815..523.611 rows=5021 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  Buffers: shared hit=2945708 read=23360
+  ->  Sort  (cost=3985827.88..4023483.02 rows=15062057 width=42) (actual time=518.716..518.776 rows=1674 loops=3)
+        Sort Key: ((s2.starts_at - s1.ends_at)), s1.screen_id
+        Sort Method: quicksort  Memory: 164kB
+        Buffers: shared hit=2945708 read=23360
+        Worker 0:  Sort Method: quicksort  Memory: 169kB
+        Worker 1:  Sort Method: quicksort  Memory: 166kB
+        ->  Nested Loop  (cost=0.43..800087.15 rows=15062057 width=42) (actual time=43.430..518.008 rows=1674 loops=3)
+              Buffers: shared hit=2945672 read=23360
+              ->  Parallel Seq Scan on shows s1  (cost=0.00..44055.93 rows=410451 width=14) (actual time=43.292..82.942 rows=326660 loops=3)
+                    Filter: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                    Rows Removed by Filter: 740429
+                    Buffers: shared hit=688 read=23360
+              ->  Index Scan using idx_shows_screen_starts on shows s2  (cost=0.43..1.39 rows=36 width=14) (actual time=0.001..0.001 rows=0 loops=979980)
+                    Index Cond: ((screen_id = s1.screen_id) AND (starts_at >= s1.ends_at) AND (starts_at < (s1.ends_at + '00:30:00'::interval)))
+                    Buffers: shared hit=2944984
+Planning:
+  Buffers: shared hit=300
+Planning Time: 0.708 ms
+Execution Time: 523.843 ms
+=== R10 run 3 ===
+Gather Merge  (cost=3986827.90..7501553.25 rows=30124114 width=42) (actual time=504.983..507.686 rows=5021 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  Buffers: shared hit=2945804 read=23264
+  ->  Sort  (cost=3985827.88..4023483.02 rows=15062057 width=42) (actual time=502.857..502.916 rows=1674 loops=3)
+        Sort Key: ((s2.starts_at - s1.ends_at)), s1.screen_id
+        Sort Method: quicksort  Memory: 163kB
+        Buffers: shared hit=2945804 read=23264
+        Worker 0:  Sort Method: quicksort  Memory: 170kB
+        Worker 1:  Sort Method: quicksort  Memory: 166kB
+        ->  Nested Loop  (cost=0.43..800087.15 rows=15062057 width=42) (actual time=49.471..502.185 rows=1674 loops=3)
+              Buffers: shared hit=2945768 read=23264
+              ->  Parallel Seq Scan on shows s1  (cost=0.00..44055.93 rows=410451 width=14) (actual time=49.331..85.987 rows=326660 loops=3)
+                    Filter: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                    Rows Removed by Filter: 740429
+                    Buffers: shared hit=784 read=23264
+              ->  Index Scan using idx_shows_screen_starts on shows s2  (cost=0.43..1.39 rows=36 width=14) (actual time=0.001..0.001 rows=0 loops=979980)
+                    Index Cond: ((screen_id = s1.screen_id) AND (starts_at >= s1.ends_at) AND (starts_at < (s1.ends_at + '00:30:00'::interval)))
+                    Buffers: shared hit=2944984
+Planning:
+  Buffers: shared hit=300
+Planning Time: 0.759 ms
+Execution Time: 507.925 ms

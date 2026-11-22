@@ -1,0 +1,81 @@
+=== R20 run 1 ===
+WindowAgg  (cost=72793.81..74666.26 rows=12672 width=68) (actual time=380.619..427.861 rows=30 loops=1)
+  Buffers: shared hit=15472 read=27876, temp read=2510 written=2525
+  ->  Finalize GroupAggregate  (cost=72793.81..74476.18 rows=12672 width=36) (actual time=378.736..427.797 rows=30 loops=1)
+        Group Key: ((bookings.booked_at)::date)
+        Buffers: shared hit=15472 read=27876, temp read=2510 written=2525
+        ->  Gather Merge  (cost=72793.81..74202.69 rows=11122 width=36) (actual time=376.881..427.721 rows=90 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=15472 read=27876, temp read=2510 written=2525
+              ->  Partial GroupAggregate  (cost=71793.78..71918.91 rows=5561 width=36) (actual time=323.161..373.532 rows=30 loops=3)
+                    Group Key: ((bookings.booked_at)::date)
+                    Buffers: shared hit=15472 read=27876, temp read=2510 written=2525
+                    ->  Sort  (cost=71793.78..71807.69 rows=5561 width=10) (actual time=321.303..344.005 rows=327385 loops=3)
+                          Sort Key: ((bookings.booked_at)::date)
+                          Sort Method: external merge  Disk: 6792kB
+                          Buffers: shared hit=15472 read=27876, temp read=2510 written=2525
+                          Worker 0:  Sort Method: external merge  Disk: 6648kB
+                          Worker 1:  Sort Method: external merge  Disk: 6640kB
+                          ->  Parallel Seq Scan on bookings  (cost=0.00..71447.86 rows=5561 width=10) (actual time=0.020..272.554 rows=327385 loops=3)
+                                Filter: (((status)::text = 'CONFIRMED'::text) AND ((booked_at)::date >= '2026-06-01'::date) AND ((booked_at)::date <= '2026-06-30'::date))
+                                Rows Removed by Filter: 673974
+                                Buffers: shared hit=15396 read=27876
+Planning:
+  Buffers: shared hit=202 read=7
+Planning Time: 0.994 ms
+Execution Time: 429.179 ms
+=== R20 run 2 ===
+WindowAgg  (cost=72793.81..74666.26 rows=12672 width=68) (actual time=367.575..413.737 rows=30 loops=1)
+  Buffers: shared hit=15514 read=27834, temp read=2508 written=2523
+  ->  Finalize GroupAggregate  (cost=72793.81..74476.18 rows=12672 width=36) (actual time=365.911..413.700 rows=30 loops=1)
+        Group Key: ((bookings.booked_at)::date)
+        Buffers: shared hit=15514 read=27834, temp read=2508 written=2523
+        ->  Gather Merge  (cost=72793.81..74202.69 rows=11122 width=36) (actual time=364.280..413.648 rows=90 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=15514 read=27834, temp read=2508 written=2523
+              ->  Partial GroupAggregate  (cost=71793.78..71918.91 rows=5561 width=36) (actual time=315.354..363.157 rows=30 loops=3)
+                    Group Key: ((bookings.booked_at)::date)
+                    Buffers: shared hit=15514 read=27834, temp read=2508 written=2523
+                    ->  Sort  (cost=71793.78..71807.69 rows=5561 width=10) (actual time=313.748..335.375 rows=327385 loops=3)
+                          Sort Key: ((bookings.booked_at)::date)
+                          Sort Method: external merge  Disk: 6840kB
+                          Buffers: shared hit=15514 read=27834, temp read=2508 written=2523
+                          Worker 0:  Sort Method: external merge  Disk: 6616kB
+                          Worker 1:  Sort Method: external merge  Disk: 6608kB
+                          ->  Parallel Seq Scan on bookings  (cost=0.00..71447.86 rows=5561 width=10) (actual time=0.023..266.490 rows=327385 loops=3)
+                                Filter: (((status)::text = 'CONFIRMED'::text) AND ((booked_at)::date >= '2026-06-01'::date) AND ((booked_at)::date <= '2026-06-30'::date))
+                                Rows Removed by Filter: 673974
+                                Buffers: shared hit=15438 read=27834
+Planning:
+  Buffers: shared hit=209
+Planning Time: 0.629 ms
+Execution Time: 415.047 ms
+=== R20 run 3 ===
+WindowAgg  (cost=72793.81..74666.26 rows=12672 width=68) (actual time=357.594..406.439 rows=30 loops=1)
+  Buffers: shared hit=15610 read=27738, temp read=2510 written=2525
+  ->  Finalize GroupAggregate  (cost=72793.81..74476.18 rows=12672 width=36) (actual time=355.874..406.387 rows=30 loops=1)
+        Group Key: ((bookings.booked_at)::date)
+        Buffers: shared hit=15610 read=27738, temp read=2510 written=2525
+        ->  Gather Merge  (cost=72793.81..74202.69 rows=11122 width=36) (actual time=354.081..406.320 rows=90 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=15610 read=27738, temp read=2510 written=2525
+              ->  Partial GroupAggregate  (cost=71793.78..71918.91 rows=5561 width=36) (actual time=294.562..350.216 rows=30 loops=3)
+                    Group Key: ((bookings.booked_at)::date)
+                    Buffers: shared hit=15610 read=27738, temp read=2510 written=2525
+                    ->  Sort  (cost=71793.78..71807.69 rows=5561 width=10) (actual time=292.932..317.528 rows=327385 loops=3)
+                          Sort Key: ((bookings.booked_at)::date)
+                          Sort Method: external merge  Disk: 6848kB
+                          Buffers: shared hit=15610 read=27738, temp read=2510 written=2525
+                          Worker 0:  Sort Method: external merge  Disk: 6608kB
+                          Worker 1:  Sort Method: external merge  Disk: 6624kB
+                          ->  Parallel Seq Scan on bookings  (cost=0.00..71447.86 rows=5561 width=10) (actual time=0.023..248.395 rows=327385 loops=3)
+                                Filter: (((status)::text = 'CONFIRMED'::text) AND ((booked_at)::date >= '2026-06-01'::date) AND ((booked_at)::date <= '2026-06-30'::date))
+                                Rows Removed by Filter: 673974
+                                Buffers: shared hit=15534 read=27738
+Planning:
+  Buffers: shared hit=209
+Planning Time: 0.705 ms
+Execution Time: 407.749 ms

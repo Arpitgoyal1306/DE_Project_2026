@@ -1,0 +1,42 @@
+=== R13 run 1 ===
+Seq Scan on offers o  (cost=0.00..1381363.62 rows=12 width=32) (actual time=2586.005..2586.006 rows=0 loops=1)
+  Filter: (NOT (SubPlan 1))
+  Rows Removed by Filter: 25
+  Buffers: shared hit=135 read=43138, temp read=25399 written=4233
+  SubPlan 1
+    ->  Materialize  (cost=0.00..102999.13 rows=3003942 width=10) (actual time=0.002..67.504 rows=841215 loops=25)
+          Buffers: shared hit=135 read=43137, temp read=25399 written=4233
+          ->  Seq Scan on bookings b  (cost=0.00..73311.42 rows=3003942 width=10) (actual time=0.008..352.835 rows=3004077 loops=1)
+                Buffers: shared hit=135 read=43137
+Planning:
+  Buffers: shared hit=163 read=2
+Planning Time: 4.351 ms
+Execution Time: 2587.369 ms
+=== R13 run 2 ===
+Seq Scan on offers o  (cost=0.00..1381363.62 rows=12 width=32) (actual time=2572.977..2572.979 rows=0 loops=1)
+  Filter: (NOT (SubPlan 1))
+  Rows Removed by Filter: 25
+  Buffers: shared hit=168 read=43105, temp read=25399 written=4233
+  SubPlan 1
+    ->  Materialize  (cost=0.00..102999.13 rows=3003942 width=10) (actual time=0.003..67.352 rows=841215 loops=25)
+          Buffers: shared hit=167 read=43105, temp read=25399 written=4233
+          ->  Seq Scan on bookings b  (cost=0.00..73311.42 rows=3003942 width=10) (actual time=0.026..358.929 rows=3004077 loops=1)
+                Buffers: shared hit=167 read=43105
+Planning:
+  Buffers: shared hit=165
+Planning Time: 0.814 ms
+Execution Time: 2574.392 ms
+=== R13 run 3 ===
+Seq Scan on offers o  (cost=0.00..1381363.62 rows=12 width=32) (actual time=2618.284..2618.285 rows=0 loops=1)
+  Filter: (NOT (SubPlan 1))
+  Rows Removed by Filter: 25
+  Buffers: shared hit=200 read=43073, temp read=25399 written=4233
+  SubPlan 1
+    ->  Materialize  (cost=0.00..102999.13 rows=3003942 width=10) (actual time=0.002..68.517 rows=841215 loops=25)
+          Buffers: shared hit=199 read=43073, temp read=25399 written=4233
+          ->  Seq Scan on bookings b  (cost=0.00..73311.42 rows=3003942 width=10) (actual time=0.018..350.610 rows=3004077 loops=1)
+                Buffers: shared hit=199 read=43073
+Planning:
+  Buffers: shared hit=165
+Planning Time: 0.785 ms
+Execution Time: 2620.853 ms
