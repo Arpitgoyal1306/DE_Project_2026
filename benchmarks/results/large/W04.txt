@@ -1,0 +1,237 @@
+=== W04 run 1 ===
+Delete on booking_seats bs  (cost=0.57..35607.02 rows=0 width=0) (actual time=72.728..72.730 rows=0 loops=1)
+  Delete on booking_seats_p00 bs_1
+  Delete on booking_seats_p01 bs_2
+  Delete on booking_seats_p02 bs_3
+  Delete on booking_seats_p03 bs_4
+  Delete on booking_seats_p04 bs_5
+  Delete on booking_seats_p05 bs_6
+  Delete on booking_seats_p06 bs_7
+  Delete on booking_seats_p07 bs_8
+  Delete on booking_seats_p08 bs_9
+  Delete on booking_seats_p09 bs_10
+  Delete on booking_seats_p10 bs_11
+  Delete on booking_seats_p11 bs_12
+  Delete on booking_seats_p12 bs_13
+  Delete on booking_seats_p13 bs_14
+  Delete on booking_seats_p14 bs_15
+  Delete on booking_seats_p15 bs_16
+  Buffers: shared hit=2928 read=1575 dirtied=101
+  ->  Nested Loop  (cost=0.57..35607.02 rows=401 width=16) (actual time=2.698..69.502 rows=161 loops=1)
+        Buffers: shared hit=2696 read=1560
+        ->  Index Scan using idx_bookings_pending on bookings b  (cost=0.15..365.52 rows=200 width=10) (actual time=0.026..0.587 rows=85 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Filter: ((status)::text = 'PENDING'::text)
+              Buffers: shared hit=5 read=85
+        ->  Append  (cost=0.42..175.73 rows=48 width=14) (actual time=0.350..0.810 rows=2 loops=85)
+              Buffers: shared hit=2691 read=1475
+              ->  Index Scan using booking_seats_p00_booking_id_seat_id_idx on booking_seats_p00 bs_1  (cost=0.42..10.97 rows=3 width=14) (actual time=0.043..0.043 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=166 read=96
+              ->  Index Scan using booking_seats_p01_booking_id_seat_id_idx on booking_seats_p01 bs_2  (cost=0.42..10.98 rows=3 width=14) (actual time=0.037..0.037 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=167 read=89
+              ->  Index Scan using booking_seats_p02_booking_id_seat_id_idx on booking_seats_p02 bs_3  (cost=0.42..10.97 rows=3 width=14) (actual time=0.043..0.043 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=172 read=89
+              ->  Index Scan using booking_seats_p03_booking_id_seat_id_idx on booking_seats_p03 bs_4  (cost=0.42..10.97 rows=3 width=14) (actual time=0.037..0.037 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=174 read=87
+              ->  Index Scan using booking_seats_p04_booking_id_seat_id_idx on booking_seats_p04 bs_5  (cost=0.42..10.97 rows=3 width=14) (actual time=0.039..0.039 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=174 read=90
+              ->  Index Scan using booking_seats_p05_booking_id_seat_id_idx on booking_seats_p05 bs_6  (cost=0.42..10.96 rows=3 width=14) (actual time=0.040..0.040 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=166 read=94
+              ->  Index Scan using booking_seats_p06_booking_id_seat_id_idx on booking_seats_p06 bs_7  (cost=0.42..10.97 rows=3 width=14) (actual time=0.044..0.044 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=166 read=95
+              ->  Index Scan using booking_seats_p07_booking_id_seat_id_idx on booking_seats_p07 bs_8  (cost=0.42..10.98 rows=3 width=14) (actual time=0.039..0.039 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=166 read=92
+              ->  Index Scan using booking_seats_p08_booking_id_seat_id_idx on booking_seats_p08 bs_9  (cost=0.42..10.96 rows=3 width=14) (actual time=0.042..0.042 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=167 read=92
+              ->  Index Scan using booking_seats_p09_booking_id_seat_id_idx on booking_seats_p09 bs_10  (cost=0.42..10.97 rows=3 width=14) (actual time=0.039..0.039 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=167 read=98
+              ->  Index Scan using booking_seats_p10_booking_id_seat_id_idx on booking_seats_p10 bs_11  (cost=0.42..10.97 rows=3 width=14) (actual time=0.039..0.039 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=167 read=92
+              ->  Index Scan using booking_seats_p11_booking_id_seat_id_idx on booking_seats_p11 bs_12  (cost=0.42..10.97 rows=3 width=14) (actual time=0.039..0.039 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=167 read=94
+              ->  Index Scan using booking_seats_p12_booking_id_seat_id_idx on booking_seats_p12 bs_13  (cost=0.42..10.96 rows=3 width=14) (actual time=0.039..0.039 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=166 read=95
+              ->  Index Scan using booking_seats_p13_booking_id_seat_id_idx on booking_seats_p13 bs_14  (cost=0.42..10.97 rows=3 width=14) (actual time=0.038..0.038 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=167 read=93
+              ->  Index Scan using booking_seats_p14_booking_id_seat_id_idx on booking_seats_p14 bs_15  (cost=0.42..10.98 rows=3 width=14) (actual time=0.128..0.128 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=167 read=91
+              ->  Index Scan using booking_seats_p15_booking_id_seat_id_idx on booking_seats_p15 bs_16  (cost=0.42..10.97 rows=3 width=14) (actual time=0.120..0.120 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=172 read=88
+Planning:
+  Buffers: shared hit=1539 read=1
+Planning Time: 4.070 ms
+Execution Time: 73.091 ms
+=== W04 run 2 ===
+Delete on booking_seats bs  (cost=0.57..35607.02 rows=0 width=0) (actual time=8.512..8.516 rows=0 loops=1)
+  Delete on booking_seats_p00 bs_1
+  Delete on booking_seats_p01 bs_2
+  Delete on booking_seats_p02 bs_3
+  Delete on booking_seats_p03 bs_4
+  Delete on booking_seats_p04 bs_5
+  Delete on booking_seats_p05 bs_6
+  Delete on booking_seats_p06 bs_7
+  Delete on booking_seats_p07 bs_8
+  Delete on booking_seats_p08 bs_9
+  Delete on booking_seats_p09 bs_10
+  Delete on booking_seats_p10 bs_11
+  Delete on booking_seats_p11 bs_12
+  Delete on booking_seats_p12 bs_13
+  Delete on booking_seats_p13 bs_14
+  Delete on booking_seats_p14 bs_15
+  Delete on booking_seats_p15 bs_16
+  Buffers: shared hit=4413
+  ->  Nested Loop  (cost=0.57..35607.02 rows=401 width=16) (actual time=0.133..8.396 rows=161 loops=1)
+        Buffers: shared hit=4252
+        ->  Index Scan using idx_bookings_pending on bookings b  (cost=0.15..365.52 rows=200 width=10) (actual time=0.015..0.270 rows=85 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Filter: ((status)::text = 'PENDING'::text)
+              Buffers: shared hit=86
+        ->  Append  (cost=0.42..175.73 rows=48 width=14) (actual time=0.055..0.095 rows=2 loops=85)
+              Buffers: shared hit=4166
+              ->  Index Scan using booking_seats_p00_booking_id_seat_id_idx on booking_seats_p00 bs_1  (cost=0.42..10.97 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=262
+              ->  Index Scan using booking_seats_p01_booking_id_seat_id_idx on booking_seats_p01 bs_2  (cost=0.42..10.98 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=256
+              ->  Index Scan using booking_seats_p02_booking_id_seat_id_idx on booking_seats_p02 bs_3  (cost=0.42..10.97 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p03_booking_id_seat_id_idx on booking_seats_p03 bs_4  (cost=0.42..10.97 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p04_booking_id_seat_id_idx on booking_seats_p04 bs_5  (cost=0.42..10.97 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=264
+              ->  Index Scan using booking_seats_p05_booking_id_seat_id_idx on booking_seats_p05 bs_6  (cost=0.42..10.96 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=260
+              ->  Index Scan using booking_seats_p06_booking_id_seat_id_idx on booking_seats_p06 bs_7  (cost=0.42..10.97 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p07_booking_id_seat_id_idx on booking_seats_p07 bs_8  (cost=0.42..10.98 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=258
+              ->  Index Scan using booking_seats_p08_booking_id_seat_id_idx on booking_seats_p08 bs_9  (cost=0.42..10.96 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=259
+              ->  Index Scan using booking_seats_p09_booking_id_seat_id_idx on booking_seats_p09 bs_10  (cost=0.42..10.97 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=265
+              ->  Index Scan using booking_seats_p10_booking_id_seat_id_idx on booking_seats_p10 bs_11  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=259
+              ->  Index Scan using booking_seats_p11_booking_id_seat_id_idx on booking_seats_p11 bs_12  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p12_booking_id_seat_id_idx on booking_seats_p12 bs_13  (cost=0.42..10.96 rows=3 width=14) (actual time=0.007..0.007 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p13_booking_id_seat_id_idx on booking_seats_p13 bs_14  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=260
+              ->  Index Scan using booking_seats_p14_booking_id_seat_id_idx on booking_seats_p14 bs_15  (cost=0.42..10.98 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=258
+              ->  Index Scan using booking_seats_p15_booking_id_seat_id_idx on booking_seats_p15 bs_16  (cost=0.42..10.97 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=260
+Planning:
+  Buffers: shared hit=1539
+Planning Time: 4.950 ms
+Execution Time: 8.857 ms
+=== W04 run 3 ===
+Delete on booking_seats bs  (cost=0.57..35607.02 rows=0 width=0) (actual time=7.473..7.476 rows=0 loops=1)
+  Delete on booking_seats_p00 bs_1
+  Delete on booking_seats_p01 bs_2
+  Delete on booking_seats_p02 bs_3
+  Delete on booking_seats_p03 bs_4
+  Delete on booking_seats_p04 bs_5
+  Delete on booking_seats_p05 bs_6
+  Delete on booking_seats_p06 bs_7
+  Delete on booking_seats_p07 bs_8
+  Delete on booking_seats_p08 bs_9
+  Delete on booking_seats_p09 bs_10
+  Delete on booking_seats_p10 bs_11
+  Delete on booking_seats_p11 bs_12
+  Delete on booking_seats_p12 bs_13
+  Delete on booking_seats_p13 bs_14
+  Delete on booking_seats_p14 bs_15
+  Delete on booking_seats_p15 bs_16
+  Buffers: shared hit=4413
+  ->  Nested Loop  (cost=0.57..35607.02 rows=401 width=16) (actual time=0.122..7.398 rows=161 loops=1)
+        Buffers: shared hit=4252
+        ->  Index Scan using idx_bookings_pending on bookings b  (cost=0.15..365.52 rows=200 width=10) (actual time=0.013..0.228 rows=85 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Filter: ((status)::text = 'PENDING'::text)
+              Buffers: shared hit=86
+        ->  Append  (cost=0.42..175.73 rows=48 width=14) (actual time=0.046..0.084 rows=2 loops=85)
+              Buffers: shared hit=4166
+              ->  Index Scan using booking_seats_p00_booking_id_seat_id_idx on booking_seats_p00 bs_1  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=262
+              ->  Index Scan using booking_seats_p01_booking_id_seat_id_idx on booking_seats_p01 bs_2  (cost=0.42..10.98 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=256
+              ->  Index Scan using booking_seats_p02_booking_id_seat_id_idx on booking_seats_p02 bs_3  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p03_booking_id_seat_id_idx on booking_seats_p03 bs_4  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p04_booking_id_seat_id_idx on booking_seats_p04 bs_5  (cost=0.42..10.97 rows=3 width=14) (actual time=0.006..0.006 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=264
+              ->  Index Scan using booking_seats_p05_booking_id_seat_id_idx on booking_seats_p05 bs_6  (cost=0.42..10.96 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=260
+              ->  Index Scan using booking_seats_p06_booking_id_seat_id_idx on booking_seats_p06 bs_7  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p07_booking_id_seat_id_idx on booking_seats_p07 bs_8  (cost=0.42..10.98 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=258
+              ->  Index Scan using booking_seats_p08_booking_id_seat_id_idx on booking_seats_p08 bs_9  (cost=0.42..10.96 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=259
+              ->  Index Scan using booking_seats_p09_booking_id_seat_id_idx on booking_seats_p09 bs_10  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=265
+              ->  Index Scan using booking_seats_p10_booking_id_seat_id_idx on booking_seats_p10 bs_11  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=259
+              ->  Index Scan using booking_seats_p11_booking_id_seat_id_idx on booking_seats_p11 bs_12  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p12_booking_id_seat_id_idx on booking_seats_p12 bs_13  (cost=0.42..10.96 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=261
+              ->  Index Scan using booking_seats_p13_booking_id_seat_id_idx on booking_seats_p13 bs_14  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=260
+              ->  Index Scan using booking_seats_p14_booking_id_seat_id_idx on booking_seats_p14 bs_15  (cost=0.42..10.98 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=258
+              ->  Index Scan using booking_seats_p15_booking_id_seat_id_idx on booking_seats_p15 bs_16  (cost=0.42..10.97 rows=3 width=14) (actual time=0.005..0.005 rows=0 loops=85)
+                    Index Cond: (booking_id = b.booking_id)
+                    Buffers: shared hit=260
+Planning:
+  Buffers: shared hit=1539
+Planning Time: 5.111 ms
+Execution Time: 7.761 ms

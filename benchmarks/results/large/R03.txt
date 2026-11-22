@@ -1,0 +1,81 @@
+=== R03 run 1 ===
+Sort  (cost=387.18..387.66 rows=193 width=12) (actual time=2.115..2.133 rows=150 loops=1)
+  Sort Key: se.row_label DESC, se.seat_number
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=7 read=11
+  ->  Hash Left Join  (cost=5.43..379.85 rows=193 width=12) (actual time=1.624..1.777 rows=150 loops=1)
+        Hash Cond: (se.seat_id = bs.seat_id)
+        Buffers: shared hit=1 read=11
+        ->  Nested Loop  (cost=0.86..374.77 rows=193 width=19) (actual time=1.050..1.138 rows=150 loops=1)
+              Buffers: shared hit=1 read=8
+              ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.668..0.669 rows=1 loops=1)
+                    Index Cond: (show_id = 144446)
+                    Buffers: shared read=4
+              ->  Index Scan using uq_seats_screen_position on seats se  (cost=0.43..364.29 rows=203 width=17) (actual time=0.377..0.425 rows=150 loops=1)
+                    Index Cond: (screen_id = s.screen_id)
+                    Buffers: shared hit=1 read=4
+        ->  Hash  (cost=4.51..4.51 rows=5 width=8) (actual time=0.556..0.557 rows=0 loops=1)
+              Buckets: 1024  Batches: 1  Memory Usage: 8kB
+              Buffers: shared read=3
+              ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs  (cost=0.42..4.51 rows=5 width=8) (actual time=0.556..0.556 rows=0 loops=1)
+                    Index Cond: (show_id = 144446)
+                    Heap Fetches: 0
+                    Buffers: shared read=3
+Planning:
+  Buffers: shared hit=546 read=24
+Planning Time: 6.761 ms
+Execution Time: 2.214 ms
+=== R03 run 2 ===
+Sort  (cost=387.18..387.66 rows=193 width=12) (actual time=0.270..0.278 rows=150 loops=1)
+  Sort Key: se.row_label DESC, se.seat_number
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=18
+  ->  Hash Left Join  (cost=5.43..379.85 rows=193 width=12) (actual time=0.076..0.127 rows=150 loops=1)
+        Hash Cond: (se.seat_id = bs.seat_id)
+        Buffers: shared hit=12
+        ->  Nested Loop  (cost=0.86..374.77 rows=193 width=19) (actual time=0.041..0.074 rows=150 loops=1)
+              Buffers: shared hit=9
+              ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.017..0.017 rows=1 loops=1)
+                    Index Cond: (show_id = 144446)
+                    Buffers: shared hit=4
+              ->  Index Scan using uq_seats_screen_position on seats se  (cost=0.43..364.29 rows=203 width=17) (actual time=0.021..0.038 rows=150 loops=1)
+                    Index Cond: (screen_id = s.screen_id)
+                    Buffers: shared hit=5
+        ->  Hash  (cost=4.51..4.51 rows=5 width=8) (actual time=0.025..0.026 rows=0 loops=1)
+              Buckets: 1024  Batches: 1  Memory Usage: 8kB
+              Buffers: shared hit=3
+              ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs  (cost=0.42..4.51 rows=5 width=8) (actual time=0.024..0.025 rows=0 loops=1)
+                    Index Cond: (show_id = 144446)
+                    Heap Fetches: 0
+                    Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=570
+Planning Time: 3.197 ms
+Execution Time: 0.334 ms
+=== R03 run 3 ===
+Sort  (cost=387.18..387.66 rows=193 width=12) (actual time=0.454..0.467 rows=150 loops=1)
+  Sort Key: se.row_label DESC, se.seat_number
+  Sort Method: quicksort  Memory: 30kB
+  Buffers: shared hit=18
+  ->  Hash Left Join  (cost=5.43..379.85 rows=193 width=12) (actual time=0.127..0.217 rows=150 loops=1)
+        Hash Cond: (se.seat_id = bs.seat_id)
+        Buffers: shared hit=12
+        ->  Nested Loop  (cost=0.86..374.77 rows=193 width=19) (actual time=0.070..0.132 rows=150 loops=1)
+              Buffers: shared hit=9
+              ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.031..0.033 rows=1 loops=1)
+                    Index Cond: (show_id = 144446)
+                    Buffers: shared hit=4
+              ->  Index Scan using uq_seats_screen_position on seats se  (cost=0.43..364.29 rows=203 width=17) (actual time=0.036..0.068 rows=150 loops=1)
+                    Index Cond: (screen_id = s.screen_id)
+                    Buffers: shared hit=5
+        ->  Hash  (cost=4.51..4.51 rows=5 width=8) (actual time=0.042..0.043 rows=0 loops=1)
+              Buckets: 1024  Batches: 1  Memory Usage: 8kB
+              Buffers: shared hit=3
+              ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs  (cost=0.42..4.51 rows=5 width=8) (actual time=0.042..0.042 rows=0 loops=1)
+                    Index Cond: (show_id = 144446)
+                    Heap Fetches: 0
+                    Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=570
+Planning Time: 3.162 ms
+Execution Time: 0.537 ms

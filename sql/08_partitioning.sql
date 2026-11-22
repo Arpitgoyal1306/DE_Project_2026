@@ -2,6 +2,10 @@
 
 BEGIN;
 
+-- Prevent concurrent reads/writes during the table migration.
+-- The lock is held until COMMIT.
+LOCK TABLE bms.booking_seats IN ACCESS EXCLUSIVE MODE;
+
 -- ============================================================
 -- PARTITION BOOKING_SEATS BY HASH(show_id)
 -- ============================================================

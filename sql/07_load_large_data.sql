@@ -5,20 +5,20 @@ BEGIN;
 
 -- Load parent tables first to satisfy foreign keys.
 
-\copy bms.cities FROM 'data/large_data/cities.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.movies FROM 'data/large_data/movies.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.offers FROM 'data/large_data/offers.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.cities FROM 'large_data/cities.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.movies FROM 'large_data/movies.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.offers FROM 'large_data/offers.csv' WITH (FORMAT CSV, HEADER TRUE)
 
 -- Load dependent tables.
 
-\copy bms.venues FROM 'data/large_data/venues.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.screens FROM 'data/large_data/screens.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.seats FROM 'data/large_data/seats.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.shows FROM 'data/large_data/shows.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.customers FROM 'data/large_data/customers.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.bookings FROM 'data/large_data/bookings.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.booking_seats FROM 'data/large_data/booking_seats.csv' WITH (FORMAT CSV, HEADER TRUE)
-\copy bms.movie_reviews FROM 'data/large_data/movie_reviews.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.venues FROM 'large_data/venues.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.screens FROM 'large_data/screens.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.seats FROM 'large_data/seats.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.shows FROM 'large_data/shows.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.customers FROM 'large_data/customers.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.bookings FROM 'large_data/bookings.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.booking_seats FROM 'large_data/booking_seats.csv' WITH (FORMAT CSV, HEADER TRUE)
+\copy bms.movie_reviews FROM 'large_data/movie_reviews.csv' WITH (FORMAT CSV, HEADER TRUE)
 
 -- Validate the imported row counts.
 
