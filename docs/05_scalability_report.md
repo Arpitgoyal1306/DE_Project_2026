@@ -113,3 +113,53 @@ The partition migration was also tested on a separate disposable database. Valid
 
 These checks provide evidence that the migration preserves the existing records and maintains the expected table structure.
 
+
+## 5. Baseline vs Large Benchmark Comparison
+
+The following table compares average execution times from the baseline and large-dataset benchmarks.
+
+Percentage change is calculated as:
+
+`((Large Average - Baseline Average) / Baseline Average) × 100`
+
+A positive percentage indicates increased execution time, while a negative percentage indicates reduced execution time.
+
+| Query | Type | Baseline Avg (ms) | Large Avg (ms) | Change (%) |
+|---|---|---:|---:|---:|
+| R01 | READ | 7.104 | 61.507 | +765.81% |
+| R02 | READ | 4.709 | 1.475 | -68.68% |
+| R03 | READ | 0.296 | 1.028 | +247.30% |
+| R04 | READ | 0.034 | 0.364 | +970.59% |
+| R05 | READ | 7.969 | 0.750 | -90.59% |
+| R06 | READ | 0.130 | 5.076 | +3804.62% |
+| R07 | READ | 0.844 | 2.714 | +221.56% |
+| R08 | READ | 14.189 | 410.586 | +2793.69% |
+| R09 | READ | 5.637 | 0.258 | -95.42% |
+| R10 | READ | 249.938 | 574.650 | +129.92% |
+| R11 | READ | 48.135 | 1609.278 | +3243.26% |
+| R12 | READ | 63.162 | 3344.183 | +5194.61% |
+| R13 | READ | 13.155 | 513.060 | +3800.11% |
+| R14 | READ | 4.758 | 109.348 | +2198.19% |
+| R15 | READ | 35.007 | 513.223 | +1366.06% |
+| R16 | READ | 18.579 | 773.969 | +4065.83% |
+| R17 | READ | 29.848 | 2.952 | -90.11% |
+| R18 | READ | 63.621 | 1352.006 | +2025.09% |
+| R19 | READ | 235.055 | 6.846 | -97.09% |
+| R20 | READ | 15.366 | 235.925 | +1435.37% |
+| R21 | READ | 39.017 | 8609.623 | +21966.34% |
+| R22 | READ | 38.495 | 285.333 | +641.22% |
+| R23 | READ | 0.026 | 0.225 | +765.38% |
+| R24 | READ | 58.542 | 1869.174 | +3092.88% |
+| R25 | READ | 23.649 | 623.449 | +2536.26% |
+| W01 | WRITE | 0.584 | 2.311 | +295.72% |
+| W02 | WRITE | 9.598 | 160.828 | +1575.64% |
+| W03 | WRITE | 0.569 | 1.000 | +75.75% |
+| W04 | WRITE | 7.625 | 29.903 | +292.17% |
+| W05 | WRITE | 4.987 | 10.433 | +109.20% |
+
+### Initial Observations
+
+- Query performance varies significantly across the workload as the dataset grows.
+- Some queries benefit from index-based access paths, while others still perform large sequential scans.
+- Partitioning does not guarantee faster execution for every query. Its effectiveness depends on whether the query can use the partition key and eliminate irrelevant partitions.
+- The detailed causes of major performance changes are discussed in the query performance analysis section.
