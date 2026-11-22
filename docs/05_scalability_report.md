@@ -2,251 +2,178 @@
 
 ## 1. Introduction
 
-The objective of this phase is to evaluate how the BookMyShow database performs when the dataset grows significantly in size.
+This report evaluates the BookMyShow database at the large-data scale and assesses the design choices needed for a future 100× workload. It compares the **Phase 4 optimized seed benchmark** with the large-dataset benchmark. The original unoptimized baseline is not used as the growth denominator because Phase 5 starts from the optimized workload.
 
-The report compares the original baseline benchmark with the large-dataset benchmark after implementing partitioning on the `booking_seats` table.
+The large dataset contains 15,571,506 rows versus 778,048 seed rows (about 20.01×). The workload has 25 read queries (R01–R25) and 5 write queries (W01–W05).
 
-The analysis focuses on query execution time, execution plans, partition pruning, and the performance impact of increased data volume.
+## 2. Dataset and benchmark methodology
 
-## 2. Dataset Overview
+- Seed dataset: 778,048 rows across 11 tables.
+- Large dataset: 15,571,506 rows across 11 tables.
+- Large `booking_seats`: 6,016,946 rows.
+- Each workload query was executed three times; the CSV average is used below.
+- Plans were collected with `EXPLAIN (ANALYZE, BUFFERS)`.
+- Write workloads were benchmarked in transactions rolled back after each run.
+- Growth factor = large average execution time ÷ optimized-seed average execution time.
 
-The project uses two dataset sizes:
+The source files are `benchmarks/results/optimized/summary.csv`, `benchmarks/results/large/summary.csv`, and their corresponding raw plan files.
 
-| Dataset | Total Records |
-|---|---:|
-| Baseline dataset | 778,048 |
-| Large dataset | Approximately 15.57 million |
+## 3. Large-dataset loading and partitioning
 
-The large dataset provides a way to evaluate database scalability under a substantially higher data volume.
+### 3.1 Data validation
 
-## 3. Benchmark Methodology
+The large-data validation record reports 15,571,506 rows across the 11 tables and confirms that the loaded counts matched the CSV row counts. `booking_seats` contains 6,016,946 rows.
+
+### 3.2 Hash partitioning of booking_seats
 
-The same 30-query workload was used for both benchmark phases:
+The implementation in `sql/08_partitioning.sql` converts `bms.booking_seats` to **HASH partitioning on `show_id`**, with 16 partitions (`booking_seats_p00` through `booking_seats_p15`), modulus 16.
 
-- 25 read queries (R01–R25).
-- 5 write queries (W01–W05).
-- Each query was executed 3 times.
-- Query performance was measured using `EXPLAIN (ANALYZE, BUFFERS)`.
-- Average execution time was used for the primary comparison.
-- Raw execution plans were retained for further analysis.
+The migration runs in a transaction, takes an ACCESS EXCLUSIVE lock, creates the partitioned replacement and its constraints, creates the 16 child partitions, copies the rows, checks that old and new row counts match, swaps the table, runs ANALYZE and commits. The script raises an exception if its row-count comparison fails.
 
-Write queries were executed inside transactions using `BEGIN` and `ROLLBACK` so that benchmark modifications did not persist in the database.
+A partitioned unique or primary-key constraint must include every partition-key column. PostgreSQL cannot enforce a globally unique key across partitions using a key that omits the partition key. Therefore the partitioned table uses a key containing `show_id`, for example **PRIMARY KEY (show_id, seat_id)**, rather than attempting to keep a globally unique `seat_id`-only key on the partitioned parent.
 
-## 4. Partitioning Strategy
+### 3.3 Evidence of pruning and non-pruning
 
-Details of the partitioning implementation and validation will be documented in this section.
+The large R03 plan accesses `booking_seats_p00` through an index-only scan with `Index Cond: (show_id = 144446)`; the plan does not scan all 16 child tables. This is the positive example: equality on the hash partition key allows PostgreSQL to select the relevant hash partition.
 
-## 5. Large-Scale Benchmark Results
+By contrast, R11 and R24 scan all 16 `booking_seats` partitions because their analytical aggregation does not constrain `show_id` to a single hash value. Hash partitioning is therefore useful for targeted show lookups, but it does not remove the work from queries that need data across the full table.
 
-The large-dataset benchmark results and comparison with the baseline will be documented in this section.
+## 4. Optimized-seed versus large benchmark results
 
-## 6. Query Performance Analysis
+The required comparison is optimized seed → large dataset. Target groups and limits follow the project README:
+- Real-time / booking path: 5 ms — R02, R03, R04, R05, R06, R09, R23, W01, W02, W03.
+- Interactive cinema tools: 250 ms — R01, R07, R13, R17, R22, W04, W05.
+- Reports and analytics: 5,000 ms — R08, R10, R11, R12, R14, R15, R16, R18, R19, R20, R21, R24, R25.
 
-The execution plans and major performance bottlenecks will be analyzed in this section.
+| Query | Optimized seed avg (ms) | Large avg (ms) | Growth (×) | Target (ms) | Large target |
+|---|---:|---:|---:|---:|:---:|
+| R01 | 0.855 | 61.507 | 71.94 | 250 | PASS |
+| R02 | 0.217 | 1.475 | 6.80 | 5 | PASS |
+| R03 | 0.254 | 1.028 | 4.05 | 5 | PASS |
+| R04 | 0.026 | 0.364 | 14.00 | 5 | PASS |
+| R05 | 0.116 | 0.750 | 6.47 | 5 | PASS |
+| R06 | 0.139 | 5.076 | 36.52 | 5 | FAIL |
+| R07 | 0.146 | 2.714 | 18.59 | 250 | PASS |
+| R08 | 16.133 | 410.586 | 25.45 | 5,000 | PASS |
+| R09 | 0.040 | 0.258 | 6.45 | 5 | PASS |
+| R10 | 33.979 | 574.650 | 16.91 | 5,000 | PASS |
+| R11 | 48.957 | 1,609.278 | 32.87 | 5,000 | PASS |
+| R12 | 61.232 | 3,344.183 | 54.61 | 5,000 | PASS |
+| R13 | 8.836 | 513.060 | 58.06 | 250 | FAIL |
+| R14 | 4.860 | 109.348 | 22.50 | 5,000 | PASS |
+| R15 | 36.788 | 513.223 | 13.95 | 5,000 | PASS |
+| R16 | 19.962 | 773.969 | 38.77 | 5,000 | PASS |
+| R17 | 0.242 | 2.952 | 12.20 | 250 | PASS |
+| R18 | 41.893 | 1,352.006 | 32.27 | 5,000 | PASS |
+| R19 | 0.622 | 6.846 | 11.01 | 5,000 | PASS |
+| R20 | 12.392 | 235.925 | 19.04 | 5,000 | PASS |
+| R21 | 40.131 | 8,609.623 | 214.54 | 5,000 | FAIL |
+| R22 | 21.348 | 285.333 | 13.37 | 250 | FAIL |
+| R23 | 0.023 | 0.225 | 9.78 | 5 | PASS |
+| R24 | 60.600 | 1,869.174 | 30.84 | 5,000 | PASS |
+| R25 | 22.211 | 623.449 | 28.07 | 5,000 | PASS |
+| W01 | 0.707 | 2.311 | 3.27 | 5 | PASS |
+| W02 | 9.230 | 160.828 | 17.42 | 5 | FAIL |
+| W03 | 0.208 | 1.000 | 4.81 | 5 | PASS |
+| W04 | 0.108 | 29.903 | 276.88 | 250 | PASS |
+| W05 | 1.680 | 10.433 | 6.21 | 250 | PASS |
 
-## 7. Findings and Conclusion
+**Result: 25 of 30 queries meet their stated large-data target; 5 miss.** The target status is based on the average of three large-dataset runs.
 
-The scalability findings, limitations, and recommendations will be documented in this section.
+### 4.1 Growth groups
 
-## 4. Partitioning Strategy and Validation
+For interpretation, the observed growth factors are grouped as below. These are descriptive bands, not additional project targets.
 
-### 4.1 Large Dataset Loading
+- **Below 10×:** R02, R03, R05, R09, R23, W01 and W03. These queries remain relatively selective or use efficient point/range lookups.
+- **10× to below 25×:** R04, R07, R10, R14, R15, R17, R19, R20, R22 and W05. Their work increases with larger input sets, but the measured increase is below 25×.
+- **25× or more:** R01, R06, R08, R11, R12, R13, R16, R18, R21, R24, R25 and W04. These plans process more rows, perform broad scans/aggregations, or encounter less selective access paths at the larger scale.
 
-The large dataset was imported using `sql/07_load_large_data.sql` into the `bms` schema.
+The overall row count grew about 20×, but query latency did not grow uniformly. Some queries grew less than 10×, while R21 grew 214.54× and W04 276.88×. This reflects the amount and shape of work performed by each query, not just table-size growth.
 
-All 11 tables were loaded in foreign-key dependency order. The import process included row-count validation and an `ANALYZE` operation.
+## 5. Missed targets: plan evidence and next optimization steps
 
-The total imported dataset contains **15,571,506 rows**.
+The large benchmark shows five target misses. The available repository contains the measured large plans, but this local environment does not contain `large_data.zip` or a large-data database. Therefore **no large-data optimization rerun or measured before/after fix is claimed here**. The actions below are concrete next steps to test; they are not represented as completed fixes.
 
-The `booking_seats` table contains **6,016,946 rows**, making it the largest table in the dataset.
+| Query | Target | Large average | Plan evidence | Next change to test |
+|---|---:|---:|---|---|
+| R06 | <5 ms | 5.076 ms | Sequential scan of 6,000 movies for `ILIKE '%kalki%'`; 300 rows returned. | Test a `pg_trgm` GIN index on `movies.title`; retain it only if the measured plan and timing improve enough to meet target. |
+| W02 | <5 ms | 160.828 ms | Plan scans 521,522 rows from `seats` using its primary key, then removes rows by screen join/filter before inserting two rows. | Test an index beginning with `seats(screen_id, seat_id)` and rewrite candidate-seat selection to constrain the target screen before ordering/limiting. Recheck locking and seat uniqueness. |
+| R13 | <250 ms | 513.060 ms | Hash anti-join scans 3,004,077 bookings to find offers not redeemed. | Test a partial index on non-NULL `bookings(offer_code)` and compare the anti-join plan; the `NOT EXISTS` rewrite fixes NULL correctness but still scans a large input. |
+| R22 | <250 ms | 285.333 ms | Index scan reads 100,025 rows to satisfy `OFFSET 100000 LIMIT 25`. | Replace deep OFFSET pagination with keyset pagination using a stable, unique ordering key (for example `booked_at` plus `booking_id`); the page cursor must be defined by the preceding page's last row. |
+| R21 | <5,000 ms | 8,609.623 ms | Index scan returns 2,671,876 confirmed 2026 bookings, then aggregates 771,482 customers; one run reports 1,889,536 shared-buffer reads. | Test a maintained daily/customer summary aggregate or incremental rollup. A normal index alone is unlikely to remove the cost of aggregating millions of qualifying rows. |
 
-### 4.2 Hash Partitioning
+These five misses remain **open optimization work** until the proposed changes are implemented, checked for result equivalence, and benchmarked on the large dataset. No target is marked as met based on a proposed design alone.
 
-The `booking_seats` table was selected for partitioning because it stores booking-to-seat allocations and contains a large number of records.
+## 6. Storage measurements and measurement limitation
 
-The implementation in `sql/08_partitioning.sql` uses **hash partitioning on `show_id`**.
+### 6.1 Seed database (measured)
 
-Sixteen partitions were created:
+The seed database `bookmyshow` was measured locally using PostgreSQL size functions. Its total database size is **116 MB**.
 
-- `booking_seats_p00`
-- `booking_seats_p01`
-- `booking_seats_p02`
-- `booking_seats_p03`
-- `booking_seats_p04`
-- `booking_seats_p05`
-- `booking_seats_p06`
-- `booking_seats_p07`
-- `booking_seats_p08`
-- `booking_seats_p09`
-- `booking_seats_p10`
-- `booking_seats_p11`
-- `booking_seats_p12`
-- `booking_seats_p13`
-- `booking_seats_p14`
-- `booking_seats_p15`
+| Table | Heap/table size | Index size | Total relation size |
+|---|---:|---:|---:|
+| booking_seats | 15 MB | 16 MB | 32 MB |
+| bookings | 17 MB | 13 MB | 30 MB |
+| shows | 10,112 kB | 16 MB | 26 MB |
+| seats | 4,552 kB | 4,152 kB | 8,736 kB |
+| customers | 3,736 kB | 4,496 kB | 8,264 kB |
+| movie_reviews | 2,048 kB | 728 kB | 2,816 kB |
+| screens | 32 kB | 32 kB | 88 kB |
+| movies | 24 kB | 16 kB | 64 kB |
+| venues | 16 kB | 16 kB | 56 kB |
+| offers | 8 kB | 16 kB | 24 kB |
+| cities | 8 kB | 16 kB | 24 kB |
 
-Each partition is assigned a different hash remainder using a modulus of 16.
+Values are PostgreSQL's displayed rounded sizes, so displayed per-table totals may not sum exactly to the database-level size.
 
-### 4.3 Migration and Data Integrity
+### 6.2 Large database (not measured locally)
 
-The partition migration was performed inside a transaction.
+The large dataset validation file and benchmark plans are present in the repository, but the large CSV archive is not present in this working copy and `de_project_2026` is not among the local PostgreSQL databases. Consequently, a measured large database size and heap/index/partition breakdown cannot be reported from this machine. The 15,571,506 row count is known, but **row count is not a substitute for measured disk size**. This measurement remains outstanding and must be collected on a machine that has the loaded large database. It would be misleading to extrapolate 116 MB linearly and label it as an observed size.
 
-The script follows these steps:
+The large storage measurement should include parent and child partition relation sizes, indexes, TOAST where applicable, and total database size, using `pg_database_size`, `pg_total_relation_size`, `pg_relation_size` and `pg_indexes_size`.
 
-1. Starts a transaction.
-2. Acquires an `ACCESS EXCLUSIVE` lock on the original `booking_seats` table.
-3. Creates a new partitioned table with the required constraints and foreign keys.
-4. Creates all 16 hash partitions.
-5. Adds an index on `(booking_id, seat_id)` for booking-based lookups.
-6. Copies the original records into the partitioned table.
-7. Compares the original and partitioned row counts.
-8. Replaces the original table with the validated partitioned table.
-9. Runs `ANALYZE` and commits the transaction.
+## 7. 100× architecture design
 
-The migration raises an exception if the original and partitioned row counts do not match. This prevents the migration from committing with a detected row-count mismatch.
+The following is a proposed design, not a claim that a distributed deployment has already been implemented or benchmarked.
 
-### 4.4 Validation Results
+### 7.1 Sharding
 
-The large dataset validation confirmed that all 11 table counts matched their corresponding CSV row counts.
+A practical initial shard key is **`show_id`** for the booking transaction domain. A booking and its seat allocations belong to one show, and the partitioned `booking_seats` table already uses `show_id` as its hash key. Co-locating a show, its bookings and its booking-seat rows by show/shard key keeps seat locking, booking writes and show-level ticket lookups local to one shard.
 
-The partition migration script includes a row-count validation step that compares the original and partitioned tables before replacing the original. The large benchmark execution plans also confirm that queries access the created child partitions.
+The trade-off is that customer-centric and city-wide queries become cross-shard:
+- R05 (customer's bookings) and R21 (top customers) can touch multiple show shards.
+- R08, R11–R16, R18, R20, R24 and R25 are broad reporting queries and may aggregate across many shards.
+- R01/R02 city showtime queries require a city-to-show routing map or fan-out to relevant shards.
 
-These checks provide evidence that the migration preserves the existing records and maintains the expected table structure.
+For cross-shard reporting, stream shard-local aggregates into a reporting store or summary layer and combine partial aggregates. Avoid making interactive booking transactions wait for global analytics. A production design would need a routing directory mapping `show_id` to shard and a resharding/rebalancing plan for hot shows.
 
+### 7.2 Primary, read replicas and caching
 
-## 5. Baseline vs Large Benchmark Comparison
+All writes and correctness-sensitive seat/booking reads must go to the primary:
+- W01–W05.
+- R03 seat availability/seat-lock view, R04 current booking status, R05 immediately updated customer bookings and R09 pending-lock queue.
 
-The following table compares average execution times from the baseline and large-dataset benchmarks.
+Read replicas can serve read-heavy or slightly stale-tolerant queries:
+- R01/R02 show discovery and showtimes.
+- R06 movie search.
+- R07/R17 cinema operational summaries when a small replication delay is acceptable.
+- R08, R10–R16, R18–R22 and R24–R25 analytical/reporting reads.
 
-Percentage change is calculated as:
+Cache relatively stable movie metadata and popular showtime/search responses (for example R06 and parts of R01/R02) with short TTLs and explicit invalidation when show schedules or prices change. Do not cache seat availability, pending locks, payment status or other data where stale results could allow double-selling or mislead payment handling. Replica lag must be monitored; route read-after-write requests to the primary.
 
-`((Large Average - Baseline Average) / Baseline Average) × 100`
+### 7.3 Maintenance, archiving and summary refresh
 
-A positive percentage indicates increased execution time, while a negative percentage indicates reduced execution time.
+- Keep autovacuum enabled on the high-churn booking tables. For a large `booking_seats` parent/children, monitor dead tuples, vacuum duration, analyze freshness and replication lag; tune per-table autovacuum thresholds/scale factors from observed churn rather than applying one aggressive global setting.
+- Run ANALYZE after bulk loads and after major distribution changes. Monitor each child partition independently as well as the parent.
+- Define a retention policy with the business before archiving. Move only completed, sufficiently old shows/bookings and their dependent booking-seat rows after verifying foreign-key dependencies and audit/legal retention requirements. Keep recent and upcoming shows online. Use date-based archive partitions or a separate archive store for aged transactional history; do not drop records simply to improve benchmark results.
+- Maintain summary tables for expensive customer, revenue and occupancy analytics (notably R11/R12/R18/R20/R21/R24/R25). Refresh incrementally from booking/payment changes where possible; otherwise refresh on a defined schedule (for example every 5–15 minutes for operational dashboards and nightly for historical reports). Publish the refresh timestamp and keep transactional reads on the primary.
 
-| Query | Type | Baseline Avg (ms) | Large Avg (ms) | Change (%) |
-|---|---|---:|---:|---:|
-| R01 | READ | 7.104 | 61.507 | +765.81% |
-| R02 | READ | 4.709 | 1.475 | -68.68% |
-| R03 | READ | 0.296 | 1.028 | +247.30% |
-| R04 | READ | 0.034 | 0.364 | +970.59% |
-| R05 | READ | 7.969 | 0.750 | -90.59% |
-| R06 | READ | 0.130 | 5.076 | +3804.62% |
-| R07 | READ | 0.844 | 2.714 | +221.56% |
-| R08 | READ | 14.189 | 410.586 | +2793.69% |
-| R09 | READ | 5.637 | 0.258 | -95.42% |
-| R10 | READ | 249.938 | 574.650 | +129.92% |
-| R11 | READ | 48.135 | 1609.278 | +3243.26% |
-| R12 | READ | 63.162 | 3344.183 | +5194.61% |
-| R13 | READ | 13.155 | 513.060 | +3800.11% |
-| R14 | READ | 4.758 | 109.348 | +2198.19% |
-| R15 | READ | 35.007 | 513.223 | +1366.06% |
-| R16 | READ | 18.579 | 773.969 | +4065.83% |
-| R17 | READ | 29.848 | 2.952 | -90.11% |
-| R18 | READ | 63.621 | 1352.006 | +2025.09% |
-| R19 | READ | 235.055 | 6.846 | -97.09% |
-| R20 | READ | 15.366 | 235.925 | +1435.37% |
-| R21 | READ | 39.017 | 8609.623 | +21966.34% |
-| R22 | READ | 38.495 | 285.333 | +641.22% |
-| R23 | READ | 0.026 | 0.225 | +765.38% |
-| R24 | READ | 58.542 | 1869.174 | +3092.88% |
-| R25 | READ | 23.649 | 623.449 | +2536.26% |
-| W01 | WRITE | 0.584 | 2.311 | +295.72% |
-| W02 | WRITE | 9.598 | 160.828 | +1575.64% |
-| W03 | WRITE | 0.569 | 1.000 | +75.75% |
-| W04 | WRITE | 7.625 | 29.903 | +292.17% |
-| W05 | WRITE | 4.987 | 10.433 | +109.20% |
+## 8. Limitations and readiness conclusion
 
-### Initial Observations
+The large dataset is approximately 20× the seed row count, but five of the 30 queries miss their assigned performance targets. The strongest scale-specific bottlenecks are the broad booking aggregation in R21, the large candidate-seat scan in W02, the full booking scan in R13, deep OFFSET pagination in R22 and the title search threshold miss in R06.
 
-- Query performance varies significantly across the workload as the dataset grows.
-- Some queries benefit from index-based access paths, while others still perform large sequential scans.
-- Partitioning does not guarantee faster execution for every query. Its effectiveness depends on whether the query can use the partition key and eliminate irrelevant partitions.
-- The detailed causes of major performance changes are discussed in the query performance analysis section.
+The partitioning implementation provides targeted pruning for R03, but R11 and R24 still scan all 16 partitions. Partitioning is therefore a useful access-path design for show-specific seat lookups, not a universal solution for analytical scans.
 
-## 6. Query Performance and Execution Plan Analysis
+**Readiness verdict: partially ready, not yet fully target-compliant.** 25/30 queries meet the large-data targets. The five misses need measured fixes and result-equivalence checks. Large-database storage is also still unmeasured because the large data archive/database is not available in this local environment. A 100× production deployment would additionally require shard routing, replica-lag controls, tested archive/retention procedures, summary refresh monitoring and load tests beyond the current 20× dataset.
 
-The large-dataset execution plans show that query performance depends on the amount of data processed, the available indexes, and whether partition pruning can eliminate unnecessary partitions.
-
-### 6.1 R21 – Large Index Scan
-
-R21 increased from an average of 39.017 ms to 8,609.623 ms.
-
-The large execution plan uses `idx_bookings_customer_id`, but the index scan still returns approximately 2,671,876 rows. It also reports approximately 1,889,536 shared buffer reads in one run.
-
-This demonstrates that using an index does not guarantee fast execution when a query must process millions of matching records.
-
-### 6.2 R12 – Sequential Scans and Temporary I/O
-
-R12 increased from 63.162 ms to 3,344.183 ms.
-
-The large execution plan performs sequential scans on both `bookings` and `shows`. It also reports substantial temporary block activity, including 29,130 temporary blocks read and 40,692 written in one run.
-
-The larger input tables and intermediate query operations contribute to the increased execution time.
-
-### 6.3 R11 and R24 – Partition Scanning
-
-R11 increased from 48.135 ms to 1,609.278 ms, while R24 increased from 58.542 ms to 1,869.174 ms.
-
-Both execution plans show scans across all 16 `booking_seats` hash partitions.
-
-This indicates that partition pruning did not eliminate partitions for these queries. Since the queries need data across the partitioned table rather than restricting access to a particular `show_id`, PostgreSQL must process data from multiple partitions.
-
-The plans also show sequential scans on related tables such as `seats` and `screens`.
-
-Partitioning therefore does not automatically improve queries that need to examine a large portion of the partitioned data.
-
-### 6.4 R18 – Large Parallel Scans
-
-R18 increased from 63.621 ms to 1,352.006 ms.
-
-Its large execution plan uses parallel sequential scans on `bookings` and `shows`. It also processes large intermediate results and reports substantial temporary block activity.
-
-Parallel execution helps distribute the scan work, but it does not eliminate the cost of processing millions of records.
-
-### 6.5 Overall Execution Plan Observations
-
-The analyzed queries demonstrate several important points:
-
-- Index scans can still be expensive when they return millions of rows.
-- Sequential scans may become costly as table sizes increase.
-- Temporary disk activity can add significant overhead to complex queries.
-- Hash partitioning is most useful when queries can benefit from partition pruning.
-- Queries scanning all partitions may not receive a significant performance benefit from partitioning.
-- Parallel scans can help with large workloads but do not remove the underlying data-processing cost.
-
-These results show that partitioning should be considered alongside query design, indexing, filtering conditions, and execution-plan analysis.
-
-## 7. Findings, Recommendations and Conclusion
-
-### 7.1 Key Findings
-
-1. **Dataset growth:** The dataset increased from 778,048 rows in the baseline environment to 15,571,506 rows in the large environment, approximately 20 times larger.
-2. **Performance varies by query:** Not all queries scale equally. Some remain relatively fast, while several become significantly slower as the data volume increases.
-3. **Selective index usage:** Queries such as R02, R04, R09 and R23 continue to show efficient index-based access in the large environment.
-4. **Large scans are expensive:** R11, R12, R18, R21 and R24 show substantial execution times on the large dataset, with sequential scans, large result sets or temporary I/O contributing to the workload.
-5. **Partitioning is query-dependent:** The `booking_seats` table is hash-partitioned on `show_id` into 16 partitions. However, R11 and R24 access all 16 partitions, showing that partitioning alone does not guarantee partition pruning or faster execution.
-
-### 7.2 Recommendations
-
-- Review frequently executed slow queries and their filter and join conditions.
-- Evaluate suitable indexes on frequently filtered and joined columns, using execution plans to confirm whether they help.
-- Where logically appropriate, include conditions on the partition key `show_id` so PostgreSQL can potentially eliminate irrelevant partitions.
-- Investigate queries with high temporary I/O and large sequential scans.
-- Compare alternative query plans and index designs using `EXPLAIN (ANALYZE, BUFFERS)`.
-- Repeat benchmarks under consistent hardware, database configuration and cache conditions before making optimization decisions.
-
-### 7.3 Limitations
-
-- Benchmarks were performed in a single local database environment.
-- Each query was executed three times, so timings may vary due to caching and system load.
-- Results depend on PostgreSQL configuration, available resources and query-planner decisions.
-- The report evaluates the recorded workload and does not represent every possible production workload.
-
-### 7.4 Conclusion
-
-The scalability experiment increased the dataset to approximately 15.57 million rows and evaluated all 30 workload queries. The results show that query performance is highly dependent on query structure, indexes, data volume and execution plans.
-
-Hash partitioning provides a structured way to organize the large `booking_seats` table, but its benefits depend on whether queries can make effective use of the partition key. Several queries still scan large portions of the data and require further optimization.
-
-Overall, the experiment demonstrates why database performance must be evaluated at realistic data volumes. Indexing, partitioning and query optimization should be guided by measured execution plans rather than assumptions.
+The next acceptance gate is to obtain the large dataset, measure its real database/table/index/partition storage, implement and benchmark the five proposed fixes, and verify all 30 target results before calling the system ready.
