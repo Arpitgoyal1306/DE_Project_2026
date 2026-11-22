@@ -109,7 +109,7 @@ The migration raises an exception if the original and partitioned row counts do 
 
 The large dataset validation confirmed that all 11 table counts matched their corresponding CSV row counts.
 
-The partition migration was also tested on a separate disposable database. Validation confirmed that all **300,389 seed `booking_seats` records** were preserved and that all 16 partitions were created.
+The partition migration script includes a row-count validation step that compares the original and partitioned tables before replacing the original. The large benchmark execution plans also confirm that queries access the created child partitions.
 
 These checks provide evidence that the migration preserves the existing records and maintains the expected table structure.
 
@@ -216,3 +216,37 @@ The analyzed queries demonstrate several important points:
 - Parallel scans can help with large workloads but do not remove the underlying data-processing cost.
 
 These results show that partitioning should be considered alongside query design, indexing, filtering conditions, and execution-plan analysis.
+
+## 7. Findings, Recommendations and Conclusion
+
+### 7.1 Key Findings
+
+1. **Dataset growth:** The dataset increased from 778,048 rows in the baseline environment to 15,571,506 rows in the large environment, approximately 20 times larger.
+2. **Performance varies by query:** Not all queries scale equally. Some remain relatively fast, while several become significantly slower as the data volume increases.
+3. **Selective index usage:** Queries such as R02, R04, R09 and R23 continue to show efficient index-based access in the large environment.
+4. **Large scans are expensive:** R11, R12, R18, R21 and R24 show substantial execution times on the large dataset, with sequential scans, large result sets or temporary I/O contributing to the workload.
+5. **Partitioning is query-dependent:** The `booking_seats` table is hash-partitioned on `show_id` into 16 partitions. However, R11 and R24 access all 16 partitions, showing that partitioning alone does not guarantee partition pruning or faster execution.
+
+### 7.2 Recommendations
+
+- Review frequently executed slow queries and their filter and join conditions.
+- Evaluate suitable indexes on frequently filtered and joined columns, using execution plans to confirm whether they help.
+- Where logically appropriate, include conditions on the partition key `show_id` so PostgreSQL can potentially eliminate irrelevant partitions.
+- Investigate queries with high temporary I/O and large sequential scans.
+- Compare alternative query plans and index designs using `EXPLAIN (ANALYZE, BUFFERS)`.
+- Repeat benchmarks under consistent hardware, database configuration and cache conditions before making optimization decisions.
+
+### 7.3 Limitations
+
+- Benchmarks were performed in a single local database environment.
+- Each query was executed three times, so timings may vary due to caching and system load.
+- Results depend on PostgreSQL configuration, available resources and query-planner decisions.
+- The report evaluates the recorded workload and does not represent every possible production workload.
+
+### 7.4 Conclusion
+
+The scalability experiment increased the dataset to approximately 15.57 million rows and evaluated all 30 workload queries. The results show that query performance is highly dependent on query structure, indexes, data volume and execution plans.
+
+Hash partitioning provides a structured way to organize the large `booking_seats` table, but its benefits depend on whether queries can make effective use of the partition key. Several queries still scan large portions of the data and require further optimization.
+
+Overall, the experiment demonstrates why database performance must be evaluated at realistic data volumes. Indexing, partitioning and query optimization should be guided by measured execution plans rather than assumptions.
