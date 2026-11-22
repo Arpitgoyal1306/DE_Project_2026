@@ -163,3 +163,56 @@ A positive percentage indicates increased execution time, while a negative perce
 - Some queries benefit from index-based access paths, while others still perform large sequential scans.
 - Partitioning does not guarantee faster execution for every query. Its effectiveness depends on whether the query can use the partition key and eliminate irrelevant partitions.
 - The detailed causes of major performance changes are discussed in the query performance analysis section.
+
+## 6. Query Performance and Execution Plan Analysis
+
+The large-dataset execution plans show that query performance depends on the amount of data processed, the available indexes, and whether partition pruning can eliminate unnecessary partitions.
+
+### 6.1 R21 – Large Index Scan
+
+R21 increased from an average of 39.017 ms to 8,609.623 ms.
+
+The large execution plan uses `idx_bookings_customer_id`, but the index scan still returns approximately 2,671,876 rows. It also reports approximately 1,889,536 shared buffer reads in one run.
+
+This demonstrates that using an index does not guarantee fast execution when a query must process millions of matching records.
+
+### 6.2 R12 – Sequential Scans and Temporary I/O
+
+R12 increased from 63.162 ms to 3,344.183 ms.
+
+The large execution plan performs sequential scans on both `bookings` and `shows`. It also reports substantial temporary block activity, including 29,130 temporary blocks read and 40,692 written in one run.
+
+The larger input tables and intermediate query operations contribute to the increased execution time.
+
+### 6.3 R11 and R24 – Partition Scanning
+
+R11 increased from 48.135 ms to 1,609.278 ms, while R24 increased from 58.542 ms to 1,869.174 ms.
+
+Both execution plans show scans across all 16 `booking_seats` hash partitions.
+
+This indicates that partition pruning did not eliminate partitions for these queries. Since the queries need data across the partitioned table rather than restricting access to a particular `show_id`, PostgreSQL must process data from multiple partitions.
+
+The plans also show sequential scans on related tables such as `seats` and `screens`.
+
+Partitioning therefore does not automatically improve queries that need to examine a large portion of the partitioned data.
+
+### 6.4 R18 – Large Parallel Scans
+
+R18 increased from 63.621 ms to 1,352.006 ms.
+
+Its large execution plan uses parallel sequential scans on `bookings` and `shows`. It also processes large intermediate results and reports substantial temporary block activity.
+
+Parallel execution helps distribute the scan work, but it does not eliminate the cost of processing millions of records.
+
+### 6.5 Overall Execution Plan Observations
+
+The analyzed queries demonstrate several important points:
+
+- Index scans can still be expensive when they return millions of rows.
+- Sequential scans may become costly as table sizes increase.
+- Temporary disk activity can add significant overhead to complex queries.
+- Hash partitioning is most useful when queries can benefit from partition pruning.
+- Queries scanning all partitions may not receive a significant performance benefit from partitioning.
+- Parallel scans can help with large workloads but do not remove the underlying data-processing cost.
+
+These results show that partitioning should be considered alongside query design, indexing, filtering conditions, and execution-plan analysis.
