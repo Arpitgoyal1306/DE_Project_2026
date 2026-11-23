@@ -1,0 +1,12 @@
+========== R21 REFRESH RUN 1 ==========
+Timing is on.
+REFRESH MATERIALIZED VIEW
+Time: 9368.449 ms (00:09.368)
+========== R21 REFRESH RUN 2 ==========
+Timing is on.
+REFRESH MATERIALIZED VIEW
+Time: 9274.441 ms (00:09.274)
+========== R21 REFRESH RUN 3 ==========
+Timing is on.
+REFRESH MATERIALIZED VIEW
+Time: 8898.890 ms (00:08.899)

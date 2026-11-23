@@ -1,0 +1,54 @@
+========== R13 TEST INDEX RUN 1 ==========
+SET
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop Anti Join  (cost=0.42..13.03 rows=7 width=32) (actual time=1.032..3.956 rows=7 loops=1)
+   Buffers: shared hit=53 read=24
+   ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.006..0.013 rows=25 loops=1)
+         Buffers: shared hit=1
+   ->  Index Only Scan using cp4_test_bookings_offer_code on bookings b  (cost=0.42..503.35 rows=25229 width=10) (actual time=0.156..0.156 rows=1 loops=25)
+         Index Cond: (offer_code = (o.offer_code)::text)
+         Heap Fetches: 0
+         Buffers: shared hit=52 read=24
+ Planning:
+   Buffers: shared hit=323 read=16 dirtied=1
+ Planning Time: 4.759 ms
+ Execution Time: 4.022 ms
+(12 rows)
+
+========== R13 TEST INDEX RUN 2 ==========
+SET
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop Anti Join  (cost=0.42..13.03 rows=7 width=32) (actual time=0.123..0.369 rows=7 loops=1)
+   Buffers: shared hit=77
+   ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.004..0.007 rows=25 loops=1)
+         Buffers: shared hit=1
+   ->  Index Only Scan using cp4_test_bookings_offer_code on bookings b  (cost=0.42..503.35 rows=25229 width=10) (actual time=0.014..0.014 rows=1 loops=25)
+         Index Cond: (offer_code = (o.offer_code)::text)
+         Heap Fetches: 0
+         Buffers: shared hit=76
+ Planning:
+   Buffers: shared hit=339
+ Planning Time: 1.801 ms
+ Execution Time: 0.416 ms
+(12 rows)
+
+========== R13 TEST INDEX RUN 3 ==========
+SET
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop Anti Join  (cost=0.42..13.03 rows=7 width=32) (actual time=0.163..0.504 rows=7 loops=1)
+   Buffers: shared hit=77
+   ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.006..0.010 rows=25 loops=1)
+         Buffers: shared hit=1
+   ->  Index Only Scan using cp4_test_bookings_offer_code on bookings b  (cost=0.42..503.35 rows=25229 width=10) (actual time=0.019..0.019 rows=1 loops=25)
+         Index Cond: (offer_code = (o.offer_code)::text)
+         Heap Fetches: 0
+         Buffers: shared hit=76
+ Planning:
+   Buffers: shared hit=339
+ Planning Time: 1.908 ms
+ Execution Time: 0.568 ms
+(12 rows)
+

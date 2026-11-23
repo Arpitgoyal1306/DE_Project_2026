@@ -1,0 +1,45 @@
+========== R22 KEYSET RUN 1 ==========
+SET
+                                                                      QUERY PLAN                                                                      
+------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.43..2.74 rows=25 width=41) (actual time=0.030..0.234 rows=25 loops=1)
+   Buffers: shared hit=28
+   ->  Index Scan using cp4_test_bookings_keyset on bookings  (cost=0.43..268707.50 rows=2906010 width=41) (actual time=0.029..0.230 rows=25 loops=1)
+         Index Cond: (ROW(booked_at, booking_id) < ROW('2026-06-28 09:06:00+05:30'::timestamp with time zone, 2260823))
+         Buffers: shared hit=28
+ Planning:
+   Buffers: shared hit=204 read=28
+ Planning Time: 4.099 ms
+ Execution Time: 0.269 ms
+(9 rows)
+
+========== R22 KEYSET RUN 2 ==========
+SET
+                                                                      QUERY PLAN                                                                      
+------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.43..2.74 rows=25 width=41) (actual time=0.055..0.253 rows=25 loops=1)
+   Buffers: shared hit=28
+   ->  Index Scan using cp4_test_bookings_keyset on bookings  (cost=0.43..268707.50 rows=2906010 width=41) (actual time=0.053..0.247 rows=25 loops=1)
+         Index Cond: (ROW(booked_at, booking_id) < ROW('2026-06-28 09:06:00+05:30'::timestamp with time zone, 2260823))
+         Buffers: shared hit=28
+ Planning:
+   Buffers: shared hit=232
+ Planning Time: 1.693 ms
+ Execution Time: 0.298 ms
+(9 rows)
+
+========== R22 KEYSET RUN 3 ==========
+SET
+                                                                      QUERY PLAN                                                                      
+------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.43..2.74 rows=25 width=41) (actual time=0.057..0.283 rows=25 loops=1)
+   Buffers: shared hit=28
+   ->  Index Scan using cp4_test_bookings_keyset on bookings  (cost=0.43..268707.50 rows=2906010 width=41) (actual time=0.055..0.277 rows=25 loops=1)
+         Index Cond: (ROW(booked_at, booking_id) < ROW('2026-06-28 09:06:00+05:30'::timestamp with time zone, 2260823))
+         Buffers: shared hit=28
+ Planning:
+   Buffers: shared hit=232
+ Planning Time: 1.853 ms
+ Execution Time: 0.345 ms
+(9 rows)
+

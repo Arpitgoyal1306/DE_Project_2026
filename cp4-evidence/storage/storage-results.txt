@@ -1,0 +1,40 @@
+  database_name  | database_size | database_bytes 
+-----------------+---------------+----------------
+ de_project_2026 | 2580 MB       |     2705579031
+(1 row)
+
+  table_name   | heap_size  | indexes_size | total_size | heap_bytes | index_bytes | total_bytes 
+---------------+------------+--------------+------------+------------+-------------+-------------
+ booking_seats | 299 MB     | 506 MB       | 806 MB     |  314032128 |   530874368 |   845430784
+ bookings      | 338 MB     | 358 MB       | 696 MB     |  354484224 |   375128064 |   729735168
+ shows         | 188 MB     | 477 MB       | 664 MB     |  197001216 |   499646464 |   696721408
+ customers     | 75 MB      | 105 MB       | 180 MB     |   78774272 |   110084096 |   188907520
+ seats         | 89 MB      | 81 MB        | 170 MB     |   93192192 |    84500480 |   177741824
+ movie_reviews | 40 MB      | 14 MB        | 54 MB      |   41418752 |    14647296 |    56115200
+ screens       | 504 kB     | 232 kB       | 768 kB     |     516096 |      237568 |      786432
+ movies        | 424 kB     | 152 kB       | 608 kB     |     434176 |      155648 |      622592
+ venues        | 248 kB     | 80 kB        | 360 kB     |     253952 |       81920 |      368640
+ cities        | 8192 bytes | 16 kB        | 24 kB      |       8192 |       16384 |       24576
+ offers        | 8192 bytes | 16 kB        | 24 kB      |       8192 |       16384 |       24576
+(11 rows)
+
+  partition_name   | heap_size | indexes_size | total_size | total_bytes 
+-------------------+-----------+--------------+------------+-------------
+ booking_seats_p00 | 19 MB     | 32 MB        | 50 MB      |    52830208
+ booking_seats_p01 | 19 MB     | 32 MB        | 51 MB      |    53051392
+ booking_seats_p02 | 19 MB     | 32 MB        | 51 MB      |    53051392
+ booking_seats_p03 | 19 MB     | 31 MB        | 50 MB      |    52649984
+ booking_seats_p04 | 19 MB     | 32 MB        | 50 MB      |    52789248
+ booking_seats_p05 | 19 MB     | 31 MB        | 50 MB      |    52518912
+ booking_seats_p06 | 19 MB     | 32 MB        | 50 MB      |    52756480
+ booking_seats_p07 | 19 MB     | 32 MB        | 51 MB      |    53256192
+ booking_seats_p08 | 19 MB     | 31 MB        | 50 MB      |    52453376
+ booking_seats_p09 | 19 MB     | 32 MB        | 50 MB      |    52658176
+ booking_seats_p10 | 19 MB     | 32 MB        | 50 MB      |    52895744
+ booking_seats_p11 | 19 MB     | 32 MB        | 50 MB      |    52854784
+ booking_seats_p12 | 19 MB     | 32 MB        | 50 MB      |    52617216
+ booking_seats_p13 | 19 MB     | 32 MB        | 51 MB      |    53084160
+ booking_seats_p14 | 19 MB     | 32 MB        | 51 MB      |    53157888
+ booking_seats_p15 | 19 MB     | 32 MB        | 50 MB      |    52805632
+(16 rows)
+

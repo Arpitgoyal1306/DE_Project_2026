@@ -1,0 +1,63 @@
+========== R06 TEST INDEX RUN 1 ==========
+SET
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.526..0.538 rows=300 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 43kB
+   Buffers: shared hit=63
+   ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.123..0.428 rows=300 loops=1)
+         Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+         Heap Blocks: exact=53
+         Buffers: shared hit=60
+         ->  Bitmap Index Scan on cp4_test_movies_title_trgm  (cost=0.00..31.69 rows=303 width=0) (actual time=0.098..0.098 rows=300 loops=1)
+               Index Cond: ((title)::text ~~* '%kalki%'::text)
+               Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=99 read=14
+ Planning Time: 4.858 ms
+ Execution Time: 0.741 ms
+(15 rows)
+
+========== R06 TEST INDEX RUN 2 ==========
+SET
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.477..0.488 rows=300 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 43kB
+   Buffers: shared hit=63
+   ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.075..0.404 rows=300 loops=1)
+         Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+         Heap Blocks: exact=53
+         Buffers: shared hit=60
+         ->  Bitmap Index Scan on cp4_test_movies_title_trgm  (cost=0.00..31.69 rows=303 width=0) (actual time=0.059..0.059 rows=300 loops=1)
+               Index Cond: ((title)::text ~~* '%kalki%'::text)
+               Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=113
+ Planning Time: 2.651 ms
+ Execution Time: 0.604 ms
+(15 rows)
+
+========== R06 TEST INDEX RUN 3 ==========
+SET
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.808..0.829 rows=300 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 43kB
+   Buffers: shared hit=63
+   ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.116..0.684 rows=300 loops=1)
+         Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+         Heap Blocks: exact=53
+         Buffers: shared hit=60
+         ->  Bitmap Index Scan on cp4_test_movies_title_trgm  (cost=0.00..31.69 rows=303 width=0) (actual time=0.091..0.091 rows=300 loops=1)
+               Index Cond: ((title)::text ~~* '%kalki%'::text)
+               Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=113
+ Planning Time: 3.241 ms
+ Execution Time: 1.000 ms
+(15 rows)
+
