@@ -1,0 +1,42 @@
+========== R22 OFFSET RUN 1 ==========
+SET
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=8802.50..8804.70 rows=25 width=41) (actual time=278.732..278.874 rows=25 loops=1)
+   Buffers: shared hit=36907 read=63473 written=17
+   ->  Index Scan using cp4_test_bookings_keyset on bookings  (cost=0.43..264421.48 rows=3004077 width=41) (actual time=0.068..275.295 rows=100025 loops=1)
+         Buffers: shared hit=36907 read=63473 written=17
+ Planning:
+   Buffers: shared hit=224
+ Planning Time: 1.730 ms
+ Execution Time: 278.921 ms
+(8 rows)
+
+========== R22 OFFSET RUN 2 ==========
+SET
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=8802.50..8804.70 rows=25 width=41) (actual time=280.211..280.298 rows=25 loops=1)
+   Buffers: shared hit=37119 read=63261
+   ->  Index Scan using cp4_test_bookings_keyset on bookings  (cost=0.43..264421.48 rows=3004077 width=41) (actual time=0.017..276.800 rows=100025 loops=1)
+         Buffers: shared hit=37119 read=63261
+ Planning:
+   Buffers: shared hit=183 read=41
+ Planning Time: 1.062 ms
+ Execution Time: 280.323 ms
+(8 rows)
+
+========== R22 OFFSET RUN 3 ==========
+SET
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=8802.50..8804.70 rows=25 width=41) (actual time=308.482..308.542 rows=25 loops=1)
+   Buffers: shared hit=37122 read=63258
+   ->  Index Scan using cp4_test_bookings_keyset on bookings  (cost=0.43..264421.48 rows=3004077 width=41) (actual time=0.026..305.008 rows=100025 loops=1)
+         Buffers: shared hit=37122 read=63258
+ Planning:
+   Buffers: shared hit=183 read=41
+ Planning Time: 0.995 ms
+ Execution Time: 308.566 ms
+(8 rows)
+
