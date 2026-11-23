@@ -1,6 +1,6 @@
 query_id,before_avg_ms,tested_avg_ms,tested_plan_or_change
-R06,2.934,2.939,"Unchanged SQL; Seq Scan on movies"
-R13,1282.540,215.878,"NOT IN to NOT EXISTS; Seq Scan bookings + Hash Right Anti Join"
-R21,4193.645,1109.241,"Same SELECT; enable_indexscan=off; Seq Scan + aggregate"
-R22,132.435,7.194,"193 MB covering index; Index Only Scan; 0 heap fetches"
-W02,82.857,82.661,"Unchanged INSERT; 16 partition probes; transaction rollback verified"
+R06,3.072,0.191,"pg_trgm GIN on movies.title; Bitmap Index/Heap Scan; 300 rows; test index rolled back"
+R13,186.973,,"Phase 4 optimized NOT EXISTS baseline; Hash Right Anti Join; 7 rows; no separate Phase 5 candidate"
+R21,4193.645,1165.226,"Same SELECT; session-local enable_indexscan=off; Seq Scan; setting not global"
+R22,147.510,5.990,"Deterministic ORDER BY booked_at DESC, booking_id DESC; composite covering index; 0 ordered-position mismatches; test index rolled back"
+W02,78.568,76.905,"Test seats(screen_id, seat_id); same two seat IDs; 0 mismatches; existing PK plan remained"
