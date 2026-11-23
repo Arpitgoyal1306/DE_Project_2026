@@ -92,56 +92,60 @@ The overall row count grew about 20×, but query latency did not grow uniformly.
 
 ## 5. Missed targets: plan evidence and next optimization steps
 
-The historical large benchmark shows five target misses. The faculty dataset is now loaded locally and storage plus several targeted experiments have been measured in §5.1. However, the latest review identified evidence gaps: the raw local plan files are not yet committed; R06 and W02 have only control runs so far; R13's previous comparison used the unoptimized workload query even though Phase 4 already uses `NOT EXISTS`; and R22 still needs an ordered-ID equivalence check. Those items remain explicitly open below.
+The historical large benchmark shows five target misses. Follow-up experiments on the local large dataset now include reproducible three-run evidence for all five queries. These local measurements are diagnostic and remain separate from §4's historical pass/fail results.
 
-| Query | Target | Large average | Plan evidence | Next change to test |
+| Query | Target | Historical large average | Local finding | Next step |
 |---|---:|---:|---|---|
-| R06 | <5 ms | 5.076 ms | Sequential scan of 6,000 movies for `ILIKE '%kalki%'`; 300 rows returned. | Test a `pg_trgm` GIN index on `movies.title`; retain it only if the measured plan and timing improve enough to meet target. |
-| W02 | <5 ms | 160.828 ms | Plan scans 521,522 rows from `seats` using its primary key, then removes rows by screen join/filter before inserting two rows. | Test an index beginning with `seats(screen_id, seat_id)` and rewrite candidate-seat selection to constrain the target screen before ordering/limiting. Recheck locking and seat uniqueness. |
-| R13 | <250 ms | 513.060 ms | Historical large plan uses a hash anti-join and scans 3,004,077 bookings. | Phase 4 already uses `NOT EXISTS`; compare the same optimized SQL on the local large DB before proposing another index. The earlier local `NOT IN` → `NOT EXISTS` timing pair is not a valid Phase 5 before/after comparison. |
-| R22 | <250 ms | 285.333 ms | Index scan reads 100,025 rows to satisfy `OFFSET 100000 LIMIT 25`. | Replace deep OFFSET pagination with keyset pagination using a stable, unique ordering key (for example `booked_at` plus `booking_id`); the page cursor must be defined by the preceding page's last row. |
-| R21 | <5,000 ms | 8,609.623 ms | Index scan returns 2,671,876 confirmed 2026 bookings, then aggregates 771,482 customers; one run reports 1,889,536 shared-buffer reads. | Test a maintained daily/customer summary aggregate or incremental rollup. A normal index alone is unlikely to remove the cost of aggregating millions of qualifying rows. |
+| R06 | <5 ms | 5.076 ms | A trigram GIN index changed the plan from Seq Scan to Bitmap Index/Heap Scan; average fell from 3.072 to 0.191 ms, with 300 rows returned in both phases. | Strong local improvement; verify storage cost and include the DDL/raw plans. |
+| W02 | <5 ms | 160.828 ms | The screen-first index candidate changed average time only from 78.568 to 76.905 ms; the plan continued to use the existing primary-key path. The same two seat IDs were selected before/after. | Candidate is not justified by this small change; keep the write rollback and seat-equivalence evidence. |
+| R13 | <250 ms | 513.060 ms | The optimized Phase 4 `NOT EXISTS` query returned 7 rows and averaged 186.973 ms over three local runs. | This is a correctly matched optimized-query baseline, not a Phase 5 before/after improvement. |
+| R22 | <250 ms | 285.333 ms | With deterministic ordering by `booked_at DESC, booking_id DESC`, a composite covering index changed the average from 147.510 to 5.990 ms. Ordered-page comparison found 0 mismatched positions on the same repeatable-read snapshot. | Strong local improvement; the test index was rolled back. |
+| R21 | <5,000 ms | 8,609.623 ms | The same SELECT averaged 4,193.645 ms with the normal planner and 1,165.226 ms with session-local `enable_indexscan=off`. The latter used a sequential scan. | Treat as a planner-setting experiment, not a persistent index change; validate on production-like hardware. |
 
-These five historical misses remain **open against the original §4 benchmark** unless a comparable, reproducible Phase 5 test establishes otherwise. Local results in §5.1 are diagnostic and do not rewrite the historical pass/fail table.
+These five historical misses remain **open against the original §4 benchmark**. Local experiments show that targeted access-path changes can improve R06 and R22, but do not rewrite the historical pass/fail table or establish production performance.
 
 ### 5.1 Local large-dataset experiments (23 November 2026)
 
-The faculty dataset was loaded into a separate local PostgreSQL database, `bookmyshow_large`, preserving the seed database. It contains 15,571,506 rows. These three-run local measurements are reported separately from §4's historical large benchmark because hardware/cache conditions differ.
+The faculty dataset was loaded into a separate local PostgreSQL database, `bookmyshow_large`, preserving the seed database. It contains 15,571,506 rows. The following averages use three `EXPLAIN (ANALYZE, BUFFERS)` runs per phase. They are reported separately from §4 because hardware/cache conditions differ.
 
-| Query | Local control avg (ms) | Local comparison avg (ms) | Interpretation |
+| Query | Before avg (ms) | Tested avg (ms) | Tested change and result |
 |---|---:|---:|---|
-| R06 | 2.934 | 2.256 | Both are control runs of the same SQL/plan (Seq Scan on 6,000 movies); no index change was made. They do not demonstrate an optimization. |
-| R13 | 183.767 | — | Measured using the Phase 4 optimized `NOT EXISTS` query. The earlier 1,282.540 ms `NOT IN` run is not a valid Phase 5 baseline because Phase 4 already corrected this query. |
-| R21 | 4,193.645 | 1,109.241 | Same SELECT with session-level `enable_indexscan=off`; Seq Scan plan was 73.6% faster. Bidirectional EXCEPT comparison returned 0 differing rows. |
-| R22 | 132.435 | 7.194 | Test-only 193 MB covering index produced Index Only Scan and 0 heap fetches. Ordered booking-ID equivalence is not yet verified; do not treat this as a validated fix. |
-| W02 | 82.857 | 82.661 | Control runs of the same INSERT; no SQL/index change. No meaningful improvement; still misses the 5 ms target. |
+| R06 | 3.072 | 0.191 | Added test-only GIN index `movies(title gin_trgm_ops)`; plan changed from Seq Scan to Bitmap Index Scan + Bitmap Heap Scan. Both phases returned 300 rows. About 16.1× faster. |
+| R13 | 186.973 | — | Three-run baseline of the Phase 4 optimized `NOT EXISTS` query; Hash Right Anti Join; 7 rows returned. No separate Phase 5 candidate was tested. |
+| R21 | 4,193.645 | 1,165.226 | Same SELECT; session-local `enable_indexscan=off` produced a Seq Scan plan. This is a planner-setting comparison, not a persistent schema change. |
+| R22 | 147.510 | 5.990 | Deterministic full page query ordered by `booked_at DESC, booking_id DESC`; composite covering index enabled Index Only Scan. Ordered position comparison returned 0 mismatches. About 24.6× faster. |
+| W02 | 78.568 | 76.905 | Tested `seats(screen_id, seat_id)`; the plan continued using the existing primary-key access path. Exact selected seats matched; only about 2.1% faster. |
 
-R13 correctness finding:
+All test-only index creation and write tests were rolled back. The R06 and R22 index results therefore describe measured experiments, not indexes currently installed in the database.
+
+R13 correctness and baseline:
 - The original Phase 3 `NOT IN` query returns 0 rows because the subquery contains NULL offer codes.
 - Phase 4's optimized `NOT EXISTS` query returns 7 unredeemed offers.
-- The large database contains 2,553,802 NULL `offer_code` values.
-- The optimized query's local three-run average was 183.767 ms. A comparable Phase 4 optimized-query baseline still needs to be captured before claiming a Phase 5 speedup.
+- The local optimized-query runs took 190.083, 185.179 and 185.658 ms (average 186.973 ms).
+- The earlier `NOT IN` versus `NOT EXISTS` timing pair is a correctness comparison, not a valid Phase 5 performance comparison.
 
-R21 plan comparison:
-- Customer-index plan average: 4,193.645 ms; it fetches 2,671,876 qualifying bookings through `idx_bookings_customer_id`.
-- Sequential-scan plan runs: 1,077.023, 1,157.784 and 1,092.917 ms (average 1,109.241 ms).
-- Bidirectional EXCEPT comparison of the two top-20 outputs returned 0 rows. The tested setting was session-local and was not committed as a global database setting.
+R21 planner-setting experiment:
+- Normal-planner runs averaged 4,193.645 ms and used `idx_bookings_customer_id`.
+- With session-local `SET enable_indexscan = off`, the three sequential-scan runs took 1,122.273, 1,170.072 and 1,203.334 ms (average 1,165.226 ms).
+- The setting was session-local; no global planner setting was changed.
 
-R22 covering-index experiment:
-- Test index: `(booked_at DESC) INCLUDE (booking_id, booking_code, customer_id, show_id, status)`.
-- The three plans used Index Only Scan with `Heap Fetches: 0`; average 7.194 ms.
-- Index size: 193 MB.
-- This test used the original non-unique ordering `ORDER BY booked_at DESC`. Because timestamps can tie, a count of 25 rows does not establish that the same page was returned. A follow-up must compare the ordered 25 booking IDs and, if ties cause unstable membership, add `booking_id` as the same unique tiebreaker in both before and after queries and rerun the benchmark.
+R22 ordered-page equivalence and timing:
+- Both variants ran in one `REPEATABLE READ` transaction using the full page query ordered by `booked_at DESC, booking_id DESC` with `OFFSET 100000 LIMIT 25`.
+- The tested index was `(booked_at DESC, booking_id DESC) INCLUDE (booking_code, customer_id, show_id, status)`.
+- Before plans used Incremental Sort + Index Scan (147.510 ms average); after plans used Index Only Scan with 0 heap fetches (5.990 ms average).
+- The ordered `(position, booking_id)` comparison reported 25 rows in each phase and 0 mismatched positions. The transaction ended with ROLLBACK.
 
-W02 rollback check:
-- The transaction test inserted 2 candidate rows and rolled back; the permanent `booking_seats` count remained 6,016,946.
-- The plan still probes all 16 hash partitions and the query averages 82.661 ms in the control run.
-- A concrete candidate to test is an index on `seats(screen_id, seat_id)`, then rerun the unchanged W02 statement three times inside BEGIN/ROLLBACK and verify the exact two selected seat IDs match the pre-change query. This is a proposed test, not a measured result.
+W02 write-safety and equivalence:
+- Each INSERT execution was rolled back inside a savepoint; the outer repeatable-read transaction was also rolled back.
+- Before and after selected the same two seats for booking 9079/show 3112341: seat IDs 521521 and 521522. `mismatched_seats = 0`.
+- Average time changed from 78.568 to 76.905 ms, but the plan continued using the existing primary-key path. The proposed index is not justified by this small change.
 
-R06 control:
-- Both recorded plans used a sequential scan on the 6,000-row `movies` table. A `pg_trgm` GIN index on `movies.title` is the proposed experiment; it must be benchmarked three times and retained only if the plan and latency justify its storage/write cost.
+R06 trigram-index experiment:
+- The three before runs used Seq Scan and took 4.667, 2.350 and 2.198 ms (average 3.072 ms).
+- The three after runs used Bitmap Index Scan on `idx_movies_title_trgm_test` plus Bitmap Heap Scan and took 0.199, 0.189 and 0.185 ms (average 0.191 ms).
+- All runs returned 300 rows. The test transaction ended with ROLLBACK.
 
-**Evidence packaging status:** the raw plan files currently exist on the benchmark Mac under `benchmarks/results/local_before`, `local_after`, `local_seqscan` and `local_cover_test`, but are not yet committed. They must be added to the repository along with the exact experimental DDL/session settings before this evidence is independently reviewable.
+**Evidence packaging:** raw plans and exact SQL are being added under `benchmarks/results/local_*` and `queries/targeted_before.sql` / `queries/targeted_after.sql`. The large dataset archive is intentionally excluded from Git.
 
 ## 6. Storage measurements and measurement limitation
 
@@ -273,10 +277,10 @@ Cache relatively stable movie metadata and popular showtime/search responses (fo
 
 ## 8. Limitations and readiness conclusion
 
-The large dataset is approximately 20× the seed row count. The historical benchmark in §4 has 25/30 queries meeting target and five misses. Local experiments show a promising R21 sequential-scan plan and R22 covering-index plan, but R22 page equivalence is pending; R06 and W02 still need concrete change tests, and R13 needs a correctly matched optimized-query comparison. The main scale bottlenecks remain broad booking aggregation (R21), candidate-seat selection (W02), full booking scan (R13), deep OFFSET pagination (R22) and title search (R06).
+The large dataset is approximately 20× the seed row count. The historical benchmark in §4 has 25/30 queries meeting target and five misses. Local experiments now provide reproducible evidence for all five: R06's trigram-index test and R22's deterministic covering-index test show substantial local improvements; R21's sequential-scan planner-setting test is faster; W02's candidate index gives only a small improvement without changing the plan; and R13 has a correctly matched Phase 4 optimized-query baseline but no separate Phase 5 candidate comparison.
 
 The partitioning implementation provides targeted pruning for R03, but R11 and R24 still scan all 16 partitions. Partitioning is therefore a useful access-path design for show-specific seat lookups, not a universal solution for analytical scans.
 
-**Readiness verdict: partially ready, not yet fully target-compliant.** The historical benchmark remains 25/30 against target. Large storage is now measured: 2,580 MB total, including the 16 `booking_seats` partitions and their indexes. R21 has a locally verified equivalent sequential-scan plan that is faster; R22 has a promising covering-index plan but needs ordered-ID equivalence; R13's prior timing comparison must be redone against the Phase 4 optimized query; and R06/W02 still need concrete tested changes. Raw plan artifacts and exact experiment settings must also be committed for review. A 100× production deployment would additionally require shard routing, replica-lag controls, tested archive/retention procedures, summary refresh monitoring and load tests beyond the current 20× dataset.
+**Readiness verdict: partially ready, not yet fully target-compliant.** The historical benchmark remains 25/30 against target; §4 is unchanged. Local R06 and R22 experiments are promising but their test-only indexes were rolled back and their results must not be represented as deployed improvements. R21's faster plan depends on a session-local planner setting and requires production-like validation. W02 remains far above its 5 ms target, and R13 still lacks a separate Phase 5 optimization candidate. Raw plans and exact SQL/settings are included as experimental evidence, not as proof that the five historical misses are now resolved. A 100× production deployment would additionally require shard routing, replica-lag controls, tested archive/retention procedures, summary refresh monitoring and load tests beyond the current 20× dataset.
 
-The next acceptance gate is to commit the raw plans and reproduction details, finish the R06/W02 experiments, capture a valid R13 optimized-query comparison, verify R22 ordered-ID equivalence and then reassess all five historical misses without changing §4's historical measurements.
+The next acceptance gate is to validate R06/R22 index trade-offs on production-like hardware, investigate a stronger W02 candidate and R13 plan, and reassess all five historical misses without changing §4's historical measurements.
