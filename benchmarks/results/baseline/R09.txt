@@ -1,51 +1,51 @@
 === R09 run 1 ===
-Sort  (cost=4731.52..4731.57 rows=20 width=18) (actual time=4.990..5.664 rows=6.00 loops=1)
+Sort  (cost=4730.25..4730.28 rows=10 width=18) (actual time=5.238..5.897 rows=6.00 loops=1)
   Sort Key: booked_at
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=2187
-  ->  Gather  (cost=1000.00..4731.09 rows=20 width=18) (actual time=1.852..5.655 rows=6.00 loops=1)
+  ->  Gather  (cost=1000.00..4730.09 rows=10 width=18) (actual time=4.079..5.888 rows=6.00 loops=1)
         Workers Planned: 1
         Workers Launched: 1
         Buffers: shared hit=2184
-        ->  Parallel Seq Scan on bookings  (cost=0.00..3729.09 rows=12 width=18) (actual time=1.550..4.028 rows=3.00 loops=2)
+        ->  Parallel Seq Scan on bookings  (cost=0.00..3729.09 rows=6 width=18) (actual time=2.135..4.403 rows=3.00 loops=2)
               Filter: (((status)::text = 'PENDING'::text) AND (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval)))
               Rows Removed by Filter: 75044
               Buffers: shared hit=2184
 Planning:
   Buffers: shared hit=138
-Planning Time: 0.231 ms
-Execution Time: 5.676 ms
+Planning Time: 0.239 ms
+Execution Time: 5.908 ms
 === R09 run 2 ===
-Sort  (cost=4731.52..4731.57 rows=20 width=18) (actual time=4.917..5.565 rows=6.00 loops=1)
+Sort  (cost=4730.25..4730.28 rows=10 width=18) (actual time=6.253..7.128 rows=6.00 loops=1)
   Sort Key: booked_at
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=2187
-  ->  Gather  (cost=1000.00..4731.09 rows=20 width=18) (actual time=3.084..5.557 rows=6.00 loops=1)
+  ->  Gather  (cost=1000.00..4730.09 rows=10 width=18) (actual time=3.545..7.119 rows=6.00 loops=1)
         Workers Planned: 1
         Workers Launched: 1
         Buffers: shared hit=2184
-        ->  Parallel Seq Scan on bookings  (cost=0.00..3729.09 rows=12 width=18) (actual time=1.522..3.943 rows=3.00 loops=2)
+        ->  Parallel Seq Scan on bookings  (cost=0.00..3729.09 rows=6 width=18) (actual time=1.871..5.352 rows=3.00 loops=2)
               Filter: (((status)::text = 'PENDING'::text) AND (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval)))
               Rows Removed by Filter: 75044
               Buffers: shared hit=2184
 Planning:
   Buffers: shared hit=138
-Planning Time: 0.209 ms
-Execution Time: 5.576 ms
+Planning Time: 0.237 ms
+Execution Time: 7.142 ms
 === R09 run 3 ===
-Sort  (cost=4731.52..4731.57 rows=20 width=18) (actual time=4.950..5.647 rows=6.00 loops=1)
+Sort  (cost=4730.25..4730.28 rows=10 width=18) (actual time=5.603..6.348 rows=6.00 loops=1)
   Sort Key: booked_at
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=2187
-  ->  Gather  (cost=1000.00..4731.09 rows=20 width=18) (actual time=1.770..5.639 rows=6.00 loops=1)
+  ->  Gather  (cost=1000.00..4730.09 rows=10 width=18) (actual time=2.214..6.327 rows=6.00 loops=1)
         Workers Planned: 1
         Workers Launched: 1
         Buffers: shared hit=2184
-        ->  Parallel Seq Scan on bookings  (cost=0.00..3729.09 rows=12 width=18) (actual time=1.524..4.043 rows=3.00 loops=2)
+        ->  Parallel Seq Scan on bookings  (cost=0.00..3729.09 rows=6 width=18) (actual time=2.399..4.392 rows=3.00 loops=2)
               Filter: (((status)::text = 'PENDING'::text) AND (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval)))
               Rows Removed by Filter: 75044
               Buffers: shared hit=2184
 Planning:
   Buffers: shared hit=138
-Planning Time: 0.212 ms
-Execution Time: 5.658 ms
+Planning Time: 0.446 ms
+Execution Time: 6.374 ms

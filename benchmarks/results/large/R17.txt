@@ -1,279 +1,333 @@
 === R17 run 1 ===
-Sort  (cost=7977.02..7977.51 rows=199 width=15) (actual time=5.715..5.718 rows=27 loops=1)
+Sort  (cost=8054.12..8054.62 rows=199 width=15) (actual time=11.188..11.190 rows=27.00 loops=1)
   Sort Key: se.row_label, se.seat_number
   Sort Method: quicksort  Memory: 26kB
-  Buffers: shared hit=138 read=196
-  ->  Hash Right Anti Join  (cost=365.85..7969.42 rows=199 width=15) (actual time=5.670..5.677 rows=27 loops=1)
+  Buffers: shared hit=140 read=194
+  ->  Hash Right Anti Join  (cost=365.86..8046.52 rows=199 width=15) (actual time=11.165..11.169 rows=27.00 loops=1)
         Hash Cond: (bs.seat_id = se.seat_id)
-        Buffers: shared hit=132 read=196
-        ->  Nested Loop  (cost=6.14..7609.21 rows=190 width=4) (actual time=0.141..5.307 rows=203 loops=1)
-              Buffers: shared hit=129 read=191
-              ->  Bitmap Heap Scan on shows s  (cost=5.72..391.85 rows=101 width=4) (actual time=0.031..0.157 rows=90 loops=1)
+        Buffers: shared hit=134 read=194
+        ->  Nested Loop  (cost=6.15..7686.31 rows=192 width=4) (actual time=0.678..11.127 rows=203.00 loops=1)
+              Buffers: shared hit=130 read=190
+              ->  Bitmap Heap Scan on shows s  (cost=5.73..395.59 rows=102 width=4) (actual time=0.042..0.091 rows=90.00 loops=1)
                     Recheck Cond: ((screen_id = 101) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                     Heap Blocks: exact=30
-                    Buffers: shared hit=2 read=32
-                    ->  Bitmap Index Scan on idx_shows_screen_starts  (cost=0.00..5.69 rows=101 width=0) (actual time=0.023..0.024 rows=90 loops=1)
+                    Buffers: shared hit=3 read=31
+                    ->  Bitmap Index Scan on idx_shows_screen_starts  (cost=0.00..5.71 rows=102 width=0) (actual time=0.014..0.014 rows=90.00 loops=1)
                           Index Cond: ((screen_id = 101) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                          Index Searches: 1
                           Buffers: shared hit=2 read=2
-              ->  Append  (cost=0.42..70.66 rows=80 width=8) (actual time=0.056..0.056 rows=2 loops=90)
+              ->  Append  (cost=0.42..70.68 rows=80 width=8) (actual time=0.122..0.122 rows=2.26 loops=90)
                     Buffers: shared hit=127 read=159
-                    ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.39 rows=5 width=8) (actual time=0.248..0.248 rows=5 loops=3)
+                    ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.39 rows=5 width=8) (actual time=0.154..0.155 rows=5.33 loops=3)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 3
                           Buffers: shared hit=3 read=7
-                    ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.39 rows=5 width=8) (actual time=0.022..0.022 rows=1 loops=7)
+                    ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.39 rows=5 width=8) (actual time=0.113..0.113 rows=0.57 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=10 read=12
-                    ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.39 rows=5 width=8) (actual time=0.028..0.028 rows=1 loops=6)
+                    ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.39 rows=5 width=8) (actual time=0.169..0.169 rows=1.00 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=10 read=9
-                    ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.39 rows=5 width=8) (actual time=0.013..0.013 rows=1 loops=7)
+                    ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.39 rows=5 width=8) (actual time=0.103..0.103 rows=1.43 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=12 read=10
-                    ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.39 rows=5 width=8) (actual time=0.017..0.018 rows=3 loops=5)
+                    ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.39 rows=5 width=8) (actual time=0.117..0.117 rows=3.40 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=7 read=9
-                    ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.39 rows=5 width=8) (actual time=0.010..0.011 rows=3 loops=11)
+                    ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.39 rows=5 width=8) (actual time=0.086..0.086 rows=3.27 loops=11)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 11
                           Buffers: shared hit=18 read=16
-                    ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.39 rows=5 width=8) (actual time=0.044..0.044 rows=2 loops=6)
+                    ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.39 rows=5 width=8) (actual time=0.108..0.108 rows=2.33 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=8 read=11
-                    ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.39 rows=5 width=8) (actual time=0.037..0.037 rows=1 loops=5)
+                    ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.39 rows=5 width=8) (actual time=0.126..0.126 rows=1.20 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=7 read=9
-                    ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.39 rows=5 width=8) (actual time=0.037..0.037 rows=2 loops=5)
+                    ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.39 rows=5 width=8) (actual time=0.132..0.132 rows=2.00 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=8 read=8
-                    ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.39 rows=5 width=8) (actual time=0.016..0.016 rows=3 loops=7)
+                    ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.39 rows=5 width=8) (actual time=0.094..0.094 rows=2.71 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=10 read=12
-                    ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.39 rows=5 width=8) (actual time=0.015..0.015 rows=3 loops=6)
+                    ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.39 rows=5 width=8) (actual time=0.096..0.096 rows=2.67 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=8 read=11
-                    ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.39 rows=5 width=8) (actual time=0.042..0.042 rows=1 loops=6)
+                    ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.39 rows=5 width=8) (actual time=0.156..0.157 rows=1.33 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=8 read=11
-                    ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.39 rows=5 width=8) (actual time=0.039..0.039 rows=8 loops=2)
+                    ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.39 rows=5 width=8) (actual time=0.167..0.167 rows=8.50 loops=2)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 2
                           Buffers: shared hit=1 read=6
-                    ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.39 rows=5 width=8) (actual time=0.019..0.020 rows=2 loops=5)
+                    ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.39 rows=5 width=8) (actual time=0.116..0.116 rows=1.60 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=6 read=10
-                    ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.39 rows=5 width=8) (actual time=0.451..0.452 rows=2 loops=2)
+                    ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.39 rows=5 width=8) (actual time=0.307..0.307 rows=2.00 loops=2)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 2
                           Buffers: shared hit=1 read=6
-                    ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.39 rows=5 width=8) (actual time=0.213..0.213 rows=2 loops=7)
+                    ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.39 rows=5 width=8) (actual time=0.115..0.115 rows=1.71 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=10 read=12
-        ->  Hash  (cost=357.22..357.22 rows=199 width=15) (actual time=0.336..0.336 rows=40 loops=1)
+        ->  Hash  (cost=357.22..357.22 rows=199 width=15) (actual time=0.026..0.026 rows=40.00 loops=1)
               Buckets: 1024  Batches: 1  Memory Usage: 10kB
-              Buffers: shared hit=3 read=5
-              ->  Index Scan using uq_seats_screen_position on seats se  (cost=0.43..357.22 rows=199 width=15) (actual time=0.313..0.324 rows=40 loops=1)
+              Buffers: shared hit=4 read=4
+              ->  Index Scan using idx_seats_screen_seat on seats se  (cost=0.43..357.22 rows=199 width=15) (actual time=0.016..0.021 rows=40.00 loops=1)
                     Index Cond: (screen_id = 101)
-                    Buffers: shared hit=3 read=5
+                    Index Searches: 1
+                    Buffers: shared hit=4 read=4
 Planning:
-  Buffers: shared hit=1643 read=65
-Planning Time: 5.339 ms
-Execution Time: 5.834 ms
+  Buffers: shared hit=1666 read=63
+Planning Time: 2.965 ms
+Execution Time: 11.249 ms
 === R17 run 2 ===
-Sort  (cost=7977.02..7977.51 rows=199 width=15) (actual time=1.233..1.236 rows=27 loops=1)
+Sort  (cost=8054.12..8054.62 rows=199 width=15) (actual time=0.609..0.610 rows=27.00 loops=1)
   Sort Key: se.row_label, se.seat_number
   Sort Method: quicksort  Memory: 26kB
   Buffers: shared hit=334
-  ->  Hash Right Anti Join  (cost=365.85..7969.42 rows=199 width=15) (actual time=1.188..1.196 rows=27 loops=1)
+  ->  Hash Right Anti Join  (cost=365.86..8046.52 rows=199 width=15) (actual time=0.587..0.591 rows=27.00 loops=1)
         Hash Cond: (bs.seat_id = se.seat_id)
         Buffers: shared hit=328
-        ->  Nested Loop  (cost=6.14..7609.21 rows=190 width=4) (actual time=0.087..1.133 rows=203 loops=1)
+        ->  Nested Loop  (cost=6.15..7686.31 rows=192 width=4) (actual time=0.047..0.558 rows=203.00 loops=1)
               Buffers: shared hit=320
-              ->  Bitmap Heap Scan on shows s  (cost=5.72..391.85 rows=101 width=4) (actual time=0.022..0.077 rows=90 loops=1)
+              ->  Bitmap Heap Scan on shows s  (cost=5.73..395.59 rows=102 width=4) (actual time=0.014..0.039 rows=90.00 loops=1)
                     Recheck Cond: ((screen_id = 101) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                     Heap Blocks: exact=30
                     Buffers: shared hit=34
-                    ->  Bitmap Index Scan on idx_shows_screen_starts  (cost=0.00..5.69 rows=101 width=0) (actual time=0.017..0.017 rows=90 loops=1)
+                    ->  Bitmap Index Scan on idx_shows_screen_starts  (cost=0.00..5.71 rows=102 width=0) (actual time=0.009..0.009 rows=90.00 loops=1)
                           Index Cond: ((screen_id = 101) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                          Index Searches: 1
                           Buffers: shared hit=4
-              ->  Append  (cost=0.42..70.66 rows=80 width=8) (actual time=0.011..0.011 rows=2 loops=90)
+              ->  Append  (cost=0.42..70.68 rows=80 width=8) (actual time=0.005..0.005 rows=2.26 loops=90)
                     Buffers: shared hit=286
-                    ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.39 rows=5 width=8) (actual time=0.016..0.016 rows=5 loops=3)
+                    ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.39 rows=5 width=8) (actual time=0.009..0.009 rows=5.33 loops=3)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 3
                           Buffers: shared hit=10
-                    ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.39 rows=5 width=8) (actual time=0.009..0.009 rows=1 loops=7)
+                    ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=0.57 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=22
-                    ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.39 rows=5 width=8) (actual time=0.010..0.010 rows=1 loops=6)
+                    ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=1.00 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=19
-                    ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.39 rows=5 width=8) (actual time=0.008..0.008 rows=1 loops=7)
+                    ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.39 rows=5 width=8) (actual time=0.004..0.004 rows=1.43 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=22
-                    ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=3 loops=5)
+                    ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=3.40 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=16
-                    ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.39 rows=5 width=8) (actual time=0.007..0.007 rows=3 loops=11)
+                    ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.39 rows=5 width=8) (actual time=0.003..0.003 rows=3.27 loops=11)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 11
                           Buffers: shared hit=34
-                    ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.39 rows=5 width=8) (actual time=0.012..0.012 rows=2 loops=6)
+                    ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=2.33 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=19
-                    ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=1 loops=5)
+                    ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=1.20 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=16
-                    ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=2 loops=5)
+                    ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=2.00 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=16
-                    ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.39 rows=5 width=8) (actual time=0.009..0.010 rows=3 loops=7)
+                    ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=2.71 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=22
-                    ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.39 rows=5 width=8) (actual time=0.010..0.010 rows=3 loops=6)
+                    ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=2.67 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=19
-                    ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=1 loops=6)
+                    ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=1.33 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=19
-                    ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.39 rows=5 width=8) (actual time=0.029..0.030 rows=8 loops=2)
+                    ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=8.50 loops=2)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 2
                           Buffers: shared hit=7
-                    ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.39 rows=5 width=8) (actual time=0.012..0.012 rows=2 loops=5)
+                    ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.39 rows=5 width=8) (actual time=0.006..0.006 rows=1.60 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=16
-                    ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.39 rows=5 width=8) (actual time=0.021..0.021 rows=2 loops=2)
+                    ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.012 rows=2.00 loops=2)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 2
                           Buffers: shared hit=7
-                    ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.39 rows=5 width=8) (actual time=0.009..0.009 rows=2 loops=7)
+                    ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=1.71 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=22
-        ->  Hash  (cost=357.22..357.22 rows=199 width=15) (actual time=0.034..0.034 rows=40 loops=1)
+        ->  Hash  (cost=357.22..357.22 rows=199 width=15) (actual time=0.018..0.019 rows=40.00 loops=1)
               Buckets: 1024  Batches: 1  Memory Usage: 10kB
               Buffers: shared hit=8
-              ->  Index Scan using uq_seats_screen_position on seats se  (cost=0.43..357.22 rows=199 width=15) (actual time=0.016..0.024 rows=40 loops=1)
+              ->  Index Scan using idx_seats_screen_seat on seats se  (cost=0.43..357.22 rows=199 width=15) (actual time=0.011..0.014 rows=40.00 loops=1)
                     Index Cond: (screen_id = 101)
+                    Index Searches: 1
                     Buffers: shared hit=8
 Planning:
-  Buffers: shared hit=1708
-Planning Time: 4.321 ms
-Execution Time: 1.354 ms
+  Buffers: shared hit=1729
+Planning Time: 2.278 ms
+Execution Time: 0.668 ms
 === R17 run 3 ===
-Sort  (cost=7977.02..7977.51 rows=199 width=15) (actual time=1.532..1.535 rows=27 loops=1)
+Sort  (cost=8054.12..8054.62 rows=199 width=15) (actual time=0.571..0.573 rows=27.00 loops=1)
   Sort Key: se.row_label, se.seat_number
   Sort Method: quicksort  Memory: 26kB
   Buffers: shared hit=334
-  ->  Hash Right Anti Join  (cost=365.85..7969.42 rows=199 width=15) (actual time=1.486..1.493 rows=27 loops=1)
+  ->  Hash Right Anti Join  (cost=365.86..8046.52 rows=199 width=15) (actual time=0.551..0.555 rows=27.00 loops=1)
         Hash Cond: (bs.seat_id = se.seat_id)
         Buffers: shared hit=328
-        ->  Nested Loop  (cost=6.14..7609.21 rows=190 width=4) (actual time=0.104..1.428 rows=203 loops=1)
+        ->  Nested Loop  (cost=6.15..7686.31 rows=192 width=4) (actual time=0.043..0.522 rows=203.00 loops=1)
               Buffers: shared hit=320
-              ->  Bitmap Heap Scan on shows s  (cost=5.72..391.85 rows=101 width=4) (actual time=0.025..0.099 rows=90 loops=1)
+              ->  Bitmap Heap Scan on shows s  (cost=5.73..395.59 rows=102 width=4) (actual time=0.013..0.038 rows=90.00 loops=1)
                     Recheck Cond: ((screen_id = 101) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                     Heap Blocks: exact=30
                     Buffers: shared hit=34
-                    ->  Bitmap Index Scan on idx_shows_screen_starts  (cost=0.00..5.69 rows=101 width=0) (actual time=0.020..0.021 rows=90 loops=1)
+                    ->  Bitmap Index Scan on idx_shows_screen_starts  (cost=0.00..5.71 rows=102 width=0) (actual time=0.009..0.009 rows=90.00 loops=1)
                           Index Cond: ((screen_id = 101) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                          Index Searches: 1
                           Buffers: shared hit=4
-              ->  Append  (cost=0.42..70.66 rows=80 width=8) (actual time=0.014..0.014 rows=2 loops=90)
+              ->  Append  (cost=0.42..70.68 rows=80 width=8) (actual time=0.005..0.005 rows=2.26 loops=90)
                     Buffers: shared hit=286
-                    ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.39 rows=5 width=8) (actual time=0.021..0.021 rows=5 loops=3)
+                    ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.39 rows=5 width=8) (actual time=0.007..0.007 rows=5.33 loops=3)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 3
                           Buffers: shared hit=10
-                    ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.39 rows=5 width=8) (actual time=0.013..0.013 rows=1 loops=7)
+                    ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.39 rows=5 width=8) (actual time=0.004..0.004 rows=0.57 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=22
-                    ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.39 rows=5 width=8) (actual time=0.015..0.015 rows=1 loops=6)
+                    ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.39 rows=5 width=8) (actual time=0.004..0.004 rows=1.00 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=19
-                    ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.39 rows=5 width=8) (actual time=0.010..0.010 rows=1 loops=7)
+                    ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.39 rows=5 width=8) (actual time=0.004..0.004 rows=1.43 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=22
-                    ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.39 rows=5 width=8) (actual time=0.016..0.016 rows=3 loops=5)
+                    ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=3.40 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=16
-                    ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.39 rows=5 width=8) (actual time=0.009..0.009 rows=3 loops=11)
+                    ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.39 rows=5 width=8) (actual time=0.003..0.003 rows=3.27 loops=11)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 11
                           Buffers: shared hit=34
-                    ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.39 rows=5 width=8) (actual time=0.014..0.015 rows=2 loops=6)
+                    ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=2.33 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=19
-                    ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.39 rows=5 width=8) (actual time=0.014..0.014 rows=1 loops=5)
+                    ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=1.20 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=16
-                    ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.39 rows=5 width=8) (actual time=0.013..0.013 rows=2 loops=5)
+                    ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=2.00 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=16
-                    ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=3 loops=7)
+                    ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.39 rows=5 width=8) (actual time=0.004..0.005 rows=2.71 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=22
-                    ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.39 rows=5 width=8) (actual time=0.013..0.013 rows=3 loops=6)
+                    ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.39 rows=5 width=8) (actual time=0.004..0.004 rows=2.67 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=19
-                    ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.39 rows=5 width=8) (actual time=0.013..0.013 rows=1 loops=6)
+                    ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=1.33 loops=6)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 6
                           Buffers: shared hit=19
-                    ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.39 rows=5 width=8) (actual time=0.029..0.029 rows=8 loops=2)
+                    ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=8.50 loops=2)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 2
                           Buffers: shared hit=7
-                    ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.39 rows=5 width=8) (actual time=0.013..0.013 rows=2 loops=5)
+                    ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.39 rows=5 width=8) (actual time=0.005..0.005 rows=1.60 loops=5)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 5
                           Buffers: shared hit=16
-                    ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.39 rows=5 width=8) (actual time=0.030..0.030 rows=2 loops=2)
+                    ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=2.00 loops=2)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 2
                           Buffers: shared hit=7
-                    ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.39 rows=5 width=8) (actual time=0.011..0.011 rows=2 loops=7)
+                    ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.39 rows=5 width=8) (actual time=0.004..0.004 rows=1.71 loops=7)
                           Index Cond: (show_id = s.show_id)
                           Heap Fetches: 0
+                          Index Searches: 7
                           Buffers: shared hit=22
-        ->  Hash  (cost=357.22..357.22 rows=199 width=15) (actual time=0.036..0.036 rows=40 loops=1)
+        ->  Hash  (cost=357.22..357.22 rows=199 width=15) (actual time=0.018..0.018 rows=40.00 loops=1)
               Buckets: 1024  Batches: 1  Memory Usage: 10kB
               Buffers: shared hit=8
-              ->  Index Scan using uq_seats_screen_position on seats se  (cost=0.43..357.22 rows=199 width=15) (actual time=0.019..0.027 rows=40 loops=1)
+              ->  Index Scan using idx_seats_screen_seat on seats se  (cost=0.43..357.22 rows=199 width=15) (actual time=0.010..0.014 rows=40.00 loops=1)
                     Index Cond: (screen_id = 101)
+                    Index Searches: 1
                     Buffers: shared hit=8
 Planning:
-  Buffers: shared hit=1708
-Planning Time: 4.737 ms
-Execution Time: 1.668 ms
+  Buffers: shared hit=1729
+Planning Time: 2.208 ms
+Execution Time: 0.626 ms

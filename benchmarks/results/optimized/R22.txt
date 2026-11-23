@@ -1,30 +1,33 @@
 === R22 run 1 ===
-Limit  (cost=8264.15..8266.22 rows=25 width=41) (actual time=22.427..22.432 rows=25.00 loops=1)
-  Buffers: shared hit=100214
-  ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.42..12403.78 rows=150094 width=41) (actual time=0.010..20.787 rows=100025.00 loops=1)
+Limit  (cost=4871.64..4872.86 rows=25 width=41) (actual time=7.323..7.325 rows=25.00 loops=1)
+  Buffers: shared hit=25 read=819
+  ->  Index Only Scan using idx_bookings_support_page on bookings  (cost=0.42..7311.83 rows=150094 width=41) (actual time=0.027..5.625 rows=100025.00 loops=1)
+        Heap Fetches: 59
         Index Searches: 1
-        Buffers: shared hit=100214
+        Buffers: shared hit=25 read=819
 Planning:
-  Buffers: shared hit=200
-Planning Time: 0.364 ms
-Execution Time: 22.446 ms
+  Buffers: shared hit=230
+Planning Time: 0.350 ms
+Execution Time: 7.337 ms
 === R22 run 2 ===
-Limit  (cost=8264.15..8266.22 rows=25 width=41) (actual time=20.633..20.638 rows=25.00 loops=1)
-  Buffers: shared hit=100210
-  ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.42..12403.78 rows=150094 width=41) (actual time=0.008..19.009 rows=100025.00 loops=1)
+Limit  (cost=4871.64..4872.86 rows=25 width=41) (actual time=6.166..6.168 rows=25.00 loops=1)
+  Buffers: shared hit=844
+  ->  Index Only Scan using idx_bookings_support_page on bookings  (cost=0.42..7311.83 rows=150094 width=41) (actual time=0.031..4.464 rows=100025.00 loops=1)
+        Heap Fetches: 59
         Index Searches: 1
-        Buffers: shared hit=100210
+        Buffers: shared hit=844
 Planning:
-  Buffers: shared hit=200
-Planning Time: 0.300 ms
-Execution Time: 20.649 ms
+  Buffers: shared hit=230
+Planning Time: 0.353 ms
+Execution Time: 6.179 ms
 === R22 run 3 ===
-Limit  (cost=8264.15..8266.22 rows=25 width=41) (actual time=20.930..20.936 rows=25.00 loops=1)
-  Buffers: shared hit=100210
-  ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.42..12403.78 rows=150094 width=41) (actual time=0.010..19.330 rows=100025.00 loops=1)
+Limit  (cost=4871.64..4872.86 rows=25 width=41) (actual time=6.079..6.081 rows=25.00 loops=1)
+  Buffers: shared hit=844
+  ->  Index Only Scan using idx_bookings_support_page on bookings  (cost=0.42..7311.83 rows=150094 width=41) (actual time=0.024..4.366 rows=100025.00 loops=1)
+        Heap Fetches: 59
         Index Searches: 1
-        Buffers: shared hit=100210
+        Buffers: shared hit=844
 Planning:
-  Buffers: shared hit=200
-Planning Time: 0.315 ms
-Execution Time: 20.948 ms
+  Buffers: shared hit=230
+Planning Time: 0.324 ms
+Execution Time: 6.090 ms

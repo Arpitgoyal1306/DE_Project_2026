@@ -1,43 +1,43 @@
 === R10 run 1 ===
-Sort  (cost=386842.32..391334.49 rows=1796868 width=42) (actual time=33.486..33.491 rows=209.00 loops=1)
+Sort  (cost=390135.67..394659.85 rows=1809672 width=42) (actual time=35.898..35.902 rows=209.00 loops=1)
   Sort Key: ((s2.starts_at - s1.ends_at)), s1.screen_id
   Sort Method: quicksort  Memory: 38kB
-  Buffers: shared hit=148087
-  ->  Nested Loop  (cost=979.51..89623.21 rows=1796868 width=42) (actual time=1.502..33.442 rows=209.00 loops=1)
-        Buffers: shared hit=148079
-        ->  Bitmap Heap Scan on shows s1  (cost=979.08..2967.68 rows=48307 width=14) (actual time=1.306..2.994 rows=48990.00 loops=1)
+  Buffers: shared hit=147462 read=625
+  ->  Nested Loop  (cost=987.17..90702.72 rows=1809672 width=42) (actual time=1.775..35.855 rows=209.00 loops=1)
+        Buffers: shared hit=147454 read=625
+        ->  Bitmap Heap Scan on shows s1  (cost=986.74..2985.09 rows=48957 width=14) (actual time=1.492..3.533 rows=48990.00 loops=1)
               Recheck Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
               Heap Blocks: exact=368
-              Buffers: shared hit=896
-              ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..967.00 rows=48307 width=0) (actual time=1.286..1.286 rows=48990.00 loops=1)
+              Buffers: shared hit=805 read=91
+              ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..974.50 rows=48957 width=0) (actual time=1.464..1.464 rows=48990.00 loops=1)
                     Index Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                     Index Searches: 86
-                    Buffers: shared hit=528
+                    Buffers: shared hit=437 read=91
         ->  Memoize  (cost=0.43..1.40 rows=36 width=14) (actual time=0.001..0.001 rows=0.00 loops=48990)
               Cache Key: s1.ends_at, (s1.ends_at + '00:30:00'::interval), s1.screen_id
               Cache Mode: binary
               Hits: 0  Misses: 48990  Evictions: 0  Overflows: 0  Memory Usage: 3934kB
-              Buffers: shared hit=147183
+              Buffers: shared hit=146649 read=534
               ->  Index Scan using idx_shows_screen_starts on shows s2  (cost=0.42..1.39 rows=36 width=14) (actual time=0.000..0.000 rows=0.00 loops=48990)
                     Index Cond: ((screen_id = s1.screen_id) AND (starts_at >= s1.ends_at) AND (starts_at < (s1.ends_at + '00:30:00'::interval)))
                     Index Searches: 48990
-                    Buffers: shared hit=147183
+                    Buffers: shared hit=146649 read=534
 Planning:
-  Buffers: shared hit=306
-Planning Time: 0.393 ms
-Execution Time: 33.527 ms
+  Buffers: shared hit=308
+Planning Time: 0.404 ms
+Execution Time: 35.942 ms
 === R10 run 2 ===
-Sort  (cost=386842.32..391334.49 rows=1796868 width=42) (actual time=34.251..34.255 rows=209.00 loops=1)
+Sort  (cost=390135.67..394659.85 rows=1809672 width=42) (actual time=35.841..35.846 rows=209.00 loops=1)
   Sort Key: ((s2.starts_at - s1.ends_at)), s1.screen_id
   Sort Method: quicksort  Memory: 38kB
   Buffers: shared hit=148087
-  ->  Nested Loop  (cost=979.51..89623.21 rows=1796868 width=42) (actual time=1.484..34.208 rows=209.00 loops=1)
+  ->  Nested Loop  (cost=987.17..90702.72 rows=1809672 width=42) (actual time=1.574..35.794 rows=209.00 loops=1)
         Buffers: shared hit=148079
-        ->  Bitmap Heap Scan on shows s1  (cost=979.08..2967.68 rows=48307 width=14) (actual time=1.284..2.988 rows=48990.00 loops=1)
+        ->  Bitmap Heap Scan on shows s1  (cost=986.74..2985.09 rows=48957 width=14) (actual time=1.366..3.446 rows=48990.00 loops=1)
               Recheck Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
               Heap Blocks: exact=368
               Buffers: shared hit=896
-              ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..967.00 rows=48307 width=0) (actual time=1.264..1.264 rows=48990.00 loops=1)
+              ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..974.50 rows=48957 width=0) (actual time=1.339..1.339 rows=48990.00 loops=1)
                     Index Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                     Index Searches: 86
                     Buffers: shared hit=528
@@ -52,20 +52,20 @@ Sort  (cost=386842.32..391334.49 rows=1796868 width=42) (actual time=34.251..34.
                     Buffers: shared hit=147183
 Planning:
   Buffers: shared hit=306
-Planning Time: 0.392 ms
-Execution Time: 34.294 ms
+Planning Time: 0.391 ms
+Execution Time: 35.883 ms
 === R10 run 3 ===
-Sort  (cost=386842.32..391334.49 rows=1796868 width=42) (actual time=34.074..34.079 rows=209.00 loops=1)
+Sort  (cost=390135.67..394659.85 rows=1809672 width=42) (actual time=36.015..36.020 rows=209.00 loops=1)
   Sort Key: ((s2.starts_at - s1.ends_at)), s1.screen_id
   Sort Method: quicksort  Memory: 38kB
   Buffers: shared hit=148087
-  ->  Nested Loop  (cost=979.51..89623.21 rows=1796868 width=42) (actual time=1.475..34.031 rows=209.00 loops=1)
+  ->  Nested Loop  (cost=987.17..90702.72 rows=1809672 width=42) (actual time=1.660..35.970 rows=209.00 loops=1)
         Buffers: shared hit=148079
-        ->  Bitmap Heap Scan on shows s1  (cost=979.08..2967.68 rows=48307 width=14) (actual time=1.273..2.980 rows=48990.00 loops=1)
+        ->  Bitmap Heap Scan on shows s1  (cost=986.74..2985.09 rows=48957 width=14) (actual time=1.432..3.508 rows=48990.00 loops=1)
               Recheck Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
               Heap Blocks: exact=368
               Buffers: shared hit=896
-              ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..967.00 rows=48307 width=0) (actual time=1.253..1.253 rows=48990.00 loops=1)
+              ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..974.50 rows=48957 width=0) (actual time=1.406..1.406 rows=48990.00 loops=1)
                     Index Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                     Index Searches: 86
                     Buffers: shared hit=528
@@ -80,5 +80,5 @@ Sort  (cost=386842.32..391334.49 rows=1796868 width=42) (actual time=34.074..34.
                     Buffers: shared hit=147183
 Planning:
   Buffers: shared hit=306
-Planning Time: 0.415 ms
-Execution Time: 34.116 ms
+Planning Time: 0.433 ms
+Execution Time: 36.060 ms

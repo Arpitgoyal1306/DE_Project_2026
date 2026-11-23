@@ -1,0 +1,48 @@
+=== R22 run 1 ===
+Limit  (cost=11286.33..11289.16 rows=25 width=41) (actual time=139.689..139.744 rows=25.00 loops=1)
+  Buffers: shared hit=75117 read=25041 written=4
+  ->  Incremental Sort  (cost=2.87..339004.45 rows=3004410 width=41) (actual time=0.212..138.037 rows=100025.00 loops=1)
+        Sort Key: booked_at DESC, booking_id DESC
+        Presorted Key: booked_at
+        Full-sort Groups: 2128  Sort Method: quicksort  Average Memory: 28kB  Peak Memory: 28kB
+        Pre-sorted Groups: 161  Sort Method: quicksort  Average Memory: 30kB  Peak Memory: 30kB
+        Buffers: shared hit=75117 read=25041 written=4
+        ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.43..229674.03 rows=3004410 width=41) (actual time=0.019..125.194 rows=100084.00 loops=1)
+              Index Searches: 1
+              Buffers: shared hit=75111 read=25037 written=4
+Planning:
+  Buffers: shared hit=162 read=31
+Planning Time: 0.600 ms
+Execution Time: 139.759 ms
+=== R22 run 2 ===
+Limit  (cost=11286.33..11289.16 rows=25 width=41) (actual time=97.965..98.018 rows=25.00 loops=1)
+  Buffers: shared hit=77538 read=22620
+  ->  Incremental Sort  (cost=2.87..339004.45 rows=3004410 width=41) (actual time=0.179..96.353 rows=100025.00 loops=1)
+        Sort Key: booked_at DESC, booking_id DESC
+        Presorted Key: booked_at
+        Full-sort Groups: 2128  Sort Method: quicksort  Average Memory: 28kB  Peak Memory: 28kB
+        Pre-sorted Groups: 161  Sort Method: quicksort  Average Memory: 30kB  Peak Memory: 30kB
+        Buffers: shared hit=77538 read=22620
+        ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.43..229674.03 rows=3004410 width=41) (actual time=0.016..83.943 rows=100084.00 loops=1)
+              Index Searches: 1
+              Buffers: shared hit=77532 read=22616
+Planning:
+  Buffers: shared hit=178 read=25
+Planning Time: 0.501 ms
+Execution Time: 98.030 ms
+=== R22 run 3 ===
+Limit  (cost=11286.33..11289.16 rows=25 width=41) (actual time=105.144..105.200 rows=25.00 loops=1)
+  Buffers: shared hit=73470 read=26688
+  ->  Incremental Sort  (cost=2.87..339004.45 rows=3004410 width=41) (actual time=0.185..103.552 rows=100025.00 loops=1)
+        Sort Key: booked_at DESC, booking_id DESC
+        Presorted Key: booked_at
+        Full-sort Groups: 2128  Sort Method: quicksort  Average Memory: 28kB  Peak Memory: 28kB
+        Pre-sorted Groups: 161  Sort Method: quicksort  Average Memory: 30kB  Peak Memory: 30kB
+        Buffers: shared hit=73470 read=26688
+        ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.43..229674.03 rows=3004410 width=41) (actual time=0.016..90.937 rows=100084.00 loops=1)
+              Index Searches: 1
+              Buffers: shared hit=73464 read=26684
+Planning:
+  Buffers: shared hit=173 read=30
+Planning Time: 0.537 ms
+Execution Time: 105.212 ms

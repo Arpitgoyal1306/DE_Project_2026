@@ -1,39 +1,39 @@
 === R06 run 1 ===
-Sort  (cost=7.04..7.08 rows=15 width=30) (actual time=0.117..0.117 rows=15.00 loops=1)
+Sort  (cost=7.04..7.08 rows=15 width=30) (actual time=0.063..0.063 rows=15.00 loops=1)
   Sort Key: release_date DESC
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=6
-  ->  Seq Scan on movies  (cost=0.00..6.75 rows=15 width=30) (actual time=0.007..0.107 rows=15.00 loops=1)
+  ->  Seq Scan on movies  (cost=0.00..6.75 rows=15 width=30) (actual time=0.006..0.054 rows=15.00 loops=1)
         Filter: ((title)::text ~~* '%kalki%'::text)
         Rows Removed by Filter: 285
         Buffers: shared hit=3
 Planning:
   Buffers: shared hit=88
-Planning Time: 1.018 ms
-Execution Time: 0.135 ms
+Planning Time: 0.185 ms
+Execution Time: 0.080 ms
 === R06 run 2 ===
-Sort  (cost=7.04..7.08 rows=15 width=30) (actual time=0.113..0.114 rows=15.00 loops=1)
+Sort  (cost=7.04..7.08 rows=15 width=30) (actual time=0.068..0.069 rows=15.00 loops=1)
   Sort Key: release_date DESC
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=6
-  ->  Seq Scan on movies  (cost=0.00..6.75 rows=15 width=30) (actual time=0.009..0.104 rows=15.00 loops=1)
+  ->  Seq Scan on movies  (cost=0.00..6.75 rows=15 width=30) (actual time=0.006..0.058 rows=15.00 loops=1)
         Filter: ((title)::text ~~* '%kalki%'::text)
         Rows Removed by Filter: 285
         Buffers: shared hit=3
 Planning:
   Buffers: shared hit=88
-Planning Time: 0.194 ms
-Execution Time: 0.129 ms
+Planning Time: 0.224 ms
+Execution Time: 0.089 ms
 === R06 run 3 ===
-Sort  (cost=7.04..7.08 rows=15 width=30) (actual time=0.110..0.111 rows=15.00 loops=1)
+Sort  (cost=7.04..7.08 rows=15 width=30) (actual time=0.069..0.069 rows=15.00 loops=1)
   Sort Key: release_date DESC
   Sort Method: quicksort  Memory: 25kB
   Buffers: shared hit=6
-  ->  Seq Scan on movies  (cost=0.00..6.75 rows=15 width=30) (actual time=0.006..0.101 rows=15.00 loops=1)
+  ->  Seq Scan on movies  (cost=0.00..6.75 rows=15 width=30) (actual time=0.006..0.060 rows=15.00 loops=1)
         Filter: ((title)::text ~~* '%kalki%'::text)
         Rows Removed by Filter: 285
         Buffers: shared hit=3
 Planning:
   Buffers: shared hit=88
-Planning Time: 0.189 ms
-Execution Time: 0.126 ms
+Planning Time: 0.199 ms
+Execution Time: 0.088 ms

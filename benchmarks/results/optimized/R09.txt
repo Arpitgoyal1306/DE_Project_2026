@@ -1,39 +1,51 @@
 === R09 run 1 ===
-Sort  (cost=19.28..19.29 rows=5 width=18) (actual time=0.025..0.025 rows=6.00 loops=1)
+Sort  (cost=27.60..27.61 rows=5 width=18) (actual time=0.030..0.031 rows=6.00 loops=1)
   Sort Key: booked_at
   Sort Method: quicksort  Memory: 25kB
-  Buffers: shared hit=16
-  ->  Index Scan using idx_bookings_pending on bookings  (cost=0.14..19.22 rows=5 width=18) (actual time=0.010..0.018 rows=6.00 loops=1)
-        Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
-        Index Searches: 1
-        Buffers: shared hit=13
+  Buffers: shared hit=9 read=1
+  ->  Bitmap Heap Scan on bookings  (cost=8.17..27.54 rows=5 width=18) (actual time=0.012..0.022 rows=6.00 loops=1)
+        Recheck Cond: ((booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval)) AND ((status)::text = 'PENDING'::text))
+        Heap Blocks: exact=6
+        Buffers: shared hit=6 read=1
+        ->  Bitmap Index Scan on idx_bookings_pending_time  (cost=0.00..8.17 rows=5 width=0) (actual time=0.005..0.005 rows=6.00 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Index Searches: 1
+              Buffers: shared read=1
 Planning:
-  Buffers: shared hit=201
-Planning Time: 0.354 ms
-Execution Time: 0.035 ms
+  Buffers: shared hit=223 read=3
+Planning Time: 0.398 ms
+Execution Time: 0.043 ms
 === R09 run 2 ===
-Sort  (cost=19.28..19.29 rows=5 width=18) (actual time=0.034..0.034 rows=6.00 loops=1)
+Sort  (cost=27.60..27.61 rows=5 width=18) (actual time=0.024..0.025 rows=6.00 loops=1)
   Sort Key: booked_at
   Sort Method: quicksort  Memory: 25kB
-  Buffers: shared hit=16
-  ->  Index Scan using idx_bookings_pending on bookings  (cost=0.14..19.22 rows=5 width=18) (actual time=0.010..0.019 rows=6.00 loops=1)
-        Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
-        Index Searches: 1
-        Buffers: shared hit=13
+  Buffers: shared hit=10
+  ->  Bitmap Heap Scan on bookings  (cost=8.17..27.54 rows=5 width=18) (actual time=0.009..0.017 rows=6.00 loops=1)
+        Recheck Cond: ((booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval)) AND ((status)::text = 'PENDING'::text))
+        Heap Blocks: exact=6
+        Buffers: shared hit=7
+        ->  Bitmap Index Scan on idx_bookings_pending_time  (cost=0.00..8.17 rows=5 width=0) (actual time=0.003..0.003 rows=6.00 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Index Searches: 1
+              Buffers: shared hit=1
 Planning:
-  Buffers: shared hit=201
+  Buffers: shared hit=226
 Planning Time: 0.349 ms
-Execution Time: 0.044 ms
+Execution Time: 0.036 ms
 === R09 run 3 ===
-Sort  (cost=19.28..19.29 rows=5 width=18) (actual time=0.030..0.030 rows=6.00 loops=1)
+Sort  (cost=27.60..27.61 rows=5 width=18) (actual time=0.030..0.030 rows=6.00 loops=1)
   Sort Key: booked_at
   Sort Method: quicksort  Memory: 25kB
-  Buffers: shared hit=16
-  ->  Index Scan using idx_bookings_pending on bookings  (cost=0.14..19.22 rows=5 width=18) (actual time=0.014..0.022 rows=6.00 loops=1)
-        Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
-        Index Searches: 1
-        Buffers: shared hit=13
+  Buffers: shared hit=10
+  ->  Bitmap Heap Scan on bookings  (cost=8.17..27.54 rows=5 width=18) (actual time=0.012..0.022 rows=6.00 loops=1)
+        Recheck Cond: ((booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval)) AND ((status)::text = 'PENDING'::text))
+        Heap Blocks: exact=6
+        Buffers: shared hit=7
+        ->  Bitmap Index Scan on idx_bookings_pending_time  (cost=0.00..8.17 rows=5 width=0) (actual time=0.002..0.002 rows=6.00 loops=1)
+              Index Cond: (booked_at < ('2026-06-30 23:59:00+05:30'::timestamp with time zone - '00:10:00'::interval))
+              Index Searches: 1
+              Buffers: shared hit=1
 Planning:
-  Buffers: shared hit=201
+  Buffers: shared hit=226
 Planning Time: 0.366 ms
-Execution Time: 0.040 ms
+Execution Time: 0.041 ms

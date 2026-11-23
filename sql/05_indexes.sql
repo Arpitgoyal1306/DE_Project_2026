@@ -5,7 +5,8 @@
 --              based on workload analysis and baseline execution plans.
 -- =====================================================================
 
-SET search_path TO bms;
+BEGIN;
+SET LOCAL search_path TO bms, public;
 
 -- ---------------------------------------------------------------------
 -- 1. Index on shows (screen_id, starts_at)
@@ -63,32 +64,45 @@ CREATE INDEX IF NOT EXISTS idx_bookings_customer_id
     ON bookings (customer_id);
 
 -- ---------------------------------------------------------------------
--- 5. Partial index on bookings (booking_id, booked_at) WHERE status = 'PENDING'
+-- 5. Partial index on bookings (booked_at, booking_id) WHERE status = 'PENDING'
 -- Serves: R09, W02, W03, W04
 -- Justification:
 --   - Pending bookings represent transient seat locks (only 10 rows out of
 --     150,094 in the seed data, <0.01% of the table).
 --   - R09 and W04 check for expired pending locks (status = 'PENDING' AND booked_at < ...).
---   - W02 and W03 search for the oldest pending booking (SELECT min(booking_id) WHERE status = 'PENDING').
---   - A partial index stores only rows where status = 'PENDING', requiring
---     only 16 kB of storage and incurring zero write overhead on confirmed bookings.
+--   - W02 and W03 order pending bookings by booked_at, then booking_id to break ties.
+--   - A partial index stores only rows where status = 'PENDING', keeping
+--     the index small. Confirming a pending booking removes its index entry.
 -- ---------------------------------------------------------------------
-CREATE INDEX IF NOT EXISTS idx_bookings_pending
-    ON bookings (booking_id, booked_at)
+CREATE INDEX IF NOT EXISTS idx_bookings_pending_time
+    ON bookings (booked_at, booking_id)
     WHERE status = 'PENDING';
 
 -- ---------------------------------------------------------------------
--- 6. Index on bookings (booked_at DESC)
--- Serves: R20, R22
--- Justification:
---   - R22 implements support console pagination (ORDER BY booked_at DESC OFFSET 100000 LIMIT 25).
---     Without an index, PostgreSQL must sort 150,094 records. With this index,
---     it scans pre-sorted index tuples.
---   - R20 aggregates daily collections filtered on booked_at range.
--- ---------------------------------------------------------------------
-CREATE INDEX IF NOT EXISTS idx_bookings_booked_at
-    ON bookings (booked_at DESC);
+-- R20 filters by booking time. R22 walks the same key in descending order.
+-- Include all projected columns so PostgreSQL can serve deep pages from the index.
+CREATE INDEX IF NOT EXISTS idx_bookings_support_page
+    ON bookings (booked_at DESC, booking_id DESC)
+    INCLUDE (booking_code, customer_id, show_id, status);
 
--- Analyze updated table statistics
+-- R06 searches inside titles. Trigrams support the leading wildcard in ILIKE.
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+CREATE INDEX IF NOT EXISTS idx_movies_title_trgm
+    ON movies USING gin (title gin_trgm_ops);
+
+-- Only non-NULL codes can match the equality probe for R13.
+CREATE INDEX IF NOT EXISTS idx_bookings_redeemed_offer
+    ON bookings (offer_code) WHERE offer_code IS NOT NULL;
+
+-- W02 reads a screen's seats in ID order and stops after finding two free seats.
+CREATE INDEX IF NOT EXISTS idx_seats_screen_seat ON seats (screen_id, seat_id);
+
+-- Retire the two superseded project indexes on databases upgraded from CP3.
+DROP INDEX IF EXISTS bms.idx_bookings_booked_at;
+DROP INDEX IF EXISTS bms.idx_bookings_pending;
+
+ANALYZE movies;
+ANALYZE seats;
 ANALYZE shows;
 ANALYZE bookings;
+COMMIT;

@@ -1,123 +1,123 @@
 === R25 run 1 ===
-Limit  (cost=10790.87..10790.99 rows=50 width=22) (actual time=22.134..22.138 rows=50.00 loops=1)
+Limit  (cost=10835.86..10835.98 rows=50 width=22) (actual time=23.502..23.505 rows=50.00 loops=1)
   Buffers: shared hit=2871
-  ->  Sort  (cost=10790.87..10866.43 rows=30224 width=22) (actual time=22.133..22.135 rows=50.00 loops=1)
+  ->  Sort  (cost=10835.86..10912.43 rows=30631 width=22) (actual time=23.501..23.503 rows=50.00 loops=1)
         Sort Key: (count(bs.seat_id)) DESC
         Sort Method: top-N heapsort  Memory: 30kB
         Buffers: shared hit=2871
-        ->  HashAggregate  (cost=9484.61..9786.85 rows=30224 width=22) (actual time=21.566..21.917 rows=4890.00 loops=1)
+        ->  HashAggregate  (cost=9512.01..9818.32 rows=30631 width=22) (actual time=22.938..23.292 rows=4890.00 loops=1)
               Group Key: s.show_id, sc.total_seats
               Batches: 1  Memory Usage: 1305kB
               Buffers: shared hit=2868
-              ->  Hash Join  (cost=3417.47..9257.93 rows=30224 width=18) (actual time=4.381..20.284 rows=12912.00 loops=1)
+              ->  Hash Join  (cost=3440.73..9282.27 rows=30631 width=18) (actual time=4.729..21.607 rows=12912.00 loops=1)
                     Hash Cond: (s.screen_id = sc.screen_id)
                     Buffers: shared hit=2868
-                    ->  Hash Right Join  (cost=3402.44..9162.87 rows=30224 width=18) (actual time=4.336..19.364 rows=12912.00 loops=1)
+                    ->  Hash Right Join  (cost=3425.71..9186.14 rows=30631 width=18) (actual time=4.680..20.696 rows=12912.00 loops=1)
                           Hash Cond: (bs.show_id = s.show_id)
                           Buffers: shared hit=2864
-                          ->  Seq Scan on booking_seats bs  (cost=0.00..4971.89 rows=300389 width=8) (actual time=0.003..6.349 rows=300389.00 loops=1)
+                          ->  Seq Scan on booking_seats bs  (cost=0.00..4971.89 rows=300389 width=8) (actual time=0.001..6.696 rows=300389.00 loops=1)
                                 Buffers: shared hit=1968
-                          ->  Hash  (cost=3201.17..3201.17 rows=16102 width=14) (actual time=4.318..4.318 rows=4890.00 loops=1)
+                          ->  Hash  (cost=3221.72..3221.72 rows=16319 width=14) (actual time=4.661..4.661 rows=4890.00 loops=1)
                                 Buckets: 16384  Batches: 1  Memory Usage: 367kB
                                 Buffers: shared hit=896
-                                ->  Bitmap Heap Scan on shows s  (cost=971.03..3201.17 rows=16102 width=14) (actual time=1.375..4.094 rows=4890.00 loops=1)
+                                ->  Bitmap Heap Scan on shows s  (cost=978.58..3221.72 rows=16319 width=14) (actual time=1.394..4.438 rows=4890.00 loops=1)
                                       Recheck Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                                       Filter: ((starts_at)::time without time zone >= '22:30:00'::time without time zone)
                                       Rows Removed by Filter: 44100
                                       Heap Blocks: exact=368
                                       Buffers: shared hit=896
-                                      ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..967.00 rows=48307 width=0) (actual time=1.353..1.353 rows=48990.00 loops=1)
+                                      ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..974.50 rows=48957 width=0) (actual time=1.367..1.367 rows=48990.00 loops=1)
                                             Index Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                                             Index Searches: 86
                                             Buffers: shared hit=528
-                    ->  Hash  (cost=8.90..8.90 rows=490 width=4) (actual time=0.042..0.042 rows=490.00 loops=1)
+                    ->  Hash  (cost=8.90..8.90 rows=490 width=4) (actual time=0.046..0.046 rows=490.00 loops=1)
                           Buckets: 1024  Batches: 1  Memory Usage: 26kB
                           Buffers: shared hit=4
-                          ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.003..0.023 rows=490.00 loops=1)
+                          ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.004..0.028 rows=490.00 loops=1)
                                 Buffers: shared hit=4
 Planning:
   Buffers: shared hit=325
-Planning Time: 0.648 ms
-Execution Time: 22.235 ms
+Planning Time: 0.594 ms
+Execution Time: 23.594 ms
 === R25 run 2 ===
-Limit  (cost=10790.87..10790.99 rows=50 width=22) (actual time=22.133..22.137 rows=50.00 loops=1)
+Limit  (cost=10835.86..10835.98 rows=50 width=22) (actual time=23.426..23.430 rows=50.00 loops=1)
   Buffers: shared hit=2871
-  ->  Sort  (cost=10790.87..10866.43 rows=30224 width=22) (actual time=22.133..22.134 rows=50.00 loops=1)
+  ->  Sort  (cost=10835.86..10912.43 rows=30631 width=22) (actual time=23.426..23.427 rows=50.00 loops=1)
         Sort Key: (count(bs.seat_id)) DESC
         Sort Method: top-N heapsort  Memory: 30kB
         Buffers: shared hit=2871
-        ->  HashAggregate  (cost=9484.61..9786.85 rows=30224 width=22) (actual time=21.581..21.924 rows=4890.00 loops=1)
+        ->  HashAggregate  (cost=9512.01..9818.32 rows=30631 width=22) (actual time=22.851..23.216 rows=4890.00 loops=1)
               Group Key: s.show_id, sc.total_seats
               Batches: 1  Memory Usage: 1305kB
               Buffers: shared hit=2868
-              ->  Hash Join  (cost=3417.47..9257.93 rows=30224 width=18) (actual time=4.212..20.318 rows=12912.00 loops=1)
+              ->  Hash Join  (cost=3440.73..9282.27 rows=30631 width=18) (actual time=4.664..21.496 rows=12912.00 loops=1)
                     Hash Cond: (s.screen_id = sc.screen_id)
                     Buffers: shared hit=2868
-                    ->  Hash Right Join  (cost=3402.44..9162.87 rows=30224 width=18) (actual time=4.169..19.403 rows=12912.00 loops=1)
+                    ->  Hash Right Join  (cost=3425.71..9186.14 rows=30631 width=18) (actual time=4.610..20.571 rows=12912.00 loops=1)
                           Hash Cond: (bs.show_id = s.show_id)
                           Buffers: shared hit=2864
-                          ->  Seq Scan on booking_seats bs  (cost=0.00..4971.89 rows=300389 width=8) (actual time=0.003..6.417 rows=300389.00 loops=1)
+                          ->  Seq Scan on booking_seats bs  (cost=0.00..4971.89 rows=300389 width=8) (actual time=0.004..6.666 rows=300389.00 loops=1)
                                 Buffers: shared hit=1968
-                          ->  Hash  (cost=3201.17..3201.17 rows=16102 width=14) (actual time=4.150..4.150 rows=4890.00 loops=1)
+                          ->  Hash  (cost=3221.72..3221.72 rows=16319 width=14) (actual time=4.591..4.591 rows=4890.00 loops=1)
                                 Buckets: 16384  Batches: 1  Memory Usage: 367kB
                                 Buffers: shared hit=896
-                                ->  Bitmap Heap Scan on shows s  (cost=971.03..3201.17 rows=16102 width=14) (actual time=1.335..3.912 rows=4890.00 loops=1)
+                                ->  Bitmap Heap Scan on shows s  (cost=978.58..3221.72 rows=16319 width=14) (actual time=1.345..4.362 rows=4890.00 loops=1)
                                       Recheck Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                                       Filter: ((starts_at)::time without time zone >= '22:30:00'::time without time zone)
                                       Rows Removed by Filter: 44100
                                       Heap Blocks: exact=368
                                       Buffers: shared hit=896
-                                      ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..967.00 rows=48307 width=0) (actual time=1.313..1.313 rows=48990.00 loops=1)
+                                      ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..974.50 rows=48957 width=0) (actual time=1.321..1.321 rows=48990.00 loops=1)
                                             Index Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                                             Index Searches: 86
                                             Buffers: shared hit=528
-                    ->  Hash  (cost=8.90..8.90 rows=490 width=4) (actual time=0.039..0.040 rows=490.00 loops=1)
+                    ->  Hash  (cost=8.90..8.90 rows=490 width=4) (actual time=0.052..0.052 rows=490.00 loops=1)
                           Buckets: 1024  Batches: 1  Memory Usage: 26kB
                           Buffers: shared hit=4
-                          ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.003..0.022 rows=490.00 loops=1)
+                          ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.004..0.030 rows=490.00 loops=1)
                                 Buffers: shared hit=4
 Planning:
   Buffers: shared hit=325
-Planning Time: 0.588 ms
-Execution Time: 22.255 ms
+Planning Time: 0.581 ms
+Execution Time: 23.534 ms
 === R25 run 3 ===
-Limit  (cost=10790.87..10790.99 rows=50 width=22) (actual time=22.035..22.039 rows=50.00 loops=1)
+Limit  (cost=10835.86..10835.98 rows=50 width=22) (actual time=23.597..23.600 rows=50.00 loops=1)
   Buffers: shared hit=2871
-  ->  Sort  (cost=10790.87..10866.43 rows=30224 width=22) (actual time=22.035..22.037 rows=50.00 loops=1)
+  ->  Sort  (cost=10835.86..10912.43 rows=30631 width=22) (actual time=23.596..23.598 rows=50.00 loops=1)
         Sort Key: (count(bs.seat_id)) DESC
         Sort Method: top-N heapsort  Memory: 30kB
         Buffers: shared hit=2871
-        ->  HashAggregate  (cost=9484.61..9786.85 rows=30224 width=22) (actual time=21.443..21.819 rows=4890.00 loops=1)
+        ->  HashAggregate  (cost=9512.01..9818.32 rows=30631 width=22) (actual time=23.028..23.391 rows=4890.00 loops=1)
               Group Key: s.show_id, sc.total_seats
               Batches: 1  Memory Usage: 1305kB
               Buffers: shared hit=2868
-              ->  Hash Join  (cost=3417.47..9257.93 rows=30224 width=18) (actual time=4.270..20.106 rows=12912.00 loops=1)
+              ->  Hash Join  (cost=3440.73..9282.27 rows=30631 width=18) (actual time=4.730..21.735 rows=12912.00 loops=1)
                     Hash Cond: (s.screen_id = sc.screen_id)
                     Buffers: shared hit=2868
-                    ->  Hash Right Join  (cost=3402.44..9162.87 rows=30224 width=18) (actual time=4.228..19.196 rows=12912.00 loops=1)
+                    ->  Hash Right Join  (cost=3425.71..9186.14 rows=30631 width=18) (actual time=4.677..20.813 rows=12912.00 loops=1)
                           Hash Cond: (bs.show_id = s.show_id)
                           Buffers: shared hit=2864
-                          ->  Seq Scan on booking_seats bs  (cost=0.00..4971.89 rows=300389 width=8) (actual time=0.005..6.313 rows=300389.00 loops=1)
+                          ->  Seq Scan on booking_seats bs  (cost=0.00..4971.89 rows=300389 width=8) (actual time=0.001..6.628 rows=300389.00 loops=1)
                                 Buffers: shared hit=1968
-                          ->  Hash  (cost=3201.17..3201.17 rows=16102 width=14) (actual time=4.206..4.206 rows=4890.00 loops=1)
+                          ->  Hash  (cost=3221.72..3221.72 rows=16319 width=14) (actual time=4.659..4.660 rows=4890.00 loops=1)
                                 Buckets: 16384  Batches: 1  Memory Usage: 367kB
                                 Buffers: shared hit=896
-                                ->  Bitmap Heap Scan on shows s  (cost=971.03..3201.17 rows=16102 width=14) (actual time=1.252..3.963 rows=4890.00 loops=1)
+                                ->  Bitmap Heap Scan on shows s  (cost=978.58..3221.72 rows=16319 width=14) (actual time=1.411..4.444 rows=4890.00 loops=1)
                                       Recheck Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                                       Filter: ((starts_at)::time without time zone >= '22:30:00'::time without time zone)
                                       Rows Removed by Filter: 44100
                                       Heap Blocks: exact=368
                                       Buffers: shared hit=896
-                                      ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..967.00 rows=48307 width=0) (actual time=1.232..1.232 rows=48990.00 loops=1)
+                                      ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..974.50 rows=48957 width=0) (actual time=1.386..1.386 rows=48990.00 loops=1)
                                             Index Cond: ((starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                                             Index Searches: 86
                                             Buffers: shared hit=528
-                    ->  Hash  (cost=8.90..8.90 rows=490 width=4) (actual time=0.039..0.039 rows=490.00 loops=1)
+                    ->  Hash  (cost=8.90..8.90 rows=490 width=4) (actual time=0.050..0.050 rows=490.00 loops=1)
                           Buckets: 1024  Batches: 1  Memory Usage: 26kB
                           Buffers: shared hit=4
-                          ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.003..0.021 rows=490.00 loops=1)
+                          ->  Seq Scan on screens sc  (cost=0.00..8.90 rows=490 width=4) (actual time=0.004..0.031 rows=490.00 loops=1)
                                 Buffers: shared hit=4
 Planning:
   Buffers: shared hit=325
-Planning Time: 0.560 ms
-Execution Time: 22.142 ms
+Planning Time: 0.618 ms
+Execution Time: 23.691 ms

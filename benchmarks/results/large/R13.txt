@@ -1,45 +1,42 @@
 === R13 run 1 ===
-Hash Right Anti Join  (cost=1.56..105259.90 rows=7 width=32) (actual time=514.777..514.784 rows=7 loops=1)
-  Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
-  Buffers: shared hit=98 read=43175
-  ->  Seq Scan on bookings b  (cost=0.00..73311.42 rows=3003942 width=10) (actual time=0.009..257.888 rows=3004077 loops=1)
-        Buffers: shared hit=97 read=43175
-  ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.021..0.022 rows=25 loops=1)
-        Buckets: 1024  Batches: 1  Memory Usage: 10kB
-        Buffers: shared hit=1
-        ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.010..0.012 rows=25 loops=1)
-              Buffers: shared hit=1
+Nested Loop Anti Join  (cost=0.42..13.03 rows=7 width=32) (actual time=0.075..0.149 rows=7.00 loops=1)
+  Buffers: shared hit=52 read=25
+  ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.022..0.023 rows=25.00 loops=1)
+        Buffers: shared read=1
+  ->  Index Only Scan using idx_bookings_redeemed_offer on bookings b  (cost=0.42..487.41 rows=24327 width=10) (actual time=0.005..0.005 rows=0.72 loops=25)
+        Index Cond: (offer_code = (o.offer_code)::text)
+        Heap Fetches: 0
+        Index Searches: 25
+        Buffers: shared hit=52 read=24
 Planning:
-  Buffers: shared hit=304 read=6
-Planning Time: 1.771 ms
-Execution Time: 514.835 ms
+  Buffers: shared hit=344 read=4
+Planning Time: 1.158 ms
+Execution Time: 0.166 ms
 === R13 run 2 ===
-Hash Right Anti Join  (cost=1.56..105259.90 rows=7 width=32) (actual time=511.625..511.634 rows=7 loops=1)
-  Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
-  Buffers: shared hit=130 read=43143
-  ->  Seq Scan on bookings b  (cost=0.00..73311.42 rows=3003942 width=10) (actual time=0.018..262.808 rows=3004077 loops=1)
-        Buffers: shared hit=129 read=43143
-  ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.018..0.019 rows=25 loops=1)
-        Buckets: 1024  Batches: 1  Memory Usage: 10kB
+Nested Loop Anti Join  (cost=0.42..13.03 rows=7 width=32) (actual time=0.042..0.094 rows=7.00 loops=1)
+  Buffers: shared hit=77
+  ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.003..0.004 rows=25.00 loops=1)
         Buffers: shared hit=1
-        ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.004..0.006 rows=25 loops=1)
-              Buffers: shared hit=1
+  ->  Index Only Scan using idx_bookings_redeemed_offer on bookings b  (cost=0.42..487.41 rows=24327 width=10) (actual time=0.003..0.003 rows=0.72 loops=25)
+        Index Cond: (offer_code = (o.offer_code)::text)
+        Heap Fetches: 0
+        Index Searches: 25
+        Buffers: shared hit=76
 Planning:
-  Buffers: shared hit=310
-Planning Time: 0.986 ms
-Execution Time: 511.691 ms
+  Buffers: shared hit=348
+Planning Time: 0.548 ms
+Execution Time: 0.113 ms
 === R13 run 3 ===
-Hash Right Anti Join  (cost=1.56..105259.90 rows=7 width=32) (actual time=512.590..512.598 rows=7 loops=1)
-  Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
-  Buffers: shared hit=162 read=43111
-  ->  Seq Scan on bookings b  (cost=0.00..73311.42 rows=3003942 width=10) (actual time=0.013..272.833 rows=3004077 loops=1)
-        Buffers: shared hit=161 read=43111
-  ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.017..0.019 rows=25 loops=1)
-        Buckets: 1024  Batches: 1  Memory Usage: 10kB
+Nested Loop Anti Join  (cost=0.42..13.03 rows=7 width=32) (actual time=0.040..0.121 rows=7.00 loops=1)
+  Buffers: shared hit=77
+  ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.003..0.004 rows=25.00 loops=1)
         Buffers: shared hit=1
-        ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.005..0.007 rows=25 loops=1)
-              Buffers: shared hit=1
+  ->  Index Only Scan using idx_bookings_redeemed_offer on bookings b  (cost=0.42..487.41 rows=24327 width=10) (actual time=0.005..0.005 rows=0.72 loops=25)
+        Index Cond: (offer_code = (o.offer_code)::text)
+        Heap Fetches: 0
+        Index Searches: 25
+        Buffers: shared hit=76
 Planning:
-  Buffers: shared hit=310
-Planning Time: 1.021 ms
-Execution Time: 512.655 ms
+  Buffers: shared hit=348
+Planning Time: 0.549 ms
+Execution Time: 0.138 ms

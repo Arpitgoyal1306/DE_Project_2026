@@ -1,5 +1,7 @@
 # Targeted follow-up experiments for PR #11
 
+Historical PR #11 measurements. The [final scalability report](../../docs/05_scalability_report.md) uses the corrected workload and records the indexes subsequently adopted.
+
 Run against the local large PostgreSQL database `bookmyshow_large` with schema `bms`. These experiments are diagnostics, separate from the historical §4 benchmark. Each timing phase uses three `EXPLAIN (ANALYZE, BUFFERS)` runs. Test-only indexes and writes are rolled back; do not describe them as deployed schema changes.
 
 ## R06: trigram index — successful local candidate

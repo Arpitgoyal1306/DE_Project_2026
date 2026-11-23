@@ -1,39 +1,51 @@
 === R06 run 1 ===
-Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=6.678..6.702 rows=300 loops=1)
+Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.183..0.189 rows=300.00 loops=1)
   Sort Key: release_date DESC
-  Sort Method: quicksort  Memory: 43kB
-  Buffers: shared hit=56
-  ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.027..6.516 rows=300 loops=1)
-        Filter: ((title)::text ~~* '%kalki%'::text)
-        Rows Removed by Filter: 5700
-        Buffers: shared hit=53
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=63
+  ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.033..0.146 rows=300.00 loops=1)
+        Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+        Heap Blocks: exact=53
+        Buffers: shared hit=60
+        ->  Bitmap Index Scan on idx_movies_title_trgm  (cost=0.00..31.69 rows=303 width=0) (actual time=0.025..0.025 rows=300.00 loops=1)
+              Index Cond: ((title)::text ~~* '%kalki%'::text)
+              Index Searches: 1
+              Buffers: shared hit=7
 Planning:
-  Buffers: shared hit=83
-Planning Time: 0.973 ms
-Execution Time: 6.792 ms
+  Buffers: shared hit=118
+Planning Time: 0.653 ms
+Execution Time: 0.233 ms
 === R06 run 2 ===
-Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=3.952..3.980 rows=300 loops=1)
+Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.172..0.178 rows=300.00 loops=1)
   Sort Key: release_date DESC
-  Sort Method: quicksort  Memory: 43kB
-  Buffers: shared hit=56
-  ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.024..3.822 rows=300 loops=1)
-        Filter: ((title)::text ~~* '%kalki%'::text)
-        Rows Removed by Filter: 5700
-        Buffers: shared hit=53
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=63
+  ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.030..0.139 rows=300.00 loops=1)
+        Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+        Heap Blocks: exact=53
+        Buffers: shared hit=60
+        ->  Bitmap Index Scan on idx_movies_title_trgm  (cost=0.00..31.69 rows=303 width=0) (actual time=0.023..0.023 rows=300.00 loops=1)
+              Index Cond: ((title)::text ~~* '%kalki%'::text)
+              Index Searches: 1
+              Buffers: shared hit=7
 Planning:
-  Buffers: shared hit=83
-Planning Time: 0.772 ms
-Execution Time: 4.052 ms
+  Buffers: shared hit=118
+Planning Time: 0.584 ms
+Execution Time: 0.219 ms
 === R06 run 3 ===
-Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=4.326..4.344 rows=300 loops=1)
+Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.170..0.176 rows=300.00 loops=1)
   Sort Key: release_date DESC
-  Sort Method: quicksort  Memory: 43kB
-  Buffers: shared hit=56
-  ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.017..4.224 rows=300 loops=1)
-        Filter: ((title)::text ~~* '%kalki%'::text)
-        Rows Removed by Filter: 5700
-        Buffers: shared hit=53
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=63
+  ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.031..0.137 rows=300.00 loops=1)
+        Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+        Heap Blocks: exact=53
+        Buffers: shared hit=60
+        ->  Bitmap Index Scan on idx_movies_title_trgm  (cost=0.00..31.69 rows=303 width=0) (actual time=0.023..0.023 rows=300.00 loops=1)
+              Index Cond: ((title)::text ~~* '%kalki%'::text)
+              Index Searches: 1
+              Buffers: shared hit=7
 Planning:
-  Buffers: shared hit=83
-Planning Time: 0.461 ms
-Execution Time: 4.384 ms
+  Buffers: shared hit=118
+Planning Time: 0.586 ms
+Execution Time: 0.218 ms

@@ -1,66 +1,66 @@
 === W03 run 1 ===
-Update on bookings  (cost=324.33..332.35 rows=0 width=0) (actual time=0.582..0.583 rows=0.00 loops=1)
-  Buffers: shared hit=147 dirtied=4
-  InitPlan 2
-    ->  Result  (cost=323.90..323.91 rows=1 width=4) (actual time=0.425..0.425 rows=1.00 loops=1)
-          Buffers: shared hit=93
-          InitPlan 1
-            ->  Limit  (cost=0.42..323.90 rows=1 width=4) (actual time=0.424..0.424 rows=1.00 loops=1)
-                  Buffers: shared hit=93
-                  ->  Index Scan using bookings_pkey on bookings bookings_1  (cost=0.42..6470.06 rows=20 width=4) (actual time=0.424..0.424 rows=1.00 loops=1)
-                        Filter: ((status)::text = 'PENDING'::text)
-                        Rows Removed by Filter: 5282
-                        Index Searches: 1
-                        Buffers: shared hit=93
-  ->  Index Scan using uq_bookings_id_show on bookings  (cost=0.42..8.44 rows=1 width=64) (actual time=0.433..0.433 rows=1.00 loops=1)
-        Index Cond: (booking_id = (InitPlan 2).col1)
+Update on bookings  (cost=4060.65..4068.67 rows=0 width=0) (actual time=8.865..8.865 rows=0.00 loops=1)
+  Buffers: shared hit=2244 read=2 dirtied=3
+  InitPlan 1
+    ->  Limit  (cost=4060.23..4060.23 rows=1 width=12) (actual time=8.360..8.361 rows=1.00 loops=1)
+          Buffers: shared hit=2190
+          ->  Sort  (cost=4060.23..4060.25 rows=10 width=12) (actual time=8.360..8.360 rows=1.00 loops=1)
+                Sort Key: bookings_1.booked_at, bookings_1.booking_id
+                Sort Method: top-N heapsort  Memory: 25kB
+                Buffers: shared hit=2190
+                ->  Seq Scan on bookings bookings_1  (cost=0.00..4060.18 rows=10 width=12) (actual time=0.297..8.351 rows=10.00 loops=1)
+                      Filter: ((status)::text = 'PENDING'::text)
+                      Rows Removed by Filter: 150084
+                      Buffers: shared hit=2184
+  ->  Index Scan using uq_bookings_id_show on bookings  (cost=0.42..8.44 rows=1 width=64) (actual time=8.385..8.386 rows=1.00 loops=1)
+        Index Cond: (booking_id = (InitPlan 1).col1)
         Index Searches: 1
-        Buffers: shared hit=97
+        Buffers: shared hit=2194
 Planning:
-  Buffers: shared hit=126
-Planning Time: 0.246 ms
-Execution Time: 0.640 ms
+  Buffers: shared hit=134
+Planning Time: 0.388 ms
+Execution Time: 8.917 ms
 === W03 run 2 ===
-Update on bookings  (cost=324.33..332.35 rows=0 width=0) (actual time=0.482..0.483 rows=0.00 loops=1)
-  Buffers: shared hit=151 dirtied=1
-  InitPlan 2
-    ->  Result  (cost=323.90..323.91 rows=1 width=4) (actual time=0.379..0.379 rows=1.00 loops=1)
-          Buffers: shared hit=93
-          InitPlan 1
-            ->  Limit  (cost=0.42..323.90 rows=1 width=4) (actual time=0.378..0.379 rows=1.00 loops=1)
-                  Buffers: shared hit=93
-                  ->  Index Scan using bookings_pkey on bookings bookings_1  (cost=0.42..6470.06 rows=20 width=4) (actual time=0.378..0.378 rows=1.00 loops=1)
-                        Filter: ((status)::text = 'PENDING'::text)
-                        Rows Removed by Filter: 5282
-                        Index Searches: 1
-                        Buffers: shared hit=93
-  ->  Index Scan using uq_bookings_id_show on bookings  (cost=0.42..8.44 rows=1 width=64) (actual time=0.387..0.388 rows=1.00 loops=1)
-        Index Cond: (booking_id = (InitPlan 2).col1)
+Update on bookings  (cost=4060.65..4068.67 rows=0 width=0) (actual time=8.242..8.243 rows=0.00 loops=1)
+  Buffers: shared hit=2248 dirtied=1
+  InitPlan 1
+    ->  Limit  (cost=4060.23..4060.23 rows=1 width=12) (actual time=8.085..8.085 rows=1.00 loops=1)
+          Buffers: shared hit=2190
+          ->  Sort  (cost=4060.23..4060.25 rows=10 width=12) (actual time=8.084..8.084 rows=1.00 loops=1)
+                Sort Key: bookings_1.booked_at, bookings_1.booking_id
+                Sort Method: top-N heapsort  Memory: 25kB
+                Buffers: shared hit=2190
+                ->  Seq Scan on bookings bookings_1  (cost=0.00..4060.18 rows=10 width=12) (actual time=0.343..8.076 rows=10.00 loops=1)
+                      Filter: ((status)::text = 'PENDING'::text)
+                      Rows Removed by Filter: 150084
+                      Buffers: shared hit=2184
+  ->  Index Scan using uq_bookings_id_show on bookings  (cost=0.42..8.44 rows=1 width=64) (actual time=8.107..8.108 rows=1.00 loops=1)
+        Index Cond: (booking_id = (InitPlan 1).col1)
         Index Searches: 1
-        Buffers: shared hit=99
+        Buffers: shared hit=2196
 Planning:
-  Buffers: shared hit=126
-Planning Time: 0.222 ms
-Execution Time: 0.523 ms
+  Buffers: shared hit=134
+Planning Time: 0.249 ms
+Execution Time: 8.286 ms
 === W03 run 3 ===
-Update on bookings  (cost=324.33..332.35 rows=0 width=0) (actual time=0.502..0.503 rows=0.00 loops=1)
-  Buffers: shared hit=151 dirtied=1
-  InitPlan 2
-    ->  Result  (cost=323.90..323.91 rows=1 width=4) (actual time=0.390..0.390 rows=1.00 loops=1)
-          Buffers: shared hit=93
-          InitPlan 1
-            ->  Limit  (cost=0.42..323.90 rows=1 width=4) (actual time=0.389..0.389 rows=1.00 loops=1)
-                  Buffers: shared hit=93
-                  ->  Index Scan using bookings_pkey on bookings bookings_1  (cost=0.42..6470.06 rows=20 width=4) (actual time=0.388..0.388 rows=1.00 loops=1)
-                        Filter: ((status)::text = 'PENDING'::text)
-                        Rows Removed by Filter: 5282
-                        Index Searches: 1
-                        Buffers: shared hit=93
-  ->  Index Scan using uq_bookings_id_show on bookings  (cost=0.42..8.44 rows=1 width=64) (actual time=0.398..0.399 rows=1.00 loops=1)
-        Index Cond: (booking_id = (InitPlan 2).col1)
+Update on bookings  (cost=4060.65..4068.67 rows=0 width=0) (actual time=8.383..8.383 rows=0.00 loops=1)
+  Buffers: shared hit=2248 dirtied=1
+  InitPlan 1
+    ->  Limit  (cost=4060.23..4060.23 rows=1 width=12) (actual time=8.240..8.241 rows=1.00 loops=1)
+          Buffers: shared hit=2190
+          ->  Sort  (cost=4060.23..4060.25 rows=10 width=12) (actual time=8.239..8.240 rows=1.00 loops=1)
+                Sort Key: bookings_1.booked_at, bookings_1.booking_id
+                Sort Method: top-N heapsort  Memory: 25kB
+                Buffers: shared hit=2190
+                ->  Seq Scan on bookings bookings_1  (cost=0.00..4060.18 rows=10 width=12) (actual time=0.314..8.230 rows=10.00 loops=1)
+                      Filter: ((status)::text = 'PENDING'::text)
+                      Rows Removed by Filter: 150084
+                      Buffers: shared hit=2184
+  ->  Index Scan using uq_bookings_id_show on bookings  (cost=0.42..8.44 rows=1 width=64) (actual time=8.260..8.261 rows=1.00 loops=1)
+        Index Cond: (booking_id = (InitPlan 1).col1)
         Index Searches: 1
-        Buffers: shared hit=99
+        Buffers: shared hit=2196
 Planning:
-  Buffers: shared hit=126
-Planning Time: 0.242 ms
-Execution Time: 0.545 ms
+  Buffers: shared hit=134
+Planning Time: 0.294 ms
+Execution Time: 8.434 ms

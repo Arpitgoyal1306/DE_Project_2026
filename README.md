@@ -686,7 +686,7 @@ LIMIT 20;
 ```sql
 SELECT booking_id, booking_code, customer_id, show_id, status, booked_at
 FROM bookings
-ORDER BY booked_at DESC
+ORDER BY booked_at DESC, booking_id DESC
 OFFSET 100000
 LIMIT 25;
 ```
@@ -702,9 +702,12 @@ WHERE phone = '7700001331';
 ```sql
 SELECT v.city_id, se.seat_class, round(avg(bs.price), 2) AS avg_price, count(*) AS tickets
 FROM booking_seats bs
+JOIN shows s ON s.show_id = bs.show_id
 JOIN seats se   ON se.seat_id = bs.seat_id
 JOIN screens sc ON sc.screen_id = se.screen_id
 JOIN venues v   ON v.venue_id = sc.venue_id
+WHERE s.starts_at >= TIMESTAMPTZ '2026-01-01 00:00:00+05:30'
+  AND s.starts_at < TIMESTAMPTZ '2027-01-01 00:00:00+05:30'
 GROUP BY v.city_id, se.seat_class
 ORDER BY v.city_id, se.seat_class;
 ```
@@ -736,7 +739,12 @@ SELECT b.booking_id, b.show_id, se.seat_id, 250.00
 FROM bookings b
 JOIN shows s  ON s.show_id = b.show_id
 JOIN seats se ON se.screen_id = s.screen_id
-WHERE b.booking_id = (SELECT min(booking_id) FROM bookings WHERE status = 'PENDING')
+WHERE b.booking_id = (
+    SELECT booking_id FROM bookings
+    WHERE status = 'PENDING'
+    ORDER BY booked_at, booking_id
+    LIMIT 1
+)
   AND NOT EXISTS (SELECT 1 FROM booking_seats bs WHERE bs.show_id = b.show_id AND bs.seat_id = se.seat_id)
 ORDER BY se.seat_id
 LIMIT 2
@@ -747,7 +755,12 @@ ON CONFLICT (show_id, seat_id) DO NOTHING;
 ```sql
 UPDATE bookings
 SET status = 'CONFIRMED'
-WHERE booking_id = (SELECT min(booking_id) FROM bookings WHERE status = 'PENDING');
+WHERE booking_id = (
+    SELECT booking_id FROM bookings
+    WHERE status = 'PENDING'
+    ORDER BY booked_at, booking_id
+    LIMIT 1
+);
 ```
 
 **W04: Seat-lock expiry: release seats held by PENDING bookings older than 10 minutes**
@@ -764,6 +777,7 @@ WHERE b.booking_id = bs.booking_id
 UPDATE shows
 SET base_price = round(base_price * 1.10, 0)
 WHERE movie_id = 2
-  AND starts_at >= '2026-07-01'
-  AND EXTRACT(ISODOW FROM starts_at) IN (6, 7);
+  AND starts_at >= TIMESTAMPTZ '2026-07-01 00:00:00+05:30'
+  AND starts_at < TIMESTAMPTZ '2026-08-01 00:00:00+05:30'
+  AND EXTRACT(ISODOW FROM starts_at AT TIME ZONE 'Asia/Kolkata') IN (6, 7);
 ```

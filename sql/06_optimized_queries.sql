@@ -65,7 +65,7 @@ ORDER BY s.starts_at;
 
 -- @R06
 -- Search: movies whose title contains "kalki"
--- Efficient on small movies relation (300 rows).
+-- The trigram index supports the leading-wildcard title search.
 SELECT movie_id, title, language, release_date
 FROM movies
 WHERE title ILIKE '%kalki%'
@@ -100,7 +100,7 @@ LIMIT 10;
 
 -- @R09
 -- Seat-lock service: bookings still PENDING more than 10 minutes after they were made (checked at 23:59, 30 Jun 2026)
--- Optimization: Accelerated by partial index idx_bookings_pending (status = 'PENDING').
+-- Optimization: Accelerated by partial index idx_bookings_pending_time (status = 'PENDING').
 SELECT booking_id, show_id, num_tickets, booked_at
 FROM bookings
 WHERE status = 'PENDING'
@@ -251,10 +251,10 @@ LIMIT 20;
 
 -- @R22
 -- Support console: all bookings, newest first, page 4,001 (25 per page)
--- Optimization: Accelerated by idx_bookings_booked_at; eliminates full table sort.
+-- Optimization: Accelerated by idx_bookings_support_page; eliminates full table sort.
 SELECT booking_id, booking_code, customer_id, show_id, status, booked_at
 FROM bookings
-ORDER BY booked_at DESC
+ORDER BY booked_at DESC, booking_id DESC
 OFFSET 100000
 LIMIT 25;
 
@@ -267,12 +267,15 @@ WHERE phone = '7700001331';
 
 -- @R24
 -- Pricing: average price paid per seat class in each city (2026)
--- Full dataset aggregation over booking_seats; optimal via sequential scan and hash joins.
+-- Use the local show date to assign each ticket to its reporting year.
 SELECT v.city_id, se.seat_class, round(avg(bs.price), 2) AS avg_price, count(*) AS tickets
 FROM booking_seats bs
+JOIN shows s ON s.show_id = bs.show_id
 JOIN seats se   ON se.seat_id = bs.seat_id
 JOIN screens sc ON sc.screen_id = se.screen_id
 JOIN venues v   ON v.venue_id = sc.venue_id
+WHERE s.starts_at >= TIMESTAMPTZ '2026-01-01 00:00:00+05:30'
+  AND s.starts_at < TIMESTAMPTZ '2027-01-01 00:00:00+05:30'
 GROUP BY v.city_id, se.seat_class
 ORDER BY v.city_id, se.seat_class;
 
@@ -297,28 +300,44 @@ VALUES (90000001, 'BMS0FFFFFF', 1331, 144446, '2026-06-28 10:00:00+05:30', 2, 50
 
 -- @W02
 -- Seat lock: the oldest PENDING booking adds 2 more seats (the unsold seats with the lowest ids in its show)
--- Optimization: Subquery `SELECT min(booking_id) FROM bookings WHERE status = 'PENDING'` accelerated by idx_bookings_pending.
+-- Limit the lookup to one booking and its screen before probing for occupied seats.
+WITH oldest AS MATERIALIZED (
+    SELECT booking_id, show_id FROM bookings
+    WHERE status = 'PENDING'
+    ORDER BY booked_at, booking_id
+    LIMIT 1
+)
 INSERT INTO booking_seats (booking_id, show_id, seat_id, price)
-SELECT b.booking_id, b.show_id, se.seat_id, 250.00
-FROM bookings b
-JOIN shows s  ON s.show_id = b.show_id
-JOIN seats se ON se.screen_id = s.screen_id
-WHERE b.booking_id = (SELECT min(booking_id) FROM bookings WHERE status = 'PENDING')
-  AND NOT EXISTS (SELECT 1 FROM booking_seats bs WHERE bs.show_id = b.show_id AND bs.seat_id = se.seat_id)
-ORDER BY se.seat_id
-LIMIT 2
+SELECT b.booking_id, b.show_id, free.seat_id, 250.00
+FROM oldest b
+JOIN shows s ON s.show_id = b.show_id
+CROSS JOIN LATERAL (
+    SELECT se.seat_id FROM seats se
+    WHERE se.screen_id = s.screen_id
+      AND NOT EXISTS (
+          SELECT 1 FROM booking_seats occupied
+          WHERE occupied.show_id = b.show_id AND occupied.seat_id = se.seat_id
+      )
+    ORDER BY se.seat_id
+    LIMIT 2
+) free
 ON CONFLICT (show_id, seat_id) DO NOTHING;
 
 -- @W03
 -- Payment callback: confirm the oldest PENDING booking
--- Optimization: Subquery accelerated by partial index idx_bookings_pending.
+-- The partial index limits the candidate set to pending bookings.
 UPDATE bookings
 SET status = 'CONFIRMED'
-WHERE booking_id = (SELECT min(booking_id) FROM bookings WHERE status = 'PENDING');
+WHERE booking_id = (
+    SELECT booking_id FROM bookings
+    WHERE status = 'PENDING'
+    ORDER BY booked_at, booking_id
+    LIMIT 1
+);
 
 -- @W04
 -- Seat-lock expiry: release seats held by PENDING bookings older than 10 minutes
--- Optimization: Filter on pending bookings accelerated by partial index idx_bookings_pending.
+-- Optimization: Filter on pending bookings accelerated by partial index idx_bookings_pending_time.
 DELETE FROM booking_seats bs
 USING bookings b
 WHERE b.booking_id = bs.booking_id
@@ -331,8 +350,9 @@ WHERE b.booking_id = bs.booking_id
 UPDATE shows
 SET base_price = round(base_price * 1.10, 0)
 WHERE movie_id = 2
-  AND starts_at >= '2026-07-01'
-  AND EXTRACT(ISODOW FROM starts_at) IN (6, 7);
+  AND starts_at >= TIMESTAMPTZ '2026-07-01 00:00:00+05:30'
+  AND starts_at < TIMESTAMPTZ '2026-08-01 00:00:00+05:30'
+  AND EXTRACT(ISODOW FROM starts_at AT TIME ZONE 'Asia/Kolkata') IN (6, 7);
 
 -- @END
 ROLLBACK;

@@ -1,90 +1,96 @@
 === R19 run 1 ===
-Sort  (cost=2806.06..2806.49 rows=172 width=22) (actual time=16.536..16.544 rows=222 loops=1)
+Sort  (cost=2838.55..2838.98 rows=174 width=22) (actual time=6.183..6.188 rows=222.00 loops=1)
   Sort Key: (COALESCE(sum(b.num_tickets), '0'::bigint)) DESC, s.starts_at
-  Sort Method: quicksort  Memory: 37kB
-  Buffers: shared hit=459 read=686
-  ->  GroupAggregate  (cost=2796.66..2799.67 rows=172 width=22) (actual time=16.398..16.464 rows=222 loops=1)
+  Sort Method: quicksort  Memory: 35kB
+  Buffers: shared hit=649 read=496
+  ->  GroupAggregate  (cost=2829.03..2832.07 rows=174 width=22) (actual time=6.118..6.153 rows=222.00 loops=1)
         Group Key: s.show_id
-        Buffers: shared hit=453 read=686
-        ->  Sort  (cost=2796.66..2797.09 rows=172 width=16) (actual time=16.391..16.401 rows=292 loops=1)
+        Buffers: shared hit=643 read=496
+        ->  Sort  (cost=2829.03..2829.46 rows=174 width=16) (actual time=6.115..6.121 rows=292.00 loops=1)
               Sort Key: s.show_id
-              Sort Method: quicksort  Memory: 38kB
-              Buffers: shared hit=453 read=686
-              ->  Nested Loop Left Join  (cost=7.05..2790.27 rows=172 width=16) (actual time=0.406..16.329 rows=292 loops=1)
-                    Buffers: shared hit=450 read=686
-                    ->  Bitmap Heap Scan on shows s  (cost=6.62..653.99 rows=172 width=14) (actual time=0.062..0.934 rows=222 loops=1)
+              Sort Method: quicksort  Memory: 36kB
+              Buffers: shared hit=643 read=496
+              ->  Nested Loop Left Join  (cost=7.08..2822.55 rows=174 width=16) (actual time=0.419..6.085 rows=292.00 loops=1)
+                    Buffers: shared hit=640 read=496
+                    ->  Bitmap Heap Scan on shows s  (cost=6.65..661.29 rows=174 width=14) (actual time=0.071..0.455 rows=222.00 loops=1)
                           Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                           Heap Blocks: exact=222
-                          Buffers: shared hit=5 read=224
-                          ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.58 rows=172 width=0) (actual time=0.037..0.037 rows=222 loops=1)
+                          Buffers: shared hit=160 read=69
+                          ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.60 rows=174 width=0) (actual time=0.035..0.035 rows=222.00 loops=1)
                                 Index Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                                Index Searches: 1
                                 Buffers: shared hit=5 read=2
-                    ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.40 rows=2 width=6) (actual time=0.067..0.069 rows=1 loops=222)
+                    ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.40 rows=2 width=6) (actual time=0.024..0.025 rows=0.90 loops=222)
                           Index Cond: (show_id = s.show_id)
                           Filter: ((status)::text = 'CONFIRMED'::text)
                           Rows Removed by Filter: 0
-                          Buffers: shared hit=445 read=462
+                          Index Searches: 222
+                          Buffers: shared hit=480 read=427
 Planning:
-  Buffers: shared hit=355
-Planning Time: 1.129 ms
-Execution Time: 16.587 ms
+  Buffers: shared hit=386
+Planning Time: 0.753 ms
+Execution Time: 6.230 ms
 === R19 run 2 ===
-Sort  (cost=2806.06..2806.49 rows=172 width=22) (actual time=1.669..1.677 rows=222 loops=1)
+Sort  (cost=2838.55..2838.98 rows=174 width=22) (actual time=0.888..0.892 rows=222.00 loops=1)
   Sort Key: (COALESCE(sum(b.num_tickets), '0'::bigint)) DESC, s.starts_at
-  Sort Method: quicksort  Memory: 37kB
+  Sort Method: quicksort  Memory: 35kB
   Buffers: shared hit=1145
-  ->  GroupAggregate  (cost=2796.66..2799.67 rows=172 width=22) (actual time=1.540..1.605 rows=222 loops=1)
+  ->  GroupAggregate  (cost=2829.03..2832.07 rows=174 width=22) (actual time=0.823..0.857 rows=222.00 loops=1)
         Group Key: s.show_id
         Buffers: shared hit=1139
-        ->  Sort  (cost=2796.66..2797.09 rows=172 width=16) (actual time=1.534..1.544 rows=292 loops=1)
+        ->  Sort  (cost=2829.03..2829.46 rows=174 width=16) (actual time=0.820..0.826 rows=292.00 loops=1)
               Sort Key: s.show_id
-              Sort Method: quicksort  Memory: 38kB
+              Sort Method: quicksort  Memory: 36kB
               Buffers: shared hit=1139
-              ->  Nested Loop Left Join  (cost=7.05..2790.27 rows=172 width=16) (actual time=0.059..1.494 rows=292 loops=1)
+              ->  Nested Loop Left Join  (cost=7.08..2822.55 rows=174 width=16) (actual time=0.035..0.803 rows=292.00 loops=1)
                     Buffers: shared hit=1136
-                    ->  Bitmap Heap Scan on shows s  (cost=6.62..653.99 rows=172 width=14) (actual time=0.051..0.402 rows=222 loops=1)
+                    ->  Bitmap Heap Scan on shows s  (cost=6.65..661.29 rows=174 width=14) (actual time=0.031..0.261 rows=222.00 loops=1)
                           Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                           Heap Blocks: exact=222
                           Buffers: shared hit=229
-                          ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.58 rows=172 width=0) (actual time=0.030..0.030 rows=222 loops=1)
+                          ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.60 rows=174 width=0) (actual time=0.020..0.020 rows=222.00 loops=1)
                                 Index Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                                Index Searches: 1
                                 Buffers: shared hit=7
-                    ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.40 rows=2 width=6) (actual time=0.004..0.005 rows=1 loops=222)
+                    ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.40 rows=2 width=6) (actual time=0.002..0.002 rows=0.90 loops=222)
                           Index Cond: (show_id = s.show_id)
                           Filter: ((status)::text = 'CONFIRMED'::text)
                           Rows Removed by Filter: 0
+                          Index Searches: 222
                           Buffers: shared hit=907
 Planning:
-  Buffers: shared hit=355
-Planning Time: 1.037 ms
-Execution Time: 1.771 ms
+  Buffers: shared hit=386
+Planning Time: 0.615 ms
+Execution Time: 0.918 ms
 === R19 run 3 ===
-Sort  (cost=2806.06..2806.49 rows=172 width=22) (actual time=2.117..2.126 rows=222 loops=1)
+Sort  (cost=2838.55..2838.98 rows=174 width=22) (actual time=0.835..0.840 rows=222.00 loops=1)
   Sort Key: (COALESCE(sum(b.num_tickets), '0'::bigint)) DESC, s.starts_at
-  Sort Method: quicksort  Memory: 37kB
+  Sort Method: quicksort  Memory: 35kB
   Buffers: shared hit=1145
-  ->  GroupAggregate  (cost=2796.66..2799.67 rows=172 width=22) (actual time=1.985..2.052 rows=222 loops=1)
+  ->  GroupAggregate  (cost=2829.03..2832.07 rows=174 width=22) (actual time=0.772..0.804 rows=222.00 loops=1)
         Group Key: s.show_id
         Buffers: shared hit=1139
-        ->  Sort  (cost=2796.66..2797.09 rows=172 width=16) (actual time=1.977..1.987 rows=292 loops=1)
+        ->  Sort  (cost=2829.03..2829.46 rows=174 width=16) (actual time=0.769..0.775 rows=292.00 loops=1)
               Sort Key: s.show_id
-              Sort Method: quicksort  Memory: 38kB
+              Sort Method: quicksort  Memory: 36kB
               Buffers: shared hit=1139
-              ->  Nested Loop Left Join  (cost=7.05..2790.27 rows=172 width=16) (actual time=0.072..1.936 rows=292 loops=1)
+              ->  Nested Loop Left Join  (cost=7.08..2822.55 rows=174 width=16) (actual time=0.034..0.752 rows=292.00 loops=1)
                     Buffers: shared hit=1136
-                    ->  Bitmap Heap Scan on shows s  (cost=6.62..653.99 rows=172 width=14) (actual time=0.061..0.527 rows=222 loops=1)
+                    ->  Bitmap Heap Scan on shows s  (cost=6.65..661.29 rows=174 width=14) (actual time=0.030..0.247 rows=222.00 loops=1)
                           Recheck Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
                           Heap Blocks: exact=222
                           Buffers: shared hit=229
-                          ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.58 rows=172 width=0) (actual time=0.037..0.037 rows=222 loops=1)
+                          ->  Bitmap Index Scan on idx_shows_movie_starts  (cost=0.00..6.60 rows=174 width=0) (actual time=0.019..0.019 rows=222.00 loops=1)
                                 Index Cond: ((movie_id = 2) AND (starts_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (starts_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
+                                Index Searches: 1
                                 Buffers: shared hit=7
-                    ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.40 rows=2 width=6) (actual time=0.005..0.006 rows=1 loops=222)
+                    ->  Index Scan using idx_bookings_show_id on bookings b  (cost=0.43..12.40 rows=2 width=6) (actual time=0.002..0.002 rows=0.90 loops=222)
                           Index Cond: (show_id = s.show_id)
                           Filter: ((status)::text = 'CONFIRMED'::text)
                           Rows Removed by Filter: 0
+                          Index Searches: 222
                           Buffers: shared hit=907
 Planning:
-  Buffers: shared hit=355
-Planning Time: 1.170 ms
-Execution Time: 2.180 ms
+  Buffers: shared hit=386
+Planning Time: 0.609 ms
+Execution Time: 0.863 ms

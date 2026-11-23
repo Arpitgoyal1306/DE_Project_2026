@@ -1,234 +1,234 @@
 === R11 run 1 ===
-Sort  (cost=186908.76..186908.77 rows=4 width=71) (actual time=1632.659..1643.149 rows=4 loops=1)
+Sort  (cost=186909.02..186909.03 rows=4 width=71) (actual time=1045.663..1052.411 rows=4.00 loops=1)
   Sort Key: (sum(bs.price)) DESC
   Sort Method: quicksort  Memory: 25kB
-  Buffers: shared hit=272 read=49708 written=6, temp read=31050 written=31172
-  ->  Finalize GroupAggregate  (cost=186907.60..186908.72 rows=4 width=71) (actual time=1632.637..1643.138 rows=4 loops=1)
+  Buffers: shared hit=212 read=49708 dirtied=1 written=27, temp read=31049 written=31192
+  ->  Finalize GroupAggregate  (cost=186907.60..186908.98 rows=4 width=71) (actual time=1045.648..1052.402 rows=4.00 loops=1)
         Group Key: sc.screen_type
-        Buffers: shared hit=269 read=49708 written=6, temp read=31050 written=31172
-        ->  Gather Merge  (cost=186907.60..186908.53 rows=8 width=71) (actual time=1632.624..1643.119 rows=12 loops=1)
+        Buffers: shared hit=209 read=49708 dirtied=1 written=27, temp read=31049 written=31192
+        ->  Gather Merge  (cost=186907.60..186908.77 rows=10 width=71) (actual time=1045.639..1052.388 rows=12.00 loops=1)
               Workers Planned: 2
               Workers Launched: 2
-              Buffers: shared hit=269 read=49708 written=6, temp read=31050 written=31172
-              ->  Sort  (cost=185907.58..185907.59 rows=4 width=71) (actual time=1630.059..1630.070 rows=4 loops=3)
+              Buffers: shared hit=209 read=49708 dirtied=1 written=27, temp read=31049 written=31192
+              ->  Sort  (cost=185907.58..185907.59 rows=4 width=71) (actual time=1044.098..1044.184 rows=4.00 loops=3)
                     Sort Key: sc.screen_type
                     Sort Method: quicksort  Memory: 25kB
-                    Buffers: shared hit=269 read=49708 written=6, temp read=31050 written=31172
+                    Buffers: shared hit=209 read=49708 dirtied=1 written=27, temp read=31049 written=31192
                     Worker 0:  Sort Method: quicksort  Memory: 25kB
                     Worker 1:  Sort Method: quicksort  Memory: 25kB
-                    ->  Partial HashAggregate  (cost=185907.48..185907.54 rows=4 width=71) (actual time=1630.030..1630.041 rows=4 loops=3)
+                    ->  Partial HashAggregate  (cost=185907.48..185907.54 rows=4 width=71) (actual time=1044.083..1044.169 rows=4.00 loops=3)
                           Group Key: sc.screen_type
-                          Batches: 1  Memory Usage: 24kB
-                          Buffers: shared hit=251 read=49708 written=6, temp read=31050 written=31172
-                          Worker 0:  Batches: 1  Memory Usage: 24kB
-                          Worker 1:  Batches: 1  Memory Usage: 24kB
-                          ->  Hash Join  (cost=33100.82..160836.87 rows=2507061 width=19) (actual time=735.570..1313.603 rows=2005649 loops=3)
+                          Batches: 1  Memory Usage: 32kB
+                          Buffers: shared hit=191 read=49708 dirtied=1 written=27, temp read=31049 written=31192
+                          Worker 0:  Batches: 1  Memory Usage: 32kB
+                          Worker 1:  Batches: 1  Memory Usage: 32kB
+                          ->  Hash Join  (cost=33100.82..160836.87 rows=2507061 width=19) (actual time=428.635..871.925 rows=2005648.67 loops=3)
                                 Hash Cond: (se.screen_id = sc.screen_id)
-                                Buffers: shared hit=251 read=49708 written=6, temp read=31050 written=31172
-                                ->  Parallel Hash Join  (cost=32817.32..153969.48 rows=2507061 width=14) (actual time=733.805..1056.698 rows=2005649 loops=3)
+                                Buffers: shared hit=191 read=49708 dirtied=1 written=27, temp read=31049 written=31192
+                                ->  Parallel Hash Join  (cost=32817.32..153969.48 rows=2507061 width=14) (actual time=427.648..685.006 rows=2005648.67 loops=3)
                                       Hash Cond: (bs.seat_id = se.seat_id)
-                                      Buffers: shared hit=32 read=49708 written=6, temp read=31050 written=31172
-                                      ->  Parallel Append  (cost=0.00..86263.11 rows=2507062 width=9) (actual time=0.056..299.978 rows=2005649 loops=3)
-                                            Buffers: shared read=38334 written=6
-                                            ->  Parallel Seq Scan on booking_seats_p07 bs_8  (cost=0.00..4638.81 rows=222681 width=9) (actual time=0.075..34.815 rows=378558 loops=1)
-                                                  Buffers: shared read=2412 written=1
-                                            ->  Parallel Seq Scan on booking_seats_p01 bs_2  (cost=0.00..4634.91 rows=222491 width=9) (actual time=0.076..34.454 rows=378234 loops=1)
+                                      Buffers: shared hit=2 read=49708 dirtied=1 written=27, temp read=31049 written=31192
+                                      ->  Parallel Append  (cost=0.00..86263.11 rows=2507062 width=9) (actual time=0.083..157.043 rows=2005648.67 loops=3)
+                                            Buffers: shared read=38334 dirtied=1 written=27
+                                            ->  Parallel Seq Scan on booking_seats_p07 bs_8  (cost=0.00..4638.81 rows=222681 width=9) (actual time=0.080..14.484 rows=378558.00 loops=1)
+                                                  Buffers: shared read=2412
+                                            ->  Parallel Seq Scan on booking_seats_p01 bs_2  (cost=0.00..4634.91 rows=222491 width=9) (actual time=0.088..14.443 rows=378234.00 loops=1)
                                                   Buffers: shared read=2410
-                                            ->  Parallel Seq Scan on booking_seats_p14 bs_15  (cost=0.00..4630.96 rows=222296 width=9) (actual time=0.056..32.826 rows=377903 loops=1)
-                                                  Buffers: shared read=2408 written=1
-                                            ->  Parallel Seq Scan on booking_seats_p06 bs_7  (cost=0.00..4614.12 rows=221512 width=9) (actual time=0.044..31.899 rows=376570 loops=1)
-                                                  Buffers: shared read=2399 written=3
-                                            ->  Parallel Seq Scan on booking_seats_p13 bs_14  (cost=0.00..4613.97 rows=221497 width=9) (actual time=0.038..32.319 rows=376545 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p14 bs_15  (cost=0.00..4630.96 rows=222296 width=9) (actual time=0.073..13.598 rows=377903.00 loops=1)
+                                                  Buffers: shared read=2408
+                                            ->  Parallel Seq Scan on booking_seats_p06 bs_7  (cost=0.00..4614.12 rows=221512 width=9) (actual time=0.051..14.180 rows=376570.00 loops=1)
+                                                  Buffers: shared read=2399 dirtied=1 written=4
+                                            ->  Parallel Seq Scan on booking_seats_p13 bs_14  (cost=0.00..4613.97 rows=221497 width=9) (actual time=0.085..13.187 rows=376545.00 loops=1)
                                                   Buffers: shared read=2399
-                                            ->  Parallel Seq Scan on booking_seats_p00 bs_1  (cost=0.00..4612.19 rows=221419 width=9) (actual time=0.044..31.796 rows=376412 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p00 bs_1  (cost=0.00..4612.19 rows=221419 width=9) (actual time=0.072..13.547 rows=376412.00 loops=1)
                                                   Buffers: shared read=2398
-                                            ->  Parallel Seq Scan on booking_seats_p11 bs_12  (cost=0.00..4610.03 rows=221303 width=9) (actual time=0.061..30.827 rows=376215 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p11 bs_12  (cost=0.00..4610.03 rows=221303 width=9) (actual time=0.060..13.273 rows=376215.00 loops=1)
                                                   Buffers: shared read=2397
-                                            ->  Parallel Seq Scan on booking_seats_p10 bs_11  (cost=0.00..4606.53 rows=221153 width=9) (actual time=0.046..36.331 rows=375960 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p10 bs_11  (cost=0.00..4606.53 rows=221153 width=9) (actual time=0.045..13.475 rows=375960.00 loops=1)
                                                   Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p15 bs_16  (cost=0.00..4606.18 rows=221118 width=9) (actual time=0.064..29.943 rows=375901 loops=1)
-                                                  Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p04 bs_5  (cost=0.00..4606.02 rows=221102 width=9) (actual time=0.060..34.601 rows=375873 loops=1)
-                                                  Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p02 bs_3  (cost=0.00..4604.38 rows=221038 width=9) (actual time=0.040..10.622 rows=125255 loops=3)
+                                            ->  Parallel Seq Scan on booking_seats_p15 bs_16  (cost=0.00..4606.18 rows=221118 width=9) (actual time=0.059..20.302 rows=375901.00 loops=1)
+                                                  Buffers: shared read=2395 written=6
+                                            ->  Parallel Seq Scan on booking_seats_p04 bs_5  (cost=0.00..4606.02 rows=221102 width=9) (actual time=0.047..30.739 rows=375873.00 loops=1)
+                                                  Buffers: shared read=2395 written=3
+                                            ->  Parallel Seq Scan on booking_seats_p02 bs_3  (cost=0.00..4604.38 rows=221038 width=9) (actual time=0.157..5.716 rows=125254.67 loops=3)
                                                   Buffers: shared read=2394
-                                            ->  Parallel Seq Scan on booking_seats_p03 bs_4  (cost=0.00..4602.38 rows=220938 width=9) (actual time=0.009..33.281 rows=375595 loops=1)
-                                                  Buffers: shared read=2393
-                                            ->  Parallel Seq Scan on booking_seats_p09 bs_10  (cost=0.00..4592.75 rows=220475 width=9) (actual time=0.011..33.492 rows=374807 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p03 bs_4  (cost=0.00..4602.38 rows=220938 width=9) (actual time=0.020..21.317 rows=375595.00 loops=1)
+                                                  Buffers: shared read=2393 written=9
+                                            ->  Parallel Seq Scan on booking_seats_p09 bs_10  (cost=0.00..4592.75 rows=220475 width=9) (actual time=0.020..13.463 rows=374807.00 loops=1)
                                                   Buffers: shared read=2388
-                                            ->  Parallel Seq Scan on booking_seats_p12 bs_13  (cost=0.00..4587.31 rows=220231 width=9) (actual time=0.008..33.337 rows=374393 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p12 bs_13  (cost=0.00..4587.31 rows=220231 width=9) (actual time=0.021..13.411 rows=374393.00 loops=1)
                                                   Buffers: shared read=2385
-                                            ->  Parallel Seq Scan on booking_seats_p08 bs_9  (cost=0.00..4583.73 rows=220073 width=9) (actual time=0.011..34.246 rows=374124 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p08 bs_9  (cost=0.00..4583.73 rows=220073 width=9) (actual time=0.021..13.754 rows=374124.00 loops=1)
+                                                  Buffers: shared read=2383 written=5
+                                            ->  Parallel Seq Scan on booking_seats_p05 bs_6  (cost=0.00..4583.54 rows=220054 width=9) (actual time=0.081..14.282 rows=374092.00 loops=1)
                                                   Buffers: shared read=2383
-                                            ->  Parallel Seq Scan on booking_seats_p05 bs_6  (cost=0.00..4583.54 rows=220054 width=9) (actual time=0.014..36.102 rows=374092 loops=1)
-                                                  Buffers: shared read=2383 written=1
-                                      ->  Parallel Hash  (cost=19205.92..19205.92 rows=782992 width=13) (actual time=169.318..169.318 rows=626394 loops=3)
+                                      ->  Parallel Hash  (cost=19205.92..19205.92 rows=782992 width=13) (actual time=85.574..85.574 rows=626394.00 loops=3)
                                             Buckets: 262144  Batches: 16  Memory Usage: 7776kB
-                                            Buffers: shared hit=2 read=11374, temp written=7544
-                                            ->  Parallel Seq Scan on seats se  (cost=0.00..19205.92 rows=782992 width=13) (actual time=0.032..69.318 rows=626394 loops=3)
+                                            Buffers: shared hit=2 read=11374, temp written=7564
+                                            ->  Parallel Seq Scan on seats se  (cost=0.00..19205.92 rows=782992 width=13) (actual time=0.043..30.701 rows=626394.00 loops=3)
                                                   Buffers: shared hit=2 read=11374
-                                ->  Hash  (cost=161.00..161.00 rows=9800 width=9) (actual time=1.732..1.733 rows=9800 loops=3)
+                                ->  Hash  (cost=161.00..161.00 rows=9800 width=9) (actual time=0.970..0.970 rows=9800.00 loops=3)
                                       Buckets: 16384  Batches: 1  Memory Usage: 539kB
                                       Buffers: shared hit=189
-                                      ->  Seq Scan on screens sc  (cost=0.00..161.00 rows=9800 width=9) (actual time=0.023..0.841 rows=9800 loops=3)
+                                      ->  Seq Scan on screens sc  (cost=0.00..161.00 rows=9800 width=9) (actual time=0.013..0.498 rows=9800.00 loops=3)
                                             Buffers: shared hit=189
 Planning:
-  Buffers: shared hit=1770 dirtied=1
-Planning Time: 4.585 ms
-Execution Time: 1643.265 ms
+  Buffers: shared hit=1780
+Planning Time: 2.155 ms
+Execution Time: 1052.492 ms
 === R11 run 2 ===
-Sort  (cost=186908.76..186908.77 rows=4 width=71) (actual time=1579.648..1591.352 rows=4 loops=1)
+Sort  (cost=186909.02..186909.03 rows=4 width=71) (actual time=936.350..941.918 rows=4.00 loops=1)
   Sort Key: (sum(bs.price)) DESC
   Sort Method: quicksort  Memory: 25kB
-  Buffers: shared hit=207 read=49773, temp read=31054 written=31188
-  ->  Finalize GroupAggregate  (cost=186907.60..186908.72 rows=4 width=71) (actual time=1579.627..1591.341 rows=4 loops=1)
+  Buffers: shared hit=210 read=49710 written=5, temp read=31044 written=31180
+  ->  Finalize GroupAggregate  (cost=186907.60..186908.98 rows=4 width=71) (actual time=936.337..941.910 rows=4.00 loops=1)
         Group Key: sc.screen_type
-        Buffers: shared hit=204 read=49773, temp read=31054 written=31188
-        ->  Gather Merge  (cost=186907.60..186908.53 rows=8 width=71) (actual time=1579.616..1591.323 rows=12 loops=1)
+        Buffers: shared hit=207 read=49710 written=5, temp read=31044 written=31180
+        ->  Gather Merge  (cost=186907.60..186908.77 rows=10 width=71) (actual time=936.328..941.898 rows=12.00 loops=1)
               Workers Planned: 2
               Workers Launched: 2
-              Buffers: shared hit=204 read=49773, temp read=31054 written=31188
-              ->  Sort  (cost=185907.58..185907.59 rows=4 width=71) (actual time=1576.699..1576.706 rows=4 loops=3)
+              Buffers: shared hit=207 read=49710 written=5, temp read=31044 written=31180
+              ->  Sort  (cost=185907.58..185907.59 rows=4 width=71) (actual time=934.658..934.661 rows=4.00 loops=3)
                     Sort Key: sc.screen_type
                     Sort Method: quicksort  Memory: 25kB
-                    Buffers: shared hit=204 read=49773, temp read=31054 written=31188
+                    Buffers: shared hit=207 read=49710 written=5, temp read=31044 written=31180
                     Worker 0:  Sort Method: quicksort  Memory: 25kB
                     Worker 1:  Sort Method: quicksort  Memory: 25kB
-                    ->  Partial HashAggregate  (cost=185907.48..185907.54 rows=4 width=71) (actual time=1576.667..1576.675 rows=4 loops=3)
+                    ->  Partial HashAggregate  (cost=185907.48..185907.54 rows=4 width=71) (actual time=934.646..934.650 rows=4.00 loops=3)
                           Group Key: sc.screen_type
-                          Batches: 1  Memory Usage: 24kB
-                          Buffers: shared hit=186 read=49773, temp read=31054 written=31188
-                          Worker 0:  Batches: 1  Memory Usage: 24kB
-                          Worker 1:  Batches: 1  Memory Usage: 24kB
-                          ->  Hash Join  (cost=33100.82..160836.87 rows=2507061 width=19) (actual time=675.256..1268.101 rows=2005649 loops=3)
+                          Batches: 1  Memory Usage: 32kB
+                          Buffers: shared hit=189 read=49710 written=5, temp read=31044 written=31180
+                          Worker 0:  Batches: 1  Memory Usage: 32kB
+                          Worker 1:  Batches: 1  Memory Usage: 32kB
+                          ->  Hash Join  (cost=33100.82..160836.87 rows=2507061 width=19) (actual time=363.276..778.137 rows=2005648.67 loops=3)
                                 Hash Cond: (se.screen_id = sc.screen_id)
-                                Buffers: shared hit=186 read=49773, temp read=31054 written=31188
-                                ->  Parallel Hash Join  (cost=32817.32..153969.48 rows=2507061 width=14) (actual time=673.591..1006.668 rows=2005649 loops=3)
+                                Buffers: shared hit=189 read=49710 written=5, temp read=31044 written=31180
+                                ->  Parallel Hash Join  (cost=32817.32..153969.48 rows=2507061 width=14) (actual time=362.286..601.439 rows=2005648.67 loops=3)
                                       Hash Cond: (bs.seat_id = se.seat_id)
-                                      Buffers: shared hit=30 read=49710, temp read=31054 written=31188
-                                      ->  Parallel Append  (cost=0.00..86263.11 rows=2507062 width=9) (actual time=0.042..280.591 rows=2005649 loops=3)
-                                            Buffers: shared read=38334
-                                            ->  Parallel Seq Scan on booking_seats_p07 bs_8  (cost=0.00..4638.81 rows=222681 width=9) (actual time=0.056..30.363 rows=378558 loops=1)
+                                      Buffers: shared read=49710 written=5, temp read=31044 written=31180
+                                      ->  Parallel Append  (cost=0.00..86263.11 rows=2507062 width=9) (actual time=0.048..135.612 rows=2005648.67 loops=3)
+                                            Buffers: shared read=38334 written=5
+                                            ->  Parallel Seq Scan on booking_seats_p07 bs_8  (cost=0.00..4638.81 rows=222681 width=9) (actual time=0.062..13.538 rows=378558.00 loops=1)
                                                   Buffers: shared read=2412
-                                            ->  Parallel Seq Scan on booking_seats_p01 bs_2  (cost=0.00..4634.91 rows=222491 width=9) (actual time=0.056..31.178 rows=378234 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p01 bs_2  (cost=0.00..4634.91 rows=222491 width=9) (actual time=0.060..13.179 rows=378234.00 loops=1)
                                                   Buffers: shared read=2410
-                                            ->  Parallel Seq Scan on booking_seats_p14 bs_15  (cost=0.00..4630.96 rows=222296 width=9) (actual time=0.060..30.070 rows=377903 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p14 bs_15  (cost=0.00..4630.96 rows=222296 width=9) (actual time=0.060..13.414 rows=377903.00 loops=1)
                                                   Buffers: shared read=2408
-                                            ->  Parallel Seq Scan on booking_seats_p06 bs_7  (cost=0.00..4614.12 rows=221512 width=9) (actual time=0.044..30.887 rows=376570 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p06 bs_7  (cost=0.00..4614.12 rows=221512 width=9) (actual time=0.051..13.641 rows=376570.00 loops=1)
                                                   Buffers: shared read=2399
-                                            ->  Parallel Seq Scan on booking_seats_p13 bs_14  (cost=0.00..4613.97 rows=221497 width=9) (actual time=0.057..29.746 rows=376545 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p13 bs_14  (cost=0.00..4613.97 rows=221497 width=9) (actual time=0.063..12.665 rows=376545.00 loops=1)
                                                   Buffers: shared read=2399
-                                            ->  Parallel Seq Scan on booking_seats_p00 bs_1  (cost=0.00..4612.19 rows=221419 width=9) (actual time=0.041..30.454 rows=376412 loops=1)
-                                                  Buffers: shared read=2398
-                                            ->  Parallel Seq Scan on booking_seats_p11 bs_12  (cost=0.00..4610.03 rows=221303 width=9) (actual time=0.061..28.540 rows=376215 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p00 bs_1  (cost=0.00..4612.19 rows=221419 width=9) (actual time=0.037..12.892 rows=376412.00 loops=1)
+                                                  Buffers: shared read=2398 written=1
+                                            ->  Parallel Seq Scan on booking_seats_p11 bs_12  (cost=0.00..4610.03 rows=221303 width=9) (actual time=0.055..13.673 rows=376215.00 loops=1)
                                                   Buffers: shared read=2397
-                                            ->  Parallel Seq Scan on booking_seats_p10 bs_11  (cost=0.00..4606.53 rows=221153 width=9) (actual time=0.051..30.158 rows=375960 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p10 bs_11  (cost=0.00..4606.53 rows=221153 width=9) (actual time=0.042..12.939 rows=375960.00 loops=1)
                                                   Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p15 bs_16  (cost=0.00..4606.18 rows=221118 width=9) (actual time=0.059..27.840 rows=375901 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p15 bs_16  (cost=0.00..4606.18 rows=221118 width=9) (actual time=0.052..12.779 rows=375901.00 loops=1)
                                                   Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p04 bs_5  (cost=0.00..4606.02 rows=221102 width=9) (actual time=0.043..29.969 rows=375873 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p04 bs_5  (cost=0.00..4606.02 rows=221102 width=9) (actual time=0.038..12.281 rows=375873.00 loops=1)
                                                   Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p02 bs_3  (cost=0.00..4604.38 rows=221038 width=9) (actual time=0.037..9.960 rows=125255 loops=3)
+                                            ->  Parallel Seq Scan on booking_seats_p02 bs_3  (cost=0.00..4604.38 rows=221038 width=9) (actual time=0.037..4.228 rows=125254.67 loops=3)
                                                   Buffers: shared read=2394
-                                            ->  Parallel Seq Scan on booking_seats_p03 bs_4  (cost=0.00..4602.38 rows=220938 width=9) (actual time=0.006..28.733 rows=375595 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p03 bs_4  (cost=0.00..4602.38 rows=220938 width=9) (actual time=0.019..12.759 rows=375595.00 loops=1)
                                                   Buffers: shared read=2393
-                                            ->  Parallel Seq Scan on booking_seats_p09 bs_10  (cost=0.00..4592.75 rows=220475 width=9) (actual time=0.006..28.234 rows=374807 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p09 bs_10  (cost=0.00..4592.75 rows=220475 width=9) (actual time=0.016..12.801 rows=374807.00 loops=1)
                                                   Buffers: shared read=2388
-                                            ->  Parallel Seq Scan on booking_seats_p12 bs_13  (cost=0.00..4587.31 rows=220231 width=9) (actual time=0.007..28.742 rows=374393 loops=1)
-                                                  Buffers: shared read=2385
-                                            ->  Parallel Seq Scan on booking_seats_p08 bs_9  (cost=0.00..4583.73 rows=220073 width=9) (actual time=0.007..29.834 rows=374124 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p12 bs_13  (cost=0.00..4587.31 rows=220231 width=9) (actual time=0.020..12.741 rows=374393.00 loops=1)
+                                                  Buffers: shared read=2385 written=4
+                                            ->  Parallel Seq Scan on booking_seats_p08 bs_9  (cost=0.00..4583.73 rows=220073 width=9) (actual time=0.016..12.945 rows=374124.00 loops=1)
                                                   Buffers: shared read=2383
-                                            ->  Parallel Seq Scan on booking_seats_p05 bs_6  (cost=0.00..4583.54 rows=220054 width=9) (actual time=0.011..30.469 rows=374092 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p05 bs_6  (cost=0.00..4583.54 rows=220054 width=9) (actual time=0.021..13.465 rows=374092.00 loops=1)
                                                   Buffers: shared read=2383
-                                      ->  Parallel Hash  (cost=19205.92..19205.92 rows=782992 width=13) (actual time=142.705..142.706 rows=626394 loops=3)
+                                      ->  Parallel Hash  (cost=19205.92..19205.92 rows=782992 width=13) (actual time=81.274..81.274 rows=626394.00 loops=3)
                                             Buckets: 262144  Batches: 16  Memory Usage: 7776kB
-                                            Buffers: shared read=11376, temp written=7552
-                                            ->  Parallel Seq Scan on seats se  (cost=0.00..19205.92 rows=782992 width=13) (actual time=0.024..54.526 rows=626394 loops=3)
+                                            Buffers: shared read=11376, temp written=7564
+                                            ->  Parallel Seq Scan on seats se  (cost=0.00..19205.92 rows=782992 width=13) (actual time=0.032..30.489 rows=626394.00 loops=3)
                                                   Buffers: shared read=11376
-                                ->  Hash  (cost=161.00..161.00 rows=9800 width=9) (actual time=1.640..1.640 rows=9800 loops=3)
+                                ->  Hash  (cost=161.00..161.00 rows=9800 width=9) (actual time=0.976..0.976 rows=9800.00 loops=3)
                                       Buckets: 16384  Batches: 1  Memory Usage: 539kB
-                                      Buffers: shared hit=126 read=63
-                                      ->  Seq Scan on screens sc  (cost=0.00..161.00 rows=9800 width=9) (actual time=0.025..0.797 rows=9800 loops=3)
-                                            Buffers: shared hit=126 read=63
+                                      Buffers: shared hit=189
+                                      ->  Seq Scan on screens sc  (cost=0.00..161.00 rows=9800 width=9) (actual time=0.014..0.516 rows=9800.00 loops=3)
+                                            Buffers: shared hit=189
 Planning:
-  Buffers: shared hit=1616 read=140
-Planning Time: 5.365 ms
-Execution Time: 1591.483 ms
+  Buffers: shared hit=1725 read=55
+Planning Time: 2.782 ms
+Execution Time: 941.994 ms
 === R11 run 3 ===
-Sort  (cost=186908.76..186908.77 rows=4 width=71) (actual time=1585.404..1592.970 rows=4 loops=1)
+Sort  (cost=186909.02..186909.03 rows=4 width=71) (actual time=944.288..949.455 rows=4.00 loops=1)
   Sort Key: (sum(bs.price)) DESC
   Sort Method: quicksort  Memory: 25kB
-  Buffers: shared hit=207 read=49773, temp read=31047 written=31176
-  ->  Finalize GroupAggregate  (cost=186907.60..186908.72 rows=4 width=71) (actual time=1585.383..1592.960 rows=4 loops=1)
+  Buffers: shared hit=210 read=49710, temp read=31046 written=31196
+  ->  Finalize GroupAggregate  (cost=186907.60..186908.98 rows=4 width=71) (actual time=944.275..949.446 rows=4.00 loops=1)
         Group Key: sc.screen_type
-        Buffers: shared hit=204 read=49773, temp read=31047 written=31176
-        ->  Gather Merge  (cost=186907.60..186908.53 rows=8 width=71) (actual time=1585.373..1592.944 rows=12 loops=1)
+        Buffers: shared hit=207 read=49710, temp read=31046 written=31196
+        ->  Gather Merge  (cost=186907.60..186908.77 rows=10 width=71) (actual time=944.268..949.436 rows=12.00 loops=1)
               Workers Planned: 2
               Workers Launched: 2
-              Buffers: shared hit=204 read=49773, temp read=31047 written=31176
-              ->  Sort  (cost=185907.58..185907.59 rows=4 width=71) (actual time=1582.685..1582.688 rows=4 loops=3)
+              Buffers: shared hit=207 read=49710, temp read=31046 written=31196
+              ->  Sort  (cost=185907.58..185907.59 rows=4 width=71) (actual time=942.725..942.728 rows=4.00 loops=3)
                     Sort Key: sc.screen_type
                     Sort Method: quicksort  Memory: 25kB
-                    Buffers: shared hit=204 read=49773, temp read=31047 written=31176
+                    Buffers: shared hit=207 read=49710, temp read=31046 written=31196
                     Worker 0:  Sort Method: quicksort  Memory: 25kB
                     Worker 1:  Sort Method: quicksort  Memory: 25kB
-                    ->  Partial HashAggregate  (cost=185907.48..185907.54 rows=4 width=71) (actual time=1582.658..1582.662 rows=4 loops=3)
+                    ->  Partial HashAggregate  (cost=185907.48..185907.54 rows=4 width=71) (actual time=942.712..942.716 rows=4.00 loops=3)
                           Group Key: sc.screen_type
-                          Batches: 1  Memory Usage: 24kB
-                          Buffers: shared hit=186 read=49773, temp read=31047 written=31176
-                          Worker 0:  Batches: 1  Memory Usage: 24kB
-                          Worker 1:  Batches: 1  Memory Usage: 24kB
-                          ->  Hash Join  (cost=33100.82..160836.87 rows=2507061 width=19) (actual time=680.504..1278.115 rows=2005649 loops=3)
+                          Batches: 1  Memory Usage: 32kB
+                          Buffers: shared hit=189 read=49710, temp read=31046 written=31196
+                          Worker 0:  Batches: 1  Memory Usage: 32kB
+                          Worker 1:  Batches: 1  Memory Usage: 32kB
+                          ->  Hash Join  (cost=33100.82..160836.87 rows=2507061 width=19) (actual time=361.664..783.182 rows=2005648.67 loops=3)
                                 Hash Cond: (se.screen_id = sc.screen_id)
-                                Buffers: shared hit=186 read=49773, temp read=31047 written=31176
-                                ->  Parallel Hash Join  (cost=32817.32..153969.48 rows=2507061 width=14) (actual time=678.868..1014.421 rows=2005649 loops=3)
+                                Buffers: shared hit=189 read=49710, temp read=31046 written=31196
+                                ->  Parallel Hash Join  (cost=32817.32..153969.48 rows=2507061 width=14) (actual time=360.692..602.043 rows=2005648.67 loops=3)
                                       Hash Cond: (bs.seat_id = se.seat_id)
-                                      Buffers: shared hit=30 read=49710, temp read=31047 written=31176
-                                      ->  Parallel Append  (cost=0.00..86263.11 rows=2507062 width=9) (actual time=0.059..283.181 rows=2005649 loops=3)
+                                      Buffers: shared read=49710, temp read=31046 written=31196
+                                      ->  Parallel Append  (cost=0.00..86263.11 rows=2507062 width=9) (actual time=0.141..134.673 rows=2005648.67 loops=3)
                                             Buffers: shared read=38334
-                                            ->  Parallel Seq Scan on booking_seats_p07 bs_8  (cost=0.00..4638.81 rows=222681 width=9) (actual time=0.081..30.786 rows=378558 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p07 bs_8  (cost=0.00..4638.81 rows=222681 width=9) (actual time=0.166..13.460 rows=378558.00 loops=1)
                                                   Buffers: shared read=2412
-                                            ->  Parallel Seq Scan on booking_seats_p01 bs_2  (cost=0.00..4634.91 rows=222491 width=9) (actual time=0.078..30.286 rows=378234 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p01 bs_2  (cost=0.00..4634.91 rows=222491 width=9) (actual time=0.140..13.483 rows=378234.00 loops=1)
                                                   Buffers: shared read=2410
-                                            ->  Parallel Seq Scan on booking_seats_p14 bs_15  (cost=0.00..4630.96 rows=222296 width=9) (actual time=0.073..30.084 rows=377903 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p14 bs_15  (cost=0.00..4630.96 rows=222296 width=9) (actual time=0.052..12.951 rows=377903.00 loops=1)
                                                   Buffers: shared read=2408
-                                            ->  Parallel Seq Scan on booking_seats_p06 bs_7  (cost=0.00..4614.12 rows=221512 width=9) (actual time=0.051..30.034 rows=376570 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p06 bs_7  (cost=0.00..4614.12 rows=221512 width=9) (actual time=0.039..12.981 rows=376570.00 loops=1)
                                                   Buffers: shared read=2399
-                                            ->  Parallel Seq Scan on booking_seats_p13 bs_14  (cost=0.00..4613.97 rows=221497 width=9) (actual time=0.062..29.172 rows=376545 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p13 bs_14  (cost=0.00..4613.97 rows=221497 width=9) (actual time=0.053..12.665 rows=376545.00 loops=1)
                                                   Buffers: shared read=2399
-                                            ->  Parallel Seq Scan on booking_seats_p00 bs_1  (cost=0.00..4612.19 rows=221419 width=9) (actual time=0.049..28.740 rows=376412 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p00 bs_1  (cost=0.00..4612.19 rows=221419 width=9) (actual time=0.037..12.497 rows=376412.00 loops=1)
                                                   Buffers: shared read=2398
-                                            ->  Parallel Seq Scan on booking_seats_p11 bs_12  (cost=0.00..4610.03 rows=221303 width=9) (actual time=0.070..28.608 rows=376215 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p11 bs_12  (cost=0.00..4610.03 rows=221303 width=9) (actual time=0.053..12.576 rows=376215.00 loops=1)
                                                   Buffers: shared read=2397
-                                            ->  Parallel Seq Scan on booking_seats_p10 bs_11  (cost=0.00..4606.53 rows=221153 width=9) (actual time=0.051..28.359 rows=375960 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p10 bs_11  (cost=0.00..4606.53 rows=221153 width=9) (actual time=0.039..12.565 rows=375960.00 loops=1)
                                                   Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p15 bs_16  (cost=0.00..4606.18 rows=221118 width=9) (actual time=0.060..27.986 rows=375901 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p15 bs_16  (cost=0.00..4606.18 rows=221118 width=9) (actual time=0.054..12.856 rows=375901.00 loops=1)
                                                   Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p04 bs_5  (cost=0.00..4606.02 rows=221102 width=9) (actual time=0.043..35.837 rows=375873 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p04 bs_5  (cost=0.00..4606.02 rows=221102 width=9) (actual time=0.041..12.361 rows=375873.00 loops=1)
                                                   Buffers: shared read=2395
-                                            ->  Parallel Seq Scan on booking_seats_p02 bs_3  (cost=0.00..4604.38 rows=221038 width=9) (actual time=0.044..10.254 rows=125255 loops=3)
+                                            ->  Parallel Seq Scan on booking_seats_p02 bs_3  (cost=0.00..4604.38 rows=221038 width=9) (actual time=0.035..4.365 rows=125254.67 loops=3)
                                                   Buffers: shared read=2394
-                                            ->  Parallel Seq Scan on booking_seats_p03 bs_4  (cost=0.00..4602.38 rows=220938 width=9) (actual time=0.008..27.489 rows=375595 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p03 bs_4  (cost=0.00..4602.38 rows=220938 width=9) (actual time=0.009..6.701 rows=187797.50 loops=2)
                                                   Buffers: shared read=2393
-                                            ->  Parallel Seq Scan on booking_seats_p09 bs_10  (cost=0.00..4592.75 rows=220475 width=9) (actual time=0.007..30.284 rows=374807 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p09 bs_10  (cost=0.00..4592.75 rows=220475 width=9) (actual time=0.017..12.536 rows=374807.00 loops=1)
                                                   Buffers: shared read=2388
-                                            ->  Parallel Seq Scan on booking_seats_p12 bs_13  (cost=0.00..4587.31 rows=220231 width=9) (actual time=0.009..30.101 rows=374393 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p12 bs_13  (cost=0.00..4587.31 rows=220231 width=9) (actual time=0.017..12.421 rows=374393.00 loops=1)
                                                   Buffers: shared read=2385
-                                            ->  Parallel Seq Scan on booking_seats_p08 bs_9  (cost=0.00..4583.73 rows=220073 width=9) (actual time=0.009..31.286 rows=374124 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p08 bs_9  (cost=0.00..4583.73 rows=220073 width=9) (actual time=0.016..12.825 rows=374124.00 loops=1)
                                                   Buffers: shared read=2383
-                                            ->  Parallel Seq Scan on booking_seats_p05 bs_6  (cost=0.00..4583.54 rows=220054 width=9) (actual time=0.016..31.711 rows=374092 loops=1)
+                                            ->  Parallel Seq Scan on booking_seats_p05 bs_6  (cost=0.00..4583.54 rows=220054 width=9) (actual time=0.115..13.435 rows=374092.00 loops=1)
                                                   Buffers: shared read=2383
-                                      ->  Parallel Hash  (cost=19205.92..19205.92 rows=782992 width=13) (actual time=146.676..146.676 rows=626394 loops=3)
-                                            Buckets: 262144  Batches: 16  Memory Usage: 7808kB
-                                            Buffers: shared read=11376, temp written=7548
-                                            ->  Parallel Seq Scan on seats se  (cost=0.00..19205.92 rows=782992 width=13) (actual time=0.027..56.119 rows=626394 loops=3)
+                                      ->  Parallel Hash  (cost=19205.92..19205.92 rows=782992 width=13) (actual time=81.626..81.626 rows=626394.00 loops=3)
+                                            Buckets: 262144  Batches: 16  Memory Usage: 7776kB
+                                            Buffers: shared read=11376, temp written=7568
+                                            ->  Parallel Seq Scan on seats se  (cost=0.00..19205.92 rows=782992 width=13) (actual time=0.031..30.622 rows=626394.00 loops=3)
                                                   Buffers: shared read=11376
-                                ->  Hash  (cost=161.00..161.00 rows=9800 width=9) (actual time=1.609..1.609 rows=9800 loops=3)
+                                ->  Hash  (cost=161.00..161.00 rows=9800 width=9) (actual time=0.959..0.959 rows=9800.00 loops=3)
                                       Buckets: 16384  Batches: 1  Memory Usage: 539kB
-                                      Buffers: shared hit=126 read=63
-                                      ->  Seq Scan on screens sc  (cost=0.00..161.00 rows=9800 width=9) (actual time=0.023..0.791 rows=9800 loops=3)
-                                            Buffers: shared hit=126 read=63
+                                      Buffers: shared hit=189
+                                      ->  Seq Scan on screens sc  (cost=0.00..161.00 rows=9800 width=9) (actual time=0.014..0.507 rows=9800.00 loops=3)
+                                            Buffers: shared hit=189
 Planning:
-  Buffers: shared hit=1652 read=104
-Planning Time: 5.116 ms
-Execution Time: 1593.085 ms
+  Buffers: shared hit=1707 read=73
+Planning Time: 2.861 ms
+Execution Time: 949.534 ms

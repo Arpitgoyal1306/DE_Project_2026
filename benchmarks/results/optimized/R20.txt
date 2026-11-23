@@ -1,81 +1,63 @@
 === R20 run 1 ===
-WindowAgg  (cost=8313.97..9023.25 rows=40531 width=68) (actual time=11.605..11.612 rows=30.00 loops=1)
+WindowAgg  (cost=8902.31..9614.18 rows=40679 width=68) (actual time=13.955..13.963 rows=30.00 loops=1)
   Window: w1 AS (ORDER BY ((bookings.booked_at)::date))
   Storage: Memory  Maximum Storage: 17kB
-  Buffers: shared hit=2293
-  ->  Sort  (cost=8313.96..8415.28 rows=40531 width=36) (actual time=11.596..11.598 rows=30.00 loops=1)
+  Buffers: shared hit=2187
+  ->  Sort  (cost=8902.29..9003.99 rows=40679 width=36) (actual time=13.947..13.948 rows=30.00 loops=1)
         Sort Key: ((bookings.booked_at)::date)
         Sort Method: quicksort  Memory: 25kB
-        Buffers: shared hit=2293
-        ->  HashAggregate  (cost=4604.00..5211.97 rows=40531 width=36) (actual time=11.528..11.586 rows=30.00 loops=1)
+        Buffers: shared hit=2187
+        ->  HashAggregate  (cost=5177.72..5787.91 rows=40679 width=36) (actual time=13.876..13.940 rows=30.00 loops=1)
               Group Key: (bookings.booked_at)::date
               Batches: 1  Memory Usage: 553kB
-              Buffers: shared hit=2290
-              ->  Bitmap Heap Scan on bookings  (cost=1087.93..4359.09 rows=48983 width=10) (actual time=1.504..8.781 rows=48926.00 loops=1)
-                    Recheck Cond: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
-                    Filter: ((status)::text = 'CONFIRMED'::text)
-                    Rows Removed by Filter: 6014
-                    Heap Blocks: exact=2162
-                    Buffers: shared hit=2290
-                    ->  Bitmap Index Scan on idx_bookings_booked_at  (cost=0.00..1075.68 rows=55126 width=0) (actual time=1.362..1.362 rows=54942.00 loops=1)
-                          Index Cond: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
-                          Index Searches: 1
-                          Buffers: shared hit=128
+              Buffers: shared hit=2184
+              ->  Seq Scan on bookings  (cost=0.00..4933.01 rows=48944 width=10) (actual time=0.006..11.287 rows=48926.00 loops=1)
+                    Filter: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 101168
+                    Buffers: shared hit=2184
 Planning:
-  Buffers: shared hit=240
-Planning Time: 0.433 ms
-Execution Time: 11.682 ms
+  Buffers: shared hit=268
+Planning Time: 0.417 ms
+Execution Time: 14.015 ms
 === R20 run 2 ===
-WindowAgg  (cost=8313.97..9023.25 rows=40531 width=68) (actual time=11.139..11.147 rows=30.00 loops=1)
+WindowAgg  (cost=8902.31..9614.18 rows=40679 width=68) (actual time=13.809..13.817 rows=30.00 loops=1)
   Window: w1 AS (ORDER BY ((bookings.booked_at)::date))
   Storage: Memory  Maximum Storage: 17kB
-  Buffers: shared hit=2293
-  ->  Sort  (cost=8313.96..8415.28 rows=40531 width=36) (actual time=11.130..11.131 rows=30.00 loops=1)
+  Buffers: shared hit=2187
+  ->  Sort  (cost=8902.29..9003.99 rows=40679 width=36) (actual time=13.802..13.803 rows=30.00 loops=1)
         Sort Key: ((bookings.booked_at)::date)
         Sort Method: quicksort  Memory: 25kB
-        Buffers: shared hit=2293
-        ->  HashAggregate  (cost=4604.00..5211.97 rows=40531 width=36) (actual time=11.055..11.120 rows=30.00 loops=1)
+        Buffers: shared hit=2187
+        ->  HashAggregate  (cost=5177.72..5787.91 rows=40679 width=36) (actual time=13.731..13.795 rows=30.00 loops=1)
               Group Key: (bookings.booked_at)::date
               Batches: 1  Memory Usage: 553kB
-              Buffers: shared hit=2290
-              ->  Bitmap Heap Scan on bookings  (cost=1087.93..4359.09 rows=48983 width=10) (actual time=1.270..8.367 rows=48926.00 loops=1)
-                    Recheck Cond: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
-                    Filter: ((status)::text = 'CONFIRMED'::text)
-                    Rows Removed by Filter: 6014
-                    Heap Blocks: exact=2162
-                    Buffers: shared hit=2290
-                    ->  Bitmap Index Scan on idx_bookings_booked_at  (cost=0.00..1075.68 rows=55126 width=0) (actual time=1.148..1.148 rows=54942.00 loops=1)
-                          Index Cond: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
-                          Index Searches: 1
-                          Buffers: shared hit=128
+              Buffers: shared hit=2184
+              ->  Seq Scan on bookings  (cost=0.00..4933.01 rows=48944 width=10) (actual time=0.006..11.071 rows=48926.00 loops=1)
+                    Filter: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 101168
+                    Buffers: shared hit=2184
 Planning:
-  Buffers: shared hit=240
-Planning Time: 0.391 ms
-Execution Time: 11.209 ms
+  Buffers: shared hit=268
+Planning Time: 0.423 ms
+Execution Time: 13.868 ms
 === R20 run 3 ===
-WindowAgg  (cost=8313.97..9023.25 rows=40531 width=68) (actual time=14.216..14.224 rows=30.00 loops=1)
+WindowAgg  (cost=8902.31..9614.18 rows=40679 width=68) (actual time=14.116..14.124 rows=30.00 loops=1)
   Window: w1 AS (ORDER BY ((bookings.booked_at)::date))
   Storage: Memory  Maximum Storage: 17kB
-  Buffers: shared hit=2293
-  ->  Sort  (cost=8313.96..8415.28 rows=40531 width=36) (actual time=14.206..14.207 rows=30.00 loops=1)
+  Buffers: shared hit=2187
+  ->  Sort  (cost=8902.29..9003.99 rows=40679 width=36) (actual time=14.108..14.109 rows=30.00 loops=1)
         Sort Key: ((bookings.booked_at)::date)
         Sort Method: quicksort  Memory: 25kB
-        Buffers: shared hit=2293
-        ->  HashAggregate  (cost=4604.00..5211.97 rows=40531 width=36) (actual time=14.131..14.195 rows=30.00 loops=1)
+        Buffers: shared hit=2187
+        ->  HashAggregate  (cost=5177.72..5787.91 rows=40679 width=36) (actual time=14.037..14.101 rows=30.00 loops=1)
               Group Key: (bookings.booked_at)::date
               Batches: 1  Memory Usage: 553kB
-              Buffers: shared hit=2290
-              ->  Bitmap Heap Scan on bookings  (cost=1087.93..4359.09 rows=48983 width=10) (actual time=1.285..10.530 rows=48926.00 loops=1)
-                    Recheck Cond: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
-                    Filter: ((status)::text = 'CONFIRMED'::text)
-                    Rows Removed by Filter: 6014
-                    Heap Blocks: exact=2162
-                    Buffers: shared hit=2290
-                    ->  Bitmap Index Scan on idx_bookings_booked_at  (cost=0.00..1075.68 rows=55126 width=0) (actual time=1.163..1.163 rows=54942.00 loops=1)
-                          Index Cond: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone))
-                          Index Searches: 1
-                          Buffers: shared hit=128
+              Buffers: shared hit=2184
+              ->  Seq Scan on bookings  (cost=0.00..4933.01 rows=48944 width=10) (actual time=0.006..11.414 rows=48926.00 loops=1)
+                    Filter: ((booked_at >= '2026-06-01 00:00:00+05:30'::timestamp with time zone) AND (booked_at < '2026-07-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 101168
+                    Buffers: shared hit=2184
 Planning:
-  Buffers: shared hit=240
-Planning Time: 0.440 ms
-Execution Time: 14.285 ms
+  Buffers: shared hit=268
+Planning Time: 0.421 ms
+Execution Time: 14.178 ms

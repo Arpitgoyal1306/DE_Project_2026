@@ -1,39 +1,39 @@
 === R22 run 1 ===
-Limit  (cost=21459.65..21459.71 rows=25 width=41) (actual time=38.854..38.856 rows=25.00 loops=1)
-  Buffers: shared hit=2187, temp read=861 written=1069
-  ->  Sort  (cost=21209.65..21584.89 rows=150094 width=41) (actual time=32.944..37.308 rows=100025.00 loops=1)
-        Sort Key: booked_at DESC
+Limit  (cost=21459.65..21459.71 rows=25 width=41) (actual time=39.423..39.425 rows=25.00 loops=1)
+  Buffers: shared hit=2190, temp read=861 written=1069
+  ->  Sort  (cost=21209.65..21584.89 rows=150094 width=41) (actual time=33.105..37.708 rows=100025.00 loops=1)
+        Sort Key: booked_at DESC, booking_id DESC
         Sort Method: external merge  Disk: 8528kB
-        Buffers: shared hit=2187, temp read=861 written=1069
-        ->  Seq Scan on bookings  (cost=0.00..3684.94 rows=150094 width=41) (actual time=0.006..9.531 rows=150094.00 loops=1)
+        Buffers: shared hit=2190, temp read=861 written=1069
+        ->  Seq Scan on bookings  (cost=0.00..3684.94 rows=150094 width=41) (actual time=0.007..9.501 rows=150094.00 loops=1)
               Buffers: shared hit=2184
 Planning:
-  Buffers: shared hit=141
-Planning Time: 0.233 ms
-Execution Time: 39.029 ms
+  Buffers: shared hit=143
+Planning Time: 0.211 ms
+Execution Time: 39.596 ms
 === R22 run 2 ===
-Limit  (cost=21459.65..21459.71 rows=25 width=41) (actual time=37.872..37.874 rows=25.00 loops=1)
-  Buffers: shared hit=2187, temp read=861 written=1069
-  ->  Sort  (cost=21209.65..21584.89 rows=150094 width=41) (actual time=32.020..36.283 rows=100025.00 loops=1)
-        Sort Key: booked_at DESC
+Limit  (cost=21459.65..21459.71 rows=25 width=41) (actual time=39.659..39.661 rows=25.00 loops=1)
+  Buffers: shared hit=2190, temp read=861 written=1069
+  ->  Sort  (cost=21209.65..21584.89 rows=150094 width=41) (actual time=33.186..37.962 rows=100025.00 loops=1)
+        Sort Key: booked_at DESC, booking_id DESC
         Sort Method: external merge  Disk: 8528kB
-        Buffers: shared hit=2187, temp read=861 written=1069
-        ->  Seq Scan on bookings  (cost=0.00..3684.94 rows=150094 width=41) (actual time=0.006..9.256 rows=150094.00 loops=1)
+        Buffers: shared hit=2190, temp read=861 written=1069
+        ->  Seq Scan on bookings  (cost=0.00..3684.94 rows=150094 width=41) (actual time=0.008..9.819 rows=150094.00 loops=1)
               Buffers: shared hit=2184
 Planning:
-  Buffers: shared hit=141
-Planning Time: 0.209 ms
-Execution Time: 38.039 ms
+  Buffers: shared hit=143
+Planning Time: 0.224 ms
+Execution Time: 39.840 ms
 === R22 run 3 ===
-Limit  (cost=21459.65..21459.71 rows=25 width=41) (actual time=38.210..38.212 rows=25.00 loops=1)
-  Buffers: shared hit=2187, temp read=861 written=1069
-  ->  Sort  (cost=21209.65..21584.89 rows=150094 width=41) (actual time=32.307..36.672 rows=100025.00 loops=1)
-        Sort Key: booked_at DESC
+Limit  (cost=21459.65..21459.71 rows=25 width=41) (actual time=39.827..39.829 rows=25.00 loops=1)
+  Buffers: shared hit=2190, temp read=861 written=1069
+  ->  Sort  (cost=21209.65..21584.89 rows=150094 width=41) (actual time=33.377..38.093 rows=100025.00 loops=1)
+        Sort Key: booked_at DESC, booking_id DESC
         Sort Method: external merge  Disk: 8528kB
-        Buffers: shared hit=2187, temp read=861 written=1069
-        ->  Seq Scan on bookings  (cost=0.00..3684.94 rows=150094 width=41) (actual time=0.006..9.451 rows=150094.00 loops=1)
+        Buffers: shared hit=2190, temp read=861 written=1069
+        ->  Seq Scan on bookings  (cost=0.00..3684.94 rows=150094 width=41) (actual time=0.008..9.602 rows=150094.00 loops=1)
               Buffers: shared hit=2184
 Planning:
-  Buffers: shared hit=141
-Planning Time: 0.208 ms
-Execution Time: 38.418 ms
+  Buffers: shared hit=143
+Planning Time: 0.209 ms
+Execution Time: 40.074 ms
