@@ -1,11 +1,12 @@
 # Targeted follow-up experiments for PR #11
 
-Run against `bookmyshow_large` with the `bms` schema. Capture each phase with the existing runner and retain all generated raw plan files.
+Run against the local large PostgreSQL database `bookmyshow_large` with schema `bms`. These experiments are diagnostics, separate from the historical §4 benchmark. Each timing phase uses three `EXPLAIN (ANALYZE, BUFFERS)` runs. Test-only indexes and writes are rolled back; do not describe them as deployed schema changes.
 
-## R06: trigram candidate
+## R06: trigram index — successful local candidate
 
-Control SQL is the R06 statement in `sql/06_optimized_queries.sql`. Record its three-run plan first. Then:
+SQL tested: the R06 title search from `sql/06_optimized_queries.sql`, using `WHERE title ILIKE '%kalki%'` and ordering by `release_date DESC`.
 
+DDL:
 ```sql
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX idx_movies_title_trgm_test
@@ -13,72 +14,67 @@ CREATE INDEX idx_movies_title_trgm_test
 ANALYZE bms.movies;
 ```
 
-Run the same R06 statement three times again. Keep the index only if the plan uses it and the measured latency justifies its storage/write overhead. The table has only 6,000 rows, so a sequential scan may remain cheaper.
+Three-run averages: 3.072 ms before, 0.191 ms after (about 16.1× faster). The plan changed from Seq Scan to Bitmap Index Scan + Bitmap Heap Scan; both phases returned 300 rows. Raw plans: `benchmarks/results/local_r06_verified/R06.txt`. The test transaction ended with ROLLBACK. Validate index storage and write overhead before adopting it permanently.
 
-## W02: screen-first seat lookup candidate
+## W02: screen-first seat lookup — no meaningful improvement
 
-Capture the current optimized W02 plan three times first. Then:
-
+Candidate DDL:
 ```sql
 CREATE INDEX idx_seats_screen_seat_test
     ON bms.seats (screen_id, seat_id);
 ANALYZE bms.seats;
 ```
 
-Run the exact same W02 statement three times. Every execution must be inside `BEGIN; EXPLAIN (ANALYZE, BUFFERS) INSERT ...; ROLLBACK;` (the benchmark runner does this for W* statements). Compare the two selected seat IDs before and after the index using a read-only preview of the oldest PENDING booking's show and its two lowest unsold seat IDs. Do not retain the index unless the selected seat IDs are identical and latency improves.
+The exact INSERT was run three times per phase using savepoints inside one repeatable-read transaction; each write was rolled back. Average changed from 78.568 to 76.905 ms (about 2.1% faster), and the plan continued to use the existing primary-key path. Before and after selected the same seats for booking 9079/show 3112341: 521521 and 521522; `mismatched_seats = 0`. The outer transaction ended with ROLLBACK. Raw evidence: `benchmarks/results/local_w02_verified/W02_corrected.txt`. Do not claim the candidate index as an effective optimization.
 
-Preview query:
+## R13: optimized-query baseline — no Phase 5 candidate comparison
 
+Phase 4 already uses:
 ```sql
-SET search_path TO bms;
-WITH target AS (
-  SELECT b.booking_id, b.show_id, s.screen_id
-  FROM bookings b
-  JOIN shows s ON s.show_id = b.show_id
-  WHERE b.booking_id = (
-    SELECT min(booking_id) FROM bookings WHERE status = 'PENDING'
-  )
-)
-SELECT t.booking_id, t.show_id, se.seat_id
-FROM target t
-JOIN seats se ON se.screen_id = t.screen_id
+SELECT o.offer_code, o.description, o.discount_pct
+FROM bms.offers o
 WHERE NOT EXISTS (
-  SELECT 1 FROM booking_seats bs
-  WHERE bs.show_id = t.show_id AND bs.seat_id = se.seat_id
-)
-ORDER BY se.seat_id
-LIMIT 2;
+    SELECT 1 FROM bms.bookings b
+    WHERE b.offer_code = o.offer_code
+);
 ```
 
-## R13: correct optimized baseline
+Three-run optimized baseline: 190.083, 185.179 and 185.658 ms; average 186.973 ms. The Hash Right Anti Join returned 7 rows. Raw evidence: `benchmarks/results/local_r13_verified/R13.txt`.
 
-Phase 4 already rewrites R13 to `NOT EXISTS`. Do not compare Phase 3 `NOT IN` against Phase 4 `NOT EXISTS` as an optimization. Run the exact R13 statement from `sql/06_optimized_queries.sql` three times as the Phase 4 optimized baseline on the large database, save its plans, and compare the same statement against any proposed index only if one is tested. Confirm the returned offer rows are identical.
+The Phase 3 `NOT IN` query returns 0 rows due to NULL offer codes, while the Phase 4 `NOT EXISTS` query returns 7. That is a correctness correction, not a valid Phase 5 performance before/after comparison. No separate R13 index/query candidate was established in this experiment.
 
-## R22: deterministic page and equivalence
+## R22: deterministic page and covering index — successful local candidate
 
-Use a stable ordering in both variants:
-
+Both variants used the full page query with a deterministic unique ordering:
 ```sql
-SELECT booking_id
+SELECT booking_id, booking_code, customer_id, show_id, status, booked_at
 FROM bms.bookings
 ORDER BY booked_at DESC, booking_id DESC
 OFFSET 100000 LIMIT 25;
 ```
 
-Capture the ordered 25 IDs before and after the covering index. Compare with EXCEPT in both directions (or compare ordered arrays). If using a covering index, its leading keys must match the ordering:
-
+Test index:
 ```sql
-CREATE INDEX idx_bookings_page_cover_test
+CREATE INDEX idx_bookings_page_order_test
 ON bms.bookings (booked_at DESC, booking_id DESC)
 INCLUDE (booking_code, customer_id, show_id, status);
 ```
 
-Run the same full R22 SELECT three times before and after this index. Do not compare the old non-deterministic `ORDER BY booked_at DESC` page against the new tie-broken page.
+Both phases ran in the same repeatable-read snapshot. Before plans used Incremental Sort + Index Scan (147.510 ms average); after plans used Index Only Scan (5.990 ms average; 0 heap fetches). The ordered `(position, booking_id)` comparison returned 25 rows in each phase and 0 mismatched positions. The test index was rolled back with the transaction. Raw evidence: `benchmarks/results/local_r22_verified/R22.txt`.
 
-## R21
+This local result is not a deployed index and does not rewrite the historical §4 timing.
 
-The current evidence compares the same top-20 SELECT with normal planner settings and with session-local `SET enable_indexscan = off`. Preserve the two plan sets and the bidirectional EXCEPT result. Do not change global planner settings.
+## R21: planner-setting comparison
+
+The same SELECT was run with the normal planner and with session-local:
+```sql
+SET enable_indexscan = off;
+```
+
+Normal planner average: 4,193.645 ms. Sequential-scan runs: 1,122.273, 1,170.072 and 1,203.334 ms (average 1,165.226 ms). The setting was session-local and was not made global. Raw evidence with the setting and plans: `benchmarks/results/local_seqscan_verified/R21.txt`.
+
+Treat this as a planner-setting experiment, not a persistent index or production recommendation. Validate on production-like hardware and workload before adopting.
 
 ## Evidence to commit
 
-Commit the complete raw plan files for all five queries and all three runs in each applicable phase, plus the exact SQL/DDL/session settings. Do not include the faculty CSV archive or database files in Git.
+Include the three-run raw plans and SQL artifacts for the five targeted queries. Keep the older control runs when they help explain the original comparisons, and use the verified R06/R13/R21/R22/W02 files for the final measured results. Do not include the faculty CSV archive or database files in Git.
