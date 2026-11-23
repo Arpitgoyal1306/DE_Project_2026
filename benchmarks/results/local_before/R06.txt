@@ -1,0 +1,39 @@
+=== R06 run 1 ===
+Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=4.434..4.440 rows=300.00 loops=1)
+  Sort Key: release_date DESC
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=3 read=53
+  ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.050..4.364 rows=300.00 loops=1)
+        Filter: ((title)::text ~~* '%kalki%'::text)
+        Rows Removed by Filter: 5700
+        Buffers: shared read=53
+Planning:
+  Buffers: shared hit=87 read=1
+Planning Time: 1.688 ms
+Execution Time: 4.474 ms
+=== R06 run 2 ===
+Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=2.143..2.148 rows=300.00 loops=1)
+  Sort Key: release_date DESC
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=56
+  ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.005..2.105 rows=300.00 loops=1)
+        Filter: ((title)::text ~~* '%kalki%'::text)
+        Rows Removed by Filter: 5700
+        Buffers: shared hit=53
+Planning:
+  Buffers: shared hit=88
+Planning Time: 0.214 ms
+Execution Time: 2.172 ms
+=== R06 run 3 ===
+Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=2.129..2.135 rows=300.00 loops=1)
+  Sort Key: release_date DESC
+  Sort Method: quicksort  Memory: 41kB
+  Buffers: shared hit=56
+  ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.005..2.092 rows=300.00 loops=1)
+        Filter: ((title)::text ~~* '%kalki%'::text)
+        Rows Removed by Filter: 5700
+        Buffers: shared hit=53
+Planning:
+  Buffers: shared hit=88
+Planning Time: 0.205 ms
+Execution Time: 2.156 ms

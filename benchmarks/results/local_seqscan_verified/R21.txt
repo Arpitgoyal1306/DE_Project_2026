@@ -1,0 +1,77 @@
+-- R21: verified sequential-scan experiment
+-- Session setting: enable_indexscan = off
+=== R21 run 1 ===
+SET
+SET
+                                                                 QUERY PLAN                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=317540.39..317540.44 rows=20 width=44) (actual time=1100.592..1100.594 rows=20.00 loops=1)
+   Buffers: shared hit=10183 read=33095, temp read=14249 written=29756
+   ->  Sort  (cost=317540.39..319138.74 rows=639337 width=44) (actual time=1100.591..1100.592 rows=20.00 loops=1)
+         Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+         Sort Method: top-N heapsort  Memory: 27kB
+         Buffers: shared hit=10183 read=33095, temp read=14249 written=29756
+         ->  HashAggregate  (cost=266409.87..300527.87 rows=639337 width=44) (actual time=666.137..1068.846 rows=771482.00 loops=1)
+               Group Key: customer_id
+               Planned Partitions: 32  Batches: 165  Memory Usage: 8249kB  Disk Usage: 128016kB
+               Buffers: shared hit=10177 read=33095, temp read=14249 written=29756
+               ->  Seq Scan on bookings  (cost=0.00..88333.15 rows=2675331 width=10) (actual time=0.086..219.666 rows=2671876.00 loops=1)
+                     Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                     Rows Removed by Filter: 332201
+                     Buffers: shared hit=10177 read=33095
+ Planning:
+   Buffers: shared hit=284 read=8
+ Planning Time: 2.587 ms
+ Execution Time: 1122.273 ms
+(18 rows)
+
+=== R21 run 2 ===
+SET
+SET
+                                                                 QUERY PLAN                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=317540.39..317540.44 rows=20 width=44) (actual time=1149.038..1149.040 rows=20.00 loops=1)
+   Buffers: shared hit=10200 read=33078, temp read=14249 written=29756
+   ->  Sort  (cost=317540.39..319138.74 rows=639337 width=44) (actual time=1149.037..1149.038 rows=20.00 loops=1)
+         Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+         Sort Method: top-N heapsort  Memory: 27kB
+         Buffers: shared hit=10200 read=33078, temp read=14249 written=29756
+         ->  HashAggregate  (cost=266409.87..300527.87 rows=639337 width=44) (actual time=670.334..1115.289 rows=771482.00 loops=1)
+               Group Key: customer_id
+               Planned Partitions: 32  Batches: 165  Memory Usage: 8249kB  Disk Usage: 128016kB
+               Buffers: shared hit=10194 read=33078, temp read=14249 written=29756
+               ->  Seq Scan on bookings  (cost=0.00..88333.15 rows=2675331 width=10) (actual time=0.065..220.778 rows=2671876.00 loops=1)
+                     Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                     Rows Removed by Filter: 332201
+                     Buffers: shared hit=10194 read=33078
+ Planning:
+   Buffers: shared hit=292
+ Planning Time: 0.438 ms
+ Execution Time: 1170.072 ms
+(18 rows)
+
+=== R21 run 3 ===
+SET
+SET
+                                                                 QUERY PLAN                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=317540.39..317540.44 rows=20 width=44) (actual time=1183.197..1183.198 rows=20.00 loops=1)
+   Buffers: shared hit=10293 read=32985, temp read=14249 written=29756
+   ->  Sort  (cost=317540.39..319138.74 rows=639337 width=44) (actual time=1183.196..1183.197 rows=20.00 loops=1)
+         Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+         Sort Method: top-N heapsort  Memory: 27kB
+         Buffers: shared hit=10293 read=32985, temp read=14249 written=29756
+         ->  HashAggregate  (cost=266409.87..300527.87 rows=639337 width=44) (actual time=730.929..1149.831 rows=771482.00 loops=1)
+               Group Key: customer_id
+               Planned Partitions: 32  Batches: 165  Memory Usage: 8249kB  Disk Usage: 128016kB
+               Buffers: shared hit=10287 read=32985, temp read=14249 written=29756
+               ->  Seq Scan on bookings  (cost=0.00..88333.15 rows=2675331 width=10) (actual time=0.134..234.313 rows=2671876.00 loops=1)
+                     Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                     Rows Removed by Filter: 332201
+                     Buffers: shared hit=10287 read=32985
+ Planning:
+   Buffers: shared hit=292
+ Planning Time: 0.466 ms
+ Execution Time: 1203.334 ms
+(18 rows)
+

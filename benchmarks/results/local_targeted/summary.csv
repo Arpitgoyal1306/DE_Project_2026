@@ -1,0 +1,6 @@
+query_id,before_avg_ms,tested_avg_ms,tested_plan_or_change
+R06,3.072,0.191,"pg_trgm GIN on movies.title; Bitmap Index/Heap Scan; 300 rows; test index rolled back"
+R13,186.973,,"Phase 4 optimized NOT EXISTS baseline; Hash Right Anti Join; 7 rows; no separate Phase 5 candidate"
+R21,4193.645,1165.226,"Same SELECT; session-local enable_indexscan=off; Seq Scan; setting not global"
+R22,147.510,5.990,"Deterministic ORDER BY booked_at DESC, booking_id DESC; composite covering index; 0 ordered-position mismatches; test index rolled back"
+W02,78.568,76.905,"Test seats(screen_id, seat_id); same two seat IDs; 0 mismatches; existing PK plan remained"

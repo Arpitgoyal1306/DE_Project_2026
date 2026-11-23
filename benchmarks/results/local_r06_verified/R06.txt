@@ -1,0 +1,140 @@
+SET
+BEGIN
+   ?column?   
+--------------
+ BEFORE RUN 1
+(1 row)
+
+                                                   QUERY PLAN                                                   
+----------------------------------------------------------------------------------------------------------------
+ Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=4.630..4.642 rows=300.00 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 41kB
+   Buffers: shared hit=3 read=53
+   ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.067..4.556 rows=300.00 loops=1)
+         Filter: ((title)::text ~~* '%kalki%'::text)
+         Rows Removed by Filter: 5700
+         Buffers: shared read=53
+ Planning:
+   Buffers: shared hit=86 read=2
+ Planning Time: 0.821 ms
+ Execution Time: 4.667 ms
+(12 rows)
+
+   ?column?   
+--------------
+ BEFORE RUN 2
+(1 row)
+
+                                                   QUERY PLAN                                                   
+----------------------------------------------------------------------------------------------------------------
+ Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=2.332..2.338 rows=300.00 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 41kB
+   Buffers: shared hit=53
+   ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.006..2.294 rows=300.00 loops=1)
+         Filter: ((title)::text ~~* '%kalki%'::text)
+         Rows Removed by Filter: 5700
+         Buffers: shared hit=53
+ Planning Time: 0.098 ms
+ Execution Time: 2.350 ms
+(10 rows)
+
+   ?column?   
+--------------
+ BEFORE RUN 3
+(1 row)
+
+                                                   QUERY PLAN                                                   
+----------------------------------------------------------------------------------------------------------------
+ Sort  (cost=140.49..141.25 rows=303 width=34) (actual time=2.183..2.189 rows=300.00 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 41kB
+   Buffers: shared hit=53
+   ->  Seq Scan on movies  (cost=0.00..128.00 rows=303 width=34) (actual time=0.005..2.156 rows=300.00 loops=1)
+         Filter: ((title)::text ~~* '%kalki%'::text)
+         Rows Removed by Filter: 5700
+         Buffers: shared hit=53
+ Planning Time: 0.066 ms
+ Execution Time: 2.198 ms
+(10 rows)
+
+CREATE EXTENSION
+CREATE INDEX
+ANALYZE
+  ?column?   
+-------------
+ AFTER RUN 1
+(1 row)
+
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.180..0.186 rows=300.00 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 41kB
+   Buffers: shared hit=60
+   ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.023..0.153 rows=300.00 loops=1)
+         Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+         Heap Blocks: exact=53
+         Buffers: shared hit=60
+         ->  Bitmap Index Scan on idx_movies_title_trgm_test  (cost=0.00..31.69 rows=303 width=0) (actual time=0.017..0.017 rows=300.00 loops=1)
+               Index Cond: ((title)::text ~~* '%kalki%'::text)
+               Index Searches: 1
+               Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=42
+ Planning Time: 0.110 ms
+ Execution Time: 0.199 ms
+(16 rows)
+
+  ?column?   
+-------------
+ AFTER RUN 2
+(1 row)
+
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.174..0.180 rows=300.00 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 41kB
+   Buffers: shared hit=60
+   ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.021..0.147 rows=300.00 loops=1)
+         Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+         Heap Blocks: exact=53
+         Buffers: shared hit=60
+         ->  Bitmap Index Scan on idx_movies_title_trgm_test  (cost=0.00..31.69 rows=303 width=0) (actual time=0.015..0.015 rows=300.00 loops=1)
+               Index Cond: ((title)::text ~~* '%kalki%'::text)
+               Index Searches: 1
+               Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.057 ms
+ Execution Time: 0.189 ms
+(16 rows)
+
+  ?column?   
+-------------
+ AFTER RUN 3
+(1 row)
+
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=101.04..101.80 rows=303 width=34) (actual time=0.170..0.176 rows=300.00 loops=1)
+   Sort Key: release_date DESC
+   Sort Method: quicksort  Memory: 41kB
+   Buffers: shared hit=60
+   ->  Bitmap Heap Scan on movies  (cost=31.76..88.55 rows=303 width=34) (actual time=0.021..0.142 rows=300.00 loops=1)
+         Recheck Cond: ((title)::text ~~* '%kalki%'::text)
+         Heap Blocks: exact=53
+         Buffers: shared hit=60
+         ->  Bitmap Index Scan on idx_movies_title_trgm_test  (cost=0.00..31.69 rows=303 width=0) (actual time=0.015..0.015 rows=300.00 loops=1)
+               Index Cond: ((title)::text ~~* '%kalki%'::text)
+               Index Searches: 1
+               Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.054 ms
+ Execution Time: 0.185 ms
+(16 rows)
+
+ROLLBACK

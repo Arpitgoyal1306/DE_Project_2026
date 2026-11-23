@@ -1,0 +1,70 @@
+SET
+         ?column?         
+--------------------------
+ OPTIMIZED BASELINE RUN 1
+(1 row)
+
+                                                          QUERY PLAN                                                           
+-------------------------------------------------------------------------------------------------------------------------------
+ Hash Right Anti Join  (cost=1.56..105262.69 rows=7 width=32) (actual time=190.044..190.048 rows=7.00 loops=1)
+   Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
+   Buffers: shared hit=2730 read=40543
+   ->  Seq Scan on bookings b  (cost=0.00..73312.77 rows=3004077 width=10) (actual time=0.052..86.657 rows=3004077.00 loops=1)
+         Buffers: shared hit=2729 read=40543
+   ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.015..0.016 rows=25.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 10kB
+         Buffers: shared hit=1
+         ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.005..0.007 rows=25.00 loops=1)
+               Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=343 read=5
+ Planning Time: 1.680 ms
+ Execution Time: 190.083 ms
+(14 rows)
+
+         ?column?         
+--------------------------
+ OPTIMIZED BASELINE RUN 2
+(1 row)
+
+                                                          QUERY PLAN                                                           
+-------------------------------------------------------------------------------------------------------------------------------
+ Hash Right Anti Join  (cost=1.56..105262.69 rows=7 width=32) (actual time=185.153..185.157 rows=7.00 loops=1)
+   Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
+   Buffers: shared hit=2730 read=40543
+   ->  Seq Scan on bookings b  (cost=0.00..73312.77 rows=3004077 width=10) (actual time=0.077..82.929 rows=3004077.00 loops=1)
+         Buffers: shared hit=2729 read=40543
+   ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.011..0.012 rows=25.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 10kB
+         Buffers: shared hit=1
+         ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.003..0.004 rows=25.00 loops=1)
+               Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=4
+ Planning Time: 0.078 ms
+ Execution Time: 185.179 ms
+(14 rows)
+
+         ?column?         
+--------------------------
+ OPTIMIZED BASELINE RUN 3
+(1 row)
+
+                                                          QUERY PLAN                                                           
+-------------------------------------------------------------------------------------------------------------------------------
+ Hash Right Anti Join  (cost=1.56..105262.69 rows=7 width=32) (actual time=185.641..185.645 rows=7.00 loops=1)
+   Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
+   Buffers: shared hit=2824 read=40449
+   ->  Seq Scan on bookings b  (cost=0.00..73312.77 rows=3004077 width=10) (actual time=0.052..83.203 rows=3004077.00 loops=1)
+         Buffers: shared hit=2823 read=40449
+   ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.008..0.009 rows=25.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 10kB
+         Buffers: shared hit=1
+         ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.003..0.004 rows=25.00 loops=1)
+               Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=4
+ Planning Time: 0.076 ms
+ Execution Time: 185.658 ms
+(14 rows)
+

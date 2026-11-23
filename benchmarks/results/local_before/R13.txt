@@ -1,0 +1,45 @@
+=== R13 run 1 ===
+Seq Scan on offers o  (cost=0.00..1381510.28 rows=12 width=32) (actual time=1283.849..1283.850 rows=0.00 loops=1)
+  Filter: (NOT (ANY ((offer_code)::text = ((SubPlan 1).col1)::text)))
+  Rows Removed by Filter: 25
+  Buffers: shared read=43273, temp read=25399 written=4233
+  SubPlan 1
+    ->  Materialize  (cost=0.00..103009.62 rows=3004441 width=10) (actual time=0.001..32.123 rows=841215.48 loops=25)
+          Storage: Disk  Maximum Storage: 33857kB
+          Buffers: shared read=43272, temp read=25399 written=4233
+          ->  Seq Scan on bookings b  (cost=0.00..73316.41 rows=3004441 width=10) (actual time=0.019..124.969 rows=3004077.00 loops=1)
+                Buffers: shared read=43272
+Planning:
+  Buffers: shared hit=157 read=8
+Planning Time: 1.350 ms
+Execution Time: 1284.418 ms
+=== R13 run 2 ===
+Seq Scan on offers o  (cost=0.00..1381510.28 rows=12 width=32) (actual time=1267.464..1267.465 rows=0.00 loops=1)
+  Filter: (NOT (ANY ((offer_code)::text = ((SubPlan 1).col1)::text)))
+  Rows Removed by Filter: 25
+  Buffers: shared hit=95 read=43178, temp read=25399 written=4233
+  SubPlan 1
+    ->  Materialize  (cost=0.00..103009.62 rows=3004441 width=10) (actual time=0.002..31.743 rows=841215.48 loops=25)
+          Storage: Disk  Maximum Storage: 33857kB
+          Buffers: shared hit=94 read=43178, temp read=25399 written=4233
+          ->  Seq Scan on bookings b  (cost=0.00..73316.41 rows=3004441 width=10) (actual time=0.041..123.701 rows=3004077.00 loops=1)
+                Buffers: shared hit=94 read=43178
+Planning:
+  Buffers: shared hit=165
+Planning Time: 0.342 ms
+Execution Time: 1268.106 ms
+=== R13 run 3 ===
+Seq Scan on offers o  (cost=0.00..1381510.28 rows=12 width=32) (actual time=1294.571..1294.571 rows=0.00 loops=1)
+  Filter: (NOT (ANY ((offer_code)::text = ((SubPlan 1).col1)::text)))
+  Rows Removed by Filter: 25
+  Buffers: shared hit=189 read=43084, temp read=25399 written=4233
+  SubPlan 1
+    ->  Materialize  (cost=0.00..103009.62 rows=3004441 width=10) (actual time=0.002..32.594 rows=841215.48 loops=25)
+          Storage: Disk  Maximum Storage: 33857kB
+          Buffers: shared hit=188 read=43084, temp read=25399 written=4233
+          ->  Seq Scan on bookings b  (cost=0.00..73316.41 rows=3004441 width=10) (actual time=0.036..121.561 rows=3004077.00 loops=1)
+                Buffers: shared hit=188 read=43084
+Planning:
+  Buffers: shared hit=165
+Planning Time: 0.319 ms
+Execution Time: 1295.095 ms
