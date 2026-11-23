@@ -1,0 +1,788 @@
+SET
+BEGIN
+SELECT 2
+   ?column?   
+--------------
+ BEFORE RUN 1
+(1 row)
+
+SAVEPOINT
+                                                                                     QUERY PLAN                                                                                      
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Insert on booking_seats  (cost=9.86..1095.86 rows=0 width=0) (actual time=79.458..79.460 rows=0.00 loops=1)
+   Conflict Resolution: NOTHING
+   Conflict Arbiter Indexes: pk_booking_seats
+   Tuples Inserted: 2
+   Conflicting Tuples: 0
+   Buffers: shared hit=4660
+   ->  Subquery Scan on "*SELECT*"  (cost=9.86..1095.86 rows=2 width=28) (actual time=79.275..79.279 rows=2.00 loops=1)
+         Buffers: shared hit=4597
+         ->  Limit  (cost=9.86..1095.85 rows=2 width=44) (actual time=79.274..79.278 rows=2.00 loops=1)
+               Buffers: shared hit=4597
+               InitPlan 2
+                 ->  Result  (cost=8.14..8.15 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+                       Buffers: shared hit=2
+                       InitPlan 1
+                         ->  Limit  (cost=0.12..8.14 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+                               Buffers: shared hit=2
+                               ->  Index Only Scan using idx_bookings_pending on bookings  (cost=0.12..8.14 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+                                     Heap Fetches: 0
+                                     Index Searches: 1
+                                     Buffers: shared hit=2
+               ->  Nested Loop Anti Join  (cost=1.71..102085.23 rows=188 width=44) (actual time=79.273..79.277 rows=2.00 loops=1)
+                     Buffers: shared hit=4597
+                     ->  Nested Loop  (cost=1.29..88391.79 rows=192 width=12) (actual time=79.256..79.257 rows=2.00 loops=1)
+                           Join Filter: (s.screen_id = se.screen_id)
+                           Rows Removed by Join Filter: 521520
+                           Buffers: shared hit=4591
+                           ->  Index Scan using seats_pkey on seats se  (cost=0.43..60187.16 rows=1879182 width=6) (actual time=0.003..23.950 rows=521522.00 loops=1)
+                                 Index Searches: 1
+                                 Buffers: shared hit=4581
+                           ->  Materialize  (cost=0.86..16.90 rows=1 width=10) (actual time=0.000..0.000 rows=1.00 loops=521522)
+                                 Storage: Memory  Maximum Storage: 17kB
+                                 Buffers: shared hit=10
+                                 ->  Nested Loop  (cost=0.86..16.90 rows=1 width=10) (actual time=0.012..0.012 rows=1.00 loops=1)
+                                       Buffers: shared hit=10
+                                       ->  Index Only Scan using uq_bookings_id_show on bookings b  (cost=0.43..8.45 rows=1 width=8) (actual time=0.008..0.008 rows=1.00 loops=1)
+                                             Index Cond: (booking_id = (InitPlan 2).col1)
+                                             Heap Fetches: 0
+                                             Index Searches: 1
+                                             Buffers: shared hit=6
+                                       ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.003..0.003 rows=1.00 loops=1)
+                                             Index Cond: (show_id = b.show_id)
+                                             Index Searches: 1
+                                             Buffers: shared hit=4
+                     ->  Append  (cost=0.42..71.16 rows=16 width=8) (actual time=0.008..0.008 rows=0.00 loops=2)
+                           Buffers: shared hit=6
+                           ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.44 rows=1 width=8) (actual time=0.006..0.006 rows=0.00 loops=2)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 2
+                                 Buffers: shared hit=6
+                           ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+ Planning:
+   Buffers: shared hit=48
+ Planning Time: 0.564 ms
+ Trigger for constraint fk_booking_seats_booking_show_partitioned on booking_seats_p03: time=0.161 calls=2
+ Trigger for constraint fk_booking_seats_seat_partitioned on booking_seats_p03: time=0.048 calls=2
+ Trigger for constraint fk_booking_seats_show_partitioned on booking_seats_p03: time=0.046 calls=2
+ Execution Time: 79.756 ms
+(117 rows)
+
+ROLLBACK
+   ?column?   
+--------------
+ BEFORE RUN 2
+(1 row)
+
+SAVEPOINT
+                                                                                     QUERY PLAN                                                                                      
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Insert on booking_seats  (cost=9.86..1095.86 rows=0 width=0) (actual time=78.081..78.082 rows=0.00 loops=1)
+   Conflict Resolution: NOTHING
+   Conflict Arbiter Indexes: pk_booking_seats
+   Tuples Inserted: 2
+   Conflicting Tuples: 0
+   Buffers: shared hit=4641
+   ->  Subquery Scan on "*SELECT*"  (cost=9.86..1095.86 rows=2 width=28) (actual time=78.032..78.036 rows=2.00 loops=1)
+         Buffers: shared hit=4600
+         ->  Limit  (cost=9.86..1095.85 rows=2 width=44) (actual time=78.031..78.035 rows=2.00 loops=1)
+               Buffers: shared hit=4600
+               InitPlan 2
+                 ->  Result  (cost=8.14..8.15 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+                       Buffers: shared hit=2
+                       InitPlan 1
+                         ->  Limit  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                               Buffers: shared hit=2
+                               ->  Index Only Scan using idx_bookings_pending on bookings  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                                     Heap Fetches: 0
+                                     Index Searches: 1
+                                     Buffers: shared hit=2
+               ->  Nested Loop Anti Join  (cost=1.71..102085.23 rows=188 width=44) (actual time=78.031..78.034 rows=2.00 loops=1)
+                     Buffers: shared hit=4600
+                     ->  Nested Loop  (cost=1.29..88391.79 rows=192 width=12) (actual time=78.020..78.021 rows=2.00 loops=1)
+                           Join Filter: (s.screen_id = se.screen_id)
+                           Rows Removed by Join Filter: 521520
+                           Buffers: shared hit=4591
+                           ->  Index Scan using seats_pkey on seats se  (cost=0.43..60187.16 rows=1879182 width=6) (actual time=0.003..23.481 rows=521522.00 loops=1)
+                                 Index Searches: 1
+                                 Buffers: shared hit=4581
+                           ->  Materialize  (cost=0.86..16.90 rows=1 width=10) (actual time=0.000..0.000 rows=1.00 loops=521522)
+                                 Storage: Memory  Maximum Storage: 17kB
+                                 Buffers: shared hit=10
+                                 ->  Nested Loop  (cost=0.86..16.90 rows=1 width=10) (actual time=0.006..0.007 rows=1.00 loops=1)
+                                       Buffers: shared hit=10
+                                       ->  Index Only Scan using uq_bookings_id_show on bookings b  (cost=0.43..8.45 rows=1 width=8) (actual time=0.005..0.005 rows=1.00 loops=1)
+                                             Index Cond: (booking_id = (InitPlan 2).col1)
+                                             Heap Fetches: 0
+                                             Index Searches: 1
+                                             Buffers: shared hit=6
+                                       ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.001..0.001 rows=1.00 loops=1)
+                                             Index Cond: (show_id = b.show_id)
+                                             Index Searches: 1
+                                             Buffers: shared hit=4
+                     ->  Append  (cost=0.42..71.16 rows=16 width=8) (actual time=0.005..0.005 rows=0.00 loops=2)
+                           Buffers: shared hit=9
+                           ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.44 rows=1 width=8) (actual time=0.004..0.004 rows=0.00 loops=2)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 2
+                                 Index Searches: 2
+                                 Buffers: shared hit=9
+                           ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+ Planning:
+   Buffers: shared hit=48
+ Planning Time: 0.537 ms
+ Trigger for constraint fk_booking_seats_booking_show_partitioned on booking_seats_p03: time=0.075 calls=2
+ Trigger for constraint fk_booking_seats_seat_partitioned on booking_seats_p03: time=0.024 calls=2
+ Trigger for constraint fk_booking_seats_show_partitioned on booking_seats_p03: time=0.029 calls=2
+ Execution Time: 78.242 ms
+(117 rows)
+
+ROLLBACK
+   ?column?   
+--------------
+ BEFORE RUN 3
+(1 row)
+
+SAVEPOINT
+                                                                                     QUERY PLAN                                                                                      
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Insert on booking_seats  (cost=9.86..1095.86 rows=0 width=0) (actual time=77.549..77.550 rows=0.00 loops=1)
+   Conflict Resolution: NOTHING
+   Conflict Arbiter Indexes: pk_booking_seats
+   Tuples Inserted: 2
+   Conflicting Tuples: 0
+   Buffers: shared hit=4641
+   ->  Subquery Scan on "*SELECT*"  (cost=9.86..1095.86 rows=2 width=28) (actual time=77.502..77.506 rows=2.00 loops=1)
+         Buffers: shared hit=4600
+         ->  Limit  (cost=9.86..1095.85 rows=2 width=44) (actual time=77.502..77.505 rows=2.00 loops=1)
+               Buffers: shared hit=4600
+               InitPlan 2
+                 ->  Result  (cost=8.14..8.15 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+                       Buffers: shared hit=2
+                       InitPlan 1
+                         ->  Limit  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                               Buffers: shared hit=2
+                               ->  Index Only Scan using idx_bookings_pending on bookings  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                                     Heap Fetches: 0
+                                     Index Searches: 1
+                                     Buffers: shared hit=2
+               ->  Nested Loop Anti Join  (cost=1.71..102085.23 rows=188 width=44) (actual time=77.501..77.505 rows=2.00 loops=1)
+                     Buffers: shared hit=4600
+                     ->  Nested Loop  (cost=1.29..88391.79 rows=192 width=12) (actual time=77.491..77.492 rows=2.00 loops=1)
+                           Join Filter: (s.screen_id = se.screen_id)
+                           Rows Removed by Join Filter: 521520
+                           Buffers: shared hit=4591
+                           ->  Index Scan using seats_pkey on seats se  (cost=0.43..60187.16 rows=1879182 width=6) (actual time=0.003..23.103 rows=521522.00 loops=1)
+                                 Index Searches: 1
+                                 Buffers: shared hit=4581
+                           ->  Materialize  (cost=0.86..16.90 rows=1 width=10) (actual time=0.000..0.000 rows=1.00 loops=521522)
+                                 Storage: Memory  Maximum Storage: 17kB
+                                 Buffers: shared hit=10
+                                 ->  Nested Loop  (cost=0.86..16.90 rows=1 width=10) (actual time=0.006..0.006 rows=1.00 loops=1)
+                                       Buffers: shared hit=10
+                                       ->  Index Only Scan using uq_bookings_id_show on bookings b  (cost=0.43..8.45 rows=1 width=8) (actual time=0.004..0.005 rows=1.00 loops=1)
+                                             Index Cond: (booking_id = (InitPlan 2).col1)
+                                             Heap Fetches: 0
+                                             Index Searches: 1
+                                             Buffers: shared hit=6
+                                       ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.001..0.001 rows=1.00 loops=1)
+                                             Index Cond: (show_id = b.show_id)
+                                             Index Searches: 1
+                                             Buffers: shared hit=4
+                     ->  Append  (cost=0.42..71.16 rows=16 width=8) (actual time=0.004..0.005 rows=0.00 loops=2)
+                           Buffers: shared hit=9
+                           ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.44 rows=1 width=8) (actual time=0.003..0.003 rows=0.00 loops=2)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 2
+                                 Index Searches: 2
+                                 Buffers: shared hit=9
+                           ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+ Planning:
+   Buffers: shared hit=48
+ Planning Time: 0.515 ms
+ Trigger for constraint fk_booking_seats_booking_show_partitioned on booking_seats_p03: time=0.066 calls=2
+ Trigger for constraint fk_booking_seats_seat_partitioned on booking_seats_p03: time=0.029 calls=2
+ Trigger for constraint fk_booking_seats_show_partitioned on booking_seats_p03: time=0.029 calls=2
+ Execution Time: 77.705 ms
+(117 rows)
+
+ROLLBACK
+CREATE INDEX
+ANALYZE
+SELECT 2
+  ?column?   
+-------------
+ AFTER RUN 1
+(1 row)
+
+SAVEPOINT
+                                                                                     QUERY PLAN                                                                                      
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Insert on booking_seats  (cost=9.86..1095.86 rows=0 width=0) (actual time=77.507..77.508 rows=0.00 loops=1)
+   Conflict Resolution: NOTHING
+   Conflict Arbiter Indexes: pk_booking_seats
+   Tuples Inserted: 2
+   Conflicting Tuples: 0
+   Buffers: shared hit=4641
+   ->  Subquery Scan on "*SELECT*"  (cost=9.86..1095.86 rows=2 width=28) (actual time=77.459..77.463 rows=2.00 loops=1)
+         Buffers: shared hit=4600
+         ->  Limit  (cost=9.86..1095.85 rows=2 width=44) (actual time=77.458..77.462 rows=2.00 loops=1)
+               Buffers: shared hit=4600
+               InitPlan 2
+                 ->  Result  (cost=8.14..8.15 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+                       Buffers: shared hit=2
+                       InitPlan 1
+                         ->  Limit  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                               Buffers: shared hit=2
+                               ->  Index Only Scan using idx_bookings_pending on bookings  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                                     Heap Fetches: 0
+                                     Index Searches: 1
+                                     Buffers: shared hit=2
+               ->  Nested Loop Anti Join  (cost=1.71..102085.23 rows=188 width=44) (actual time=77.458..77.461 rows=2.00 loops=1)
+                     Buffers: shared hit=4600
+                     ->  Nested Loop  (cost=1.29..88391.79 rows=192 width=12) (actual time=77.447..77.447 rows=2.00 loops=1)
+                           Join Filter: (s.screen_id = se.screen_id)
+                           Rows Removed by Join Filter: 521520
+                           Buffers: shared hit=4591
+                           ->  Index Scan using seats_pkey on seats se  (cost=0.43..60187.16 rows=1879182 width=6) (actual time=0.003..23.045 rows=521522.00 loops=1)
+                                 Index Searches: 1
+                                 Buffers: shared hit=4581
+                           ->  Materialize  (cost=0.86..16.90 rows=1 width=10) (actual time=0.000..0.000 rows=1.00 loops=521522)
+                                 Storage: Memory  Maximum Storage: 17kB
+                                 Buffers: shared hit=10
+                                 ->  Nested Loop  (cost=0.86..16.90 rows=1 width=10) (actual time=0.008..0.009 rows=1.00 loops=1)
+                                       Buffers: shared hit=10
+                                       ->  Index Only Scan using uq_bookings_id_show on bookings b  (cost=0.43..8.45 rows=1 width=8) (actual time=0.005..0.006 rows=1.00 loops=1)
+                                             Index Cond: (booking_id = (InitPlan 2).col1)
+                                             Heap Fetches: 0
+                                             Index Searches: 1
+                                             Buffers: shared hit=6
+                                       ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.002..0.002 rows=1.00 loops=1)
+                                             Index Cond: (show_id = b.show_id)
+                                             Index Searches: 1
+                                             Buffers: shared hit=4
+                     ->  Append  (cost=0.42..71.16 rows=16 width=8) (actual time=0.005..0.005 rows=0.00 loops=2)
+                           Buffers: shared hit=9
+                           ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.44 rows=1 width=8) (actual time=0.003..0.003 rows=0.00 loops=2)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 2
+                                 Index Searches: 2
+                                 Buffers: shared hit=9
+                           ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+ Planning:
+   Buffers: shared hit=48
+ Planning Time: 0.526 ms
+ Trigger for constraint fk_booking_seats_booking_show_partitioned on booking_seats_p03: time=0.024 calls=2
+ Trigger for constraint fk_booking_seats_seat_partitioned on booking_seats_p03: time=0.082 calls=2
+ Trigger for constraint fk_booking_seats_show_partitioned on booking_seats_p03: time=0.009 calls=2
+ Execution Time: 77.656 ms
+(117 rows)
+
+ROLLBACK
+  ?column?   
+-------------
+ AFTER RUN 2
+(1 row)
+
+SAVEPOINT
+                                                                                     QUERY PLAN                                                                                      
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Insert on booking_seats  (cost=9.86..1095.86 rows=0 width=0) (actual time=77.036..77.037 rows=0.00 loops=1)
+   Conflict Resolution: NOTHING
+   Conflict Arbiter Indexes: pk_booking_seats
+   Tuples Inserted: 2
+   Conflicting Tuples: 0
+   Buffers: shared hit=4641
+   ->  Subquery Scan on "*SELECT*"  (cost=9.86..1095.86 rows=2 width=28) (actual time=76.983..76.987 rows=2.00 loops=1)
+         Buffers: shared hit=4600
+         ->  Limit  (cost=9.86..1095.85 rows=2 width=44) (actual time=76.982..76.986 rows=2.00 loops=1)
+               Buffers: shared hit=4600
+               InitPlan 2
+                 ->  Result  (cost=8.14..8.15 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+                       Buffers: shared hit=2
+                       InitPlan 1
+                         ->  Limit  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                               Buffers: shared hit=2
+                               ->  Index Only Scan using idx_bookings_pending on bookings  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                                     Heap Fetches: 0
+                                     Index Searches: 1
+                                     Buffers: shared hit=2
+               ->  Nested Loop Anti Join  (cost=1.71..102085.23 rows=188 width=44) (actual time=76.982..76.985 rows=2.00 loops=1)
+                     Buffers: shared hit=4600
+                     ->  Nested Loop  (cost=1.29..88391.79 rows=192 width=12) (actual time=76.974..76.975 rows=2.00 loops=1)
+                           Join Filter: (s.screen_id = se.screen_id)
+                           Rows Removed by Join Filter: 521520
+                           Buffers: shared hit=4591
+                           ->  Index Scan using seats_pkey on seats se  (cost=0.43..60187.16 rows=1879182 width=6) (actual time=0.003..22.991 rows=521522.00 loops=1)
+                                 Index Searches: 1
+                                 Buffers: shared hit=4581
+                           ->  Materialize  (cost=0.86..16.90 rows=1 width=10) (actual time=0.000..0.000 rows=1.00 loops=521522)
+                                 Storage: Memory  Maximum Storage: 17kB
+                                 Buffers: shared hit=10
+                                 ->  Nested Loop  (cost=0.86..16.90 rows=1 width=10) (actual time=0.006..0.006 rows=1.00 loops=1)
+                                       Buffers: shared hit=10
+                                       ->  Index Only Scan using uq_bookings_id_show on bookings b  (cost=0.43..8.45 rows=1 width=8) (actual time=0.004..0.004 rows=1.00 loops=1)
+                                             Index Cond: (booking_id = (InitPlan 2).col1)
+                                             Heap Fetches: 0
+                                             Index Searches: 1
+                                             Buffers: shared hit=6
+                                       ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.001..0.001 rows=1.00 loops=1)
+                                             Index Cond: (show_id = b.show_id)
+                                             Index Searches: 1
+                                             Buffers: shared hit=4
+                     ->  Append  (cost=0.42..71.16 rows=16 width=8) (actual time=0.003..0.004 rows=0.00 loops=2)
+                           Buffers: shared hit=9
+                           ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.44 rows=1 width=8) (actual time=0.002..0.003 rows=0.00 loops=2)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 2
+                                 Index Searches: 2
+                                 Buffers: shared hit=9
+                           ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+ Planning:
+   Buffers: shared hit=48
+ Planning Time: 0.516 ms
+ Trigger for constraint fk_booking_seats_booking_show_partitioned on booking_seats_p03: time=0.019 calls=2
+ Trigger for constraint fk_booking_seats_seat_partitioned on booking_seats_p03: time=0.042 calls=2
+ Trigger for constraint fk_booking_seats_show_partitioned on booking_seats_p03: time=0.009 calls=2
+ Execution Time: 77.139 ms
+(117 rows)
+
+ROLLBACK
+  ?column?   
+-------------
+ AFTER RUN 3
+(1 row)
+
+SAVEPOINT
+                                                                                     QUERY PLAN                                                                                      
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Insert on booking_seats  (cost=9.86..1095.86 rows=0 width=0) (actual time=75.826..75.827 rows=0.00 loops=1)
+   Conflict Resolution: NOTHING
+   Conflict Arbiter Indexes: pk_booking_seats
+   Tuples Inserted: 2
+   Conflicting Tuples: 0
+   Buffers: shared hit=4640
+   ->  Subquery Scan on "*SELECT*"  (cost=9.86..1095.86 rows=2 width=28) (actual time=75.774..75.779 rows=2.00 loops=1)
+         Buffers: shared hit=4599
+         ->  Limit  (cost=9.86..1095.85 rows=2 width=44) (actual time=75.773..75.778 rows=2.00 loops=1)
+               Buffers: shared hit=4599
+               InitPlan 2
+                 ->  Result  (cost=8.14..8.15 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+                       Buffers: shared hit=2
+                       InitPlan 1
+                         ->  Limit  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                               Buffers: shared hit=2
+                               ->  Index Only Scan using idx_bookings_pending on bookings  (cost=0.12..8.14 rows=1 width=4) (actual time=0.002..0.002 rows=1.00 loops=1)
+                                     Heap Fetches: 0
+                                     Index Searches: 1
+                                     Buffers: shared hit=2
+               ->  Nested Loop Anti Join  (cost=1.71..102085.23 rows=188 width=44) (actual time=75.773..75.777 rows=2.00 loops=1)
+                     Buffers: shared hit=4599
+                     ->  Nested Loop  (cost=1.29..88391.79 rows=192 width=12) (actual time=75.765..75.766 rows=2.00 loops=1)
+                           Join Filter: (s.screen_id = se.screen_id)
+                           Rows Removed by Join Filter: 521520
+                           Buffers: shared hit=4591
+                           ->  Index Scan using seats_pkey on seats se  (cost=0.43..60187.16 rows=1879182 width=6) (actual time=0.003..22.706 rows=521522.00 loops=1)
+                                 Index Searches: 1
+                                 Buffers: shared hit=4581
+                           ->  Materialize  (cost=0.86..16.90 rows=1 width=10) (actual time=0.000..0.000 rows=1.00 loops=521522)
+                                 Storage: Memory  Maximum Storage: 17kB
+                                 Buffers: shared hit=10
+                                 ->  Nested Loop  (cost=0.86..16.90 rows=1 width=10) (actual time=0.005..0.006 rows=1.00 loops=1)
+                                       Buffers: shared hit=10
+                                       ->  Index Only Scan using uq_bookings_id_show on bookings b  (cost=0.43..8.45 rows=1 width=8) (actual time=0.004..0.004 rows=1.00 loops=1)
+                                             Index Cond: (booking_id = (InitPlan 2).col1)
+                                             Heap Fetches: 0
+                                             Index Searches: 1
+                                             Buffers: shared hit=6
+                                       ->  Index Scan using shows_pkey on shows s  (cost=0.43..8.45 rows=1 width=6) (actual time=0.001..0.001 rows=1.00 loops=1)
+                                             Index Cond: (show_id = b.show_id)
+                                             Index Searches: 1
+                                             Buffers: shared hit=4
+                     ->  Append  (cost=0.42..71.16 rows=16 width=8) (actual time=0.004..0.004 rows=0.00 loops=2)
+                           Buffers: shared hit=8
+                           ->  Index Only Scan using booking_seats_p00_pkey on booking_seats_p00 bs_1  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p01_pkey on booking_seats_p01 bs_2  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p02_pkey on booking_seats_p02 bs_3  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p03_pkey on booking_seats_p03 bs_4  (cost=0.42..4.44 rows=1 width=8) (actual time=0.003..0.003 rows=0.00 loops=2)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 1
+                                 Index Searches: 2
+                                 Buffers: shared hit=8
+                           ->  Index Only Scan using booking_seats_p04_pkey on booking_seats_p04 bs_5  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p05_pkey on booking_seats_p05 bs_6  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p06_pkey on booking_seats_p06 bs_7  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p07_pkey on booking_seats_p07 bs_8  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p08_pkey on booking_seats_p08 bs_9  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p09_pkey on booking_seats_p09 bs_10  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p10_pkey on booking_seats_p10 bs_11  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p11_pkey on booking_seats_p11 bs_12  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p12_pkey on booking_seats_p12 bs_13  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p13_pkey on booking_seats_p13 bs_14  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p14_pkey on booking_seats_p14 bs_15  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+                           ->  Index Only Scan using booking_seats_p15_pkey on booking_seats_p15 bs_16  (cost=0.42..4.44 rows=1 width=8) (never executed)
+                                 Index Cond: ((show_id = b.show_id) AND (seat_id = se.seat_id))
+                                 Heap Fetches: 0
+                                 Index Searches: 0
+ Planning:
+   Buffers: shared hit=48
+ Planning Time: 0.479 ms
+ Trigger for constraint fk_booking_seats_booking_show_partitioned on booking_seats_p03: time=0.017 calls=2
+ Trigger for constraint fk_booking_seats_seat_partitioned on booking_seats_p03: time=0.038 calls=2
+ Trigger for constraint fk_booking_seats_show_partitioned on booking_seats_p03: time=0.008 calls=2
+ Execution Time: 75.920 ms
+(117 rows)
+
+ROLLBACK
+ phase  | booking_id | show_id | seat_id 
+--------+------------+---------+---------
+ AFTER  |       9079 | 3112341 |  521521
+ AFTER  |       9079 | 3112341 |  521522
+ BEFORE |       9079 | 3112341 |  521521
+ BEFORE |       9079 | 3112341 |  521522
+(4 rows)
+
+ mismatched_seats 
+------------------
+                0
+(1 row)
+
+ROLLBACK

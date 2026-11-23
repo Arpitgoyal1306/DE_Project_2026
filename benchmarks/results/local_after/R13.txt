@@ -1,0 +1,45 @@
+=== R13 run 1 ===
+Hash Right Anti Join  (cost=1.56..105270.21 rows=7 width=32) (actual time=208.568..208.572 rows=7.00 loops=1)
+  Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
+  Buffers: shared hit=11107 read=32166
+  ->  Seq Scan on bookings b  (cost=0.00..73316.41 rows=3004441 width=10) (actual time=0.034..99.373 rows=3004077.00 loops=1)
+        Buffers: shared hit=11106 read=32166
+  ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.008..0.009 rows=25.00 loops=1)
+        Buckets: 1024  Batches: 1  Memory Usage: 10kB
+        Buffers: shared hit=1
+        ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.002..0.003 rows=25.00 loops=1)
+              Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=312 read=6 dirtied=1
+Planning Time: 0.829 ms
+Execution Time: 208.598 ms
+=== R13 run 2 ===
+Hash Right Anti Join  (cost=1.56..105270.21 rows=7 width=32) (actual time=226.893..226.897 rows=7.00 loops=1)
+  Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
+  Buffers: shared hit=11116 read=32157
+  ->  Seq Scan on bookings b  (cost=0.00..73316.41 rows=3004441 width=10) (actual time=0.040..96.881 rows=3004077.00 loops=1)
+        Buffers: shared hit=11115 read=32157
+  ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.008..0.009 rows=25.00 loops=1)
+        Buckets: 1024  Batches: 1  Memory Usage: 10kB
+        Buffers: shared hit=1
+        ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.002..0.003 rows=25.00 loops=1)
+              Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=318
+Planning Time: 0.478 ms
+Execution Time: 226.923 ms
+=== R13 run 3 ===
+Hash Right Anti Join  (cost=1.56..105270.21 rows=7 width=32) (actual time=212.086..212.090 rows=7.00 loops=1)
+  Hash Cond: ((b.offer_code)::text = (o.offer_code)::text)
+  Buffers: shared hit=11132 read=32141
+  ->  Seq Scan on bookings b  (cost=0.00..73316.41 rows=3004441 width=10) (actual time=0.486..99.151 rows=3004077.00 loops=1)
+        Buffers: shared hit=11131 read=32141
+  ->  Hash  (cost=1.25..1.25 rows=25 width=32) (actual time=0.007..0.008 rows=25.00 loops=1)
+        Buckets: 1024  Batches: 1  Memory Usage: 10kB
+        Buffers: shared hit=1
+        ->  Seq Scan on offers o  (cost=0.00..1.25 rows=25 width=32) (actual time=0.002..0.003 rows=25.00 loops=1)
+              Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=318
+Planning Time: 0.473 ms
+Execution Time: 212.113 ms

@@ -1,0 +1,57 @@
+=== R21 run 1 ===
+Limit  (cost=297714.74..297714.79 rows=20 width=44) (actual time=4179.933..4179.934 rows=20.00 loops=1)
+  Buffers: shared hit=1122109 read=1886701 written=18
+  ->  Sort  (cost=297714.74..299313.27 rows=639414 width=44) (actual time=4179.932..4179.933 rows=20.00 loops=1)
+        Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+        Sort Method: top-N heapsort  Memory: 27kB
+        Buffers: shared hit=1122109 read=1886701 written=18
+        ->  GroupAggregate  (cost=0.43..280700.16 rows=639414 width=44) (actual time=0.310..4139.210 rows=771482.00 loops=1)
+              Group Key: customer_id
+              Buffers: shared hit=1122103 read=1886701 written=18
+              ->  Index Scan using idx_bookings_customer_id on bookings  (cost=0.43..252640.07 rows=2675655 width=10) (actual time=0.296..3875.001 rows=2671876.00 loops=1)
+                    Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 332201
+                    Index Searches: 1
+                    Buffers: shared hit=1122103 read=1886701 written=18
+Planning:
+  Buffers: shared hit=254 read=10
+Planning Time: 1.044 ms
+Execution Time: 4179.964 ms
+=== R21 run 2 ===
+Limit  (cost=297714.74..297714.79 rows=20 width=44) (actual time=4259.632..4259.633 rows=20.00 loops=1)
+  Buffers: shared hit=1123573 read=1885237
+  ->  Sort  (cost=297714.74..299313.27 rows=639414 width=44) (actual time=4259.631..4259.632 rows=20.00 loops=1)
+        Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+        Sort Method: top-N heapsort  Memory: 27kB
+        Buffers: shared hit=1123573 read=1885237
+        ->  GroupAggregate  (cost=0.43..280700.16 rows=639414 width=44) (actual time=0.024..4218.044 rows=771482.00 loops=1)
+              Group Key: customer_id
+              Buffers: shared hit=1123567 read=1885237
+              ->  Index Scan using idx_bookings_customer_id on bookings  (cost=0.43..252640.07 rows=2675655 width=10) (actual time=0.013..3950.183 rows=2671876.00 loops=1)
+                    Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 332201
+                    Index Searches: 1
+                    Buffers: shared hit=1123567 read=1885237
+Planning:
+  Buffers: shared hit=218 read=46
+Planning Time: 2.222 ms
+Execution Time: 4259.662 ms
+=== R21 run 3 ===
+Limit  (cost=297714.74..297714.79 rows=20 width=44) (actual time=4282.794..4282.795 rows=20.00 loops=1)
+  Buffers: shared hit=1123571 read=1885239
+  ->  Sort  (cost=297714.74..299313.27 rows=639414 width=44) (actual time=4282.793..4282.794 rows=20.00 loops=1)
+        Sort Key: (count(*)) DESC, (sum(total_amount)) DESC
+        Sort Method: top-N heapsort  Memory: 27kB
+        Buffers: shared hit=1123571 read=1885239
+        ->  GroupAggregate  (cost=0.43..280700.16 rows=639414 width=44) (actual time=0.027..4241.867 rows=771482.00 loops=1)
+              Group Key: customer_id
+              Buffers: shared hit=1123565 read=1885239
+              ->  Index Scan using idx_bookings_customer_id on bookings  (cost=0.43..252640.07 rows=2675655 width=10) (actual time=0.014..3975.078 rows=2671876.00 loops=1)
+                    Filter: ((booked_at >= '2026-01-01 00:00:00+05:30'::timestamp with time zone) AND ((status)::text = 'CONFIRMED'::text))
+                    Rows Removed by Filter: 332201
+                    Index Searches: 1
+                    Buffers: shared hit=1123565 read=1885239
+Planning:
+  Buffers: shared hit=218 read=46
+Planning Time: 0.858 ms
+Execution Time: 4282.831 ms

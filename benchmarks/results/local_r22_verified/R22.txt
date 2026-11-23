@@ -1,0 +1,131 @@
+SET
+BEGIN
+DROP INDEX
+SELECT 25
+   ?column?   
+--------------
+ BEFORE RUN 1
+(1 row)
+
+                                                                            QUERY PLAN                                                                             
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=11291.82..11294.65 rows=25 width=41) (actual time=146.639..146.728 rows=25.00 loops=1)
+   Buffers: shared hit=37398 read=62750
+   ->  Incremental Sort  (cost=2.89..339131.24 rows=3004077 width=41) (actual time=0.086..144.996 rows=100025.00 loops=1)
+         Sort Key: booked_at DESC, booking_id DESC
+         Presorted Key: booked_at
+         Full-sort Groups: 2128  Sort Method: quicksort  Average Memory: 28kB  Peak Memory: 28kB
+         Pre-sorted Groups: 161  Sort Method: quicksort  Average Memory: 30kB  Peak Memory: 30kB
+         Buffers: shared hit=37398 read=62750
+         ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.43..229668.70 rows=3004077 width=41) (actual time=0.012..131.011 rows=100084.00 loops=1)
+               Index Searches: 1
+               Buffers: shared hit=37398 read=62750
+ Planning:
+   Buffers: shared hit=7 read=5
+ Planning Time: 0.754 ms
+ Execution Time: 147.086 ms
+(15 rows)
+
+   ?column?   
+--------------
+ BEFORE RUN 2
+(1 row)
+
+                                                                            QUERY PLAN                                                                             
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=11291.82..11294.65 rows=25 width=41) (actual time=145.238..145.321 rows=25.00 loops=1)
+   Buffers: shared hit=37391 read=62757
+   ->  Incremental Sort  (cost=2.89..339131.24 rows=3004077 width=41) (actual time=0.085..143.588 rows=100025.00 loops=1)
+         Sort Key: booked_at DESC, booking_id DESC
+         Presorted Key: booked_at
+         Full-sort Groups: 2128  Sort Method: quicksort  Average Memory: 28kB  Peak Memory: 28kB
+         Pre-sorted Groups: 161  Sort Method: quicksort  Average Memory: 30kB  Peak Memory: 30kB
+         Buffers: shared hit=37391 read=62757
+         ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.43..229668.70 rows=3004077 width=41) (actual time=0.012..129.861 rows=100084.00 loops=1)
+               Index Searches: 1
+               Buffers: shared hit=37391 read=62757
+ Planning Time: 0.039 ms
+ Execution Time: 145.329 ms
+(13 rows)
+
+   ?column?   
+--------------
+ BEFORE RUN 3
+(1 row)
+
+                                                                            QUERY PLAN                                                                             
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=11291.82..11294.65 rows=25 width=41) (actual time=150.007..150.107 rows=25.00 loops=1)
+   Buffers: shared hit=37411 read=62737
+   ->  Incremental Sort  (cost=2.89..339131.24 rows=3004077 width=41) (actual time=0.087..148.358 rows=100025.00 loops=1)
+         Sort Key: booked_at DESC, booking_id DESC
+         Presorted Key: booked_at
+         Full-sort Groups: 2128  Sort Method: quicksort  Average Memory: 28kB  Peak Memory: 28kB
+         Pre-sorted Groups: 161  Sort Method: quicksort  Average Memory: 30kB  Peak Memory: 30kB
+         Buffers: shared hit=37411 read=62737
+         ->  Index Scan using idx_bookings_booked_at on bookings  (cost=0.43..229668.70 rows=3004077 width=41) (actual time=0.014..133.984 rows=100084.00 loops=1)
+               Index Searches: 1
+               Buffers: shared hit=37411 read=62737
+ Planning Time: 0.037 ms
+ Execution Time: 150.115 ms
+(13 rows)
+
+CREATE INDEX
+SELECT 25
+  ?column?   
+-------------
+ AFTER RUN 1
+(1 row)
+
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=4803.41..4804.61 rows=25 width=41) (actual time=6.108..6.110 rows=25.00 loops=1)
+   Buffers: shared hit=8355
+   ->  Index Only Scan using idx_bookings_page_order_test on bookings  (cost=0.43..144285.58 rows=3004077 width=41) (actual time=0.005..4.352 rows=100025.00 loops=1)
+         Heap Fetches: 0
+         Index Searches: 1
+         Buffers: shared hit=8355
+ Planning Time: 0.020 ms
+ Execution Time: 6.113 ms
+(8 rows)
+
+  ?column?   
+-------------
+ AFTER RUN 2
+(1 row)
+
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=4803.41..4804.61 rows=25 width=41) (actual time=5.924..5.926 rows=25.00 loops=1)
+   Buffers: shared hit=8355
+   ->  Index Only Scan using idx_bookings_page_order_test on bookings  (cost=0.43..144285.58 rows=3004077 width=41) (actual time=0.002..4.164 rows=100025.00 loops=1)
+         Heap Fetches: 0
+         Index Searches: 1
+         Buffers: shared hit=8355
+ Planning Time: 0.013 ms
+ Execution Time: 5.928 ms
+(8 rows)
+
+  ?column?   
+-------------
+ AFTER RUN 3
+(1 row)
+
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=4803.41..4804.61 rows=25 width=41) (actual time=5.926..5.928 rows=25.00 loops=1)
+   Buffers: shared hit=8355
+   ->  Index Only Scan using idx_bookings_page_order_test on bookings  (cost=0.43..144285.58 rows=3004077 width=41) (actual time=0.002..4.174 rows=100025.00 loops=1)
+         Heap Fetches: 0
+         Index Searches: 1
+         Buffers: shared hit=8355
+ Planning Time: 0.013 ms
+ Execution Time: 5.930 ms
+(8 rows)
+
+ mismatched_positions 
+----------------------
+                    0
+(1 row)
+
+ROLLBACK
