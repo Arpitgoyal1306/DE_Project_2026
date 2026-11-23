@@ -110,11 +110,11 @@ The faculty dataset was loaded into a separate local PostgreSQL database, `bookm
 
 | Query | Before avg (ms) | Tested avg (ms) | Tested change and result |
 |---|---:|---:|---|
-| R06 | 3.072 | 0.191 | Added test-only GIN index `movies(title gin_trgm_ops)`; plan changed from Seq Scan to Bitmap Index Scan + Bitmap Heap Scan. Both phases returned 300 rows. About 16.1× faster. |
-| R13 | 186.973 | — | Three-run baseline of the Phase 4 optimized `NOT EXISTS` query; Hash Right Anti Join; 7 rows returned. No separate Phase 5 candidate was tested. |
-| R21 | 4,193.645 | 1,165.226 | Same SELECT; session-local `enable_indexscan=off` produced a Seq Scan plan. This is a planner-setting comparison, not a persistent schema change. |
-| R22 | 147.510 | 5.990 | Deterministic full page query ordered by `booked_at DESC, booking_id DESC`; composite covering index enabled Index Only Scan. Ordered position comparison returned 0 mismatches. About 24.6× faster. |
-| W02 | 78.568 | 76.905 | Tested `seats(screen_id, seat_id)`; the plan continued using the existing primary-key access path. Exact selected seats matched; only about 2.1% faster. |
+| R06 | 3.072 | 0.191 | Added test-only GIN index `movies(title gin_trgm_ops)`; plan changed from Seq Scan to Bitmap Index Scan + Bitmap Heap Scan. Both phases returned 300 rows. About 16.1× faster. [Three-run before/after plans](../benchmarks/results/local_r06_verified/R06.txt). |
+| R13 | 186.973 | — | Three-run baseline of the Phase 4 optimized `NOT EXISTS` query; Hash Right Anti Join; 7 rows returned. No separate Phase 5 candidate was tested. [Three-run baseline plans](../benchmarks/results/local_r13_verified/R13.txt). |
+| R21 | 4,193.645 | 1,165.226 | Same SELECT; session-local `enable_indexscan=off` produced a Seq Scan plan. This is a planner-setting comparison, not a persistent schema change. [Normal-planner plans](../benchmarks/results/local_before/R21.txt); [three sequential-scan runs and setting](../benchmarks/results/local_seqscan_verified/R21.txt). |
+| R22 | 147.510 | 5.990 | Deterministic full page query ordered by `booked_at DESC, booking_id DESC`; composite covering index enabled Index Only Scan. Ordered position comparison returned 0 mismatches. About 24.6× faster. [Three-run timing and ordered-page equivalence evidence](../benchmarks/results/local_r22_verified/R22.txt). |
+| W02 | 78.568 | 76.905 | Tested `seats(screen_id, seat_id)`; the plan continued using the existing primary-key access path. Exact selected seats matched; only about 2.1% faster. [Three-run write plans, rollback and seat-equivalence evidence](../benchmarks/results/local_w02_verified/W02_corrected.txt). |
 
 All test-only index creation and write tests were rolled back. The R06 and R22 index results therefore describe measured experiments, not indexes currently installed in the database.
 
