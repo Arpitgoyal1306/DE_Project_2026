@@ -2,7 +2,7 @@
 
 PostgreSQL 18.6 on Apple M4 with 16 GiB RAM, 256 MiB shared buffers and the Asia/Kolkata session timezone. Freshly loaded databases were vacuumed and analyzed before timing. The runner opened a connection for each execution, ran each statement three times serially with EXPLAIN (ANALYZE, BUFFERS), and rolled back every write. Values are PostgreSQL execution milliseconds. Cache state was allowed to carry across runs. The seed contains 778,048 rows across 11 tables. Only schema constraints and their indexes were present.
 
-| Query | Run 1 | Run 2 | Run 3 | Mean (ms) | Scan nodes, final run | Reason |
+| Query | Run 1 | Run 2 | Run 3 | Average (ms) | Scan nodes, final run | Reason |
 |---|---|---|---|---|---|---|
 | R01 | 12.110 | 6.076 | 6.221 | 8.136 | Index Scan using movies_pkey on movies; Seq Scan on screens; Seq Scan on venues; Index Scan using ex_shows_no_overlap on shows | Non-sargable `DATE(s.starts_at)` prevented index use |
 | R02 | 4.869 | 4.497 | 5.084 | 4.817 | Seq Scan on screens; Seq Scan on venues; Index Scan using ex_shows_no_overlap on shows | Seq scan on 160k shows to filter movie 2 |
